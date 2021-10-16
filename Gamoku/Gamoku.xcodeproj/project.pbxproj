@@ -13,6 +13,7 @@
 		2953EB002715AB2F009927F3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2953EAFF2715AB2F009927F3 /* Assets.xcassets */; };
 		2953EB032715AB2F009927F3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2953EB012715AB2F009927F3 /* Main.storyboard */; };
 		2953EB0D2715AF25009927F3 /* MenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2953EB0C2715AF25009927F3 /* MenuViewController.swift */; };
+		29907EF827195BED00F12B58 /* Bourd.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29907EF727195BED00F12B58 /* Bourd.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -25,6 +26,7 @@
 		2953EB042715AB2F009927F3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2953EB052715AB2F009927F3 /* Gamoku.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Gamoku.entitlements; sourceTree = "<group>"; };
 		2953EB0C2715AF25009927F3 /* MenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuViewController.swift; sourceTree = "<group>"; };
+		29907EF727195BED00F12B58 /* Bourd.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bourd.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +62,7 @@
 				2953EAF92715AB2D009927F3 /* AppDelegate.swift */,
 				2953EAFB2715AB2D009927F3 /* GameViewController.swift */,
 				2953EB0C2715AF25009927F3 /* MenuViewController.swift */,
+				29907EF727195BED00F12B58 /* Bourd.swift */,
 				2953EAFD2715AB2D009927F3 /* art.scnassets */,
 				2953EAFF2715AB2F009927F3 /* Assets.xcassets */,
 				2953EB012715AB2F009927F3 /* Main.storyboard */,
@@ -141,6 +144,7 @@
 			files = (
 				2953EAFC2715AB2D009927F3 /* GameViewController.swift in Sources */,
 				2953EB0D2715AF25009927F3 /* MenuViewController.swift in Sources */,
+				29907EF827195BED00F12B58 /* Bourd.swift in Sources */,
 				2953EAFA2715AB2D009927F3 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

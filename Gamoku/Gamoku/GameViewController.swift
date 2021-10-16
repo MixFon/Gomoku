@@ -14,6 +14,8 @@ class GameViewController: NSViewController {
 	let scene = SCNScene(named: "art.scnassets/gomoku.scn")!
 	var stones = [SCNNode]()
 	
+	var board = Board()
+	
 	let radiusPin: CGFloat = 0.1
 	let radiusStone: CGFloat = 0.3
     
@@ -23,7 +25,7 @@ class GameViewController: NSViewController {
 		setLight()
 		setEmptyNodes()
 		setStones()
-		movingCircle()
+		//movingCircle()
         // retrieve the SCNView
         let scnView = self.view as! SCNView
         
@@ -142,7 +144,29 @@ class GameViewController: NSViewController {
 			self.view.window?.contentViewController = menuVC
 		}
 	}
-    
+	
+	/// Удаление камней с доски анимационно
+	private func deleteStones(points: (Point, Point)) {
+		let stones = self.scene.rootNode.childNodes.filter( {
+			$0.position.x == CGFloat(points.0.x - 9) &&
+			$0.position.z == CGFloat(points.0.y - 9) ||
+			$0.position.x == CGFloat(points.1.x - 9) &&
+			$0.position.z == CGFloat(points.1.y - 9)
+		} )
+		print(stones)
+		for stone in stones {
+			let randX = Double.random(in: 10...15)
+			let randY = Double.random(in: 3...8)
+			let randZ = Double.random(in: -14...7)
+			let position = SCNVector3(randX, randY, randZ)
+			let move = SCNAction.move(to: position, duration: 0.5)
+			stone.runAction(move)
+			stone.physicsBody = .dynamic()
+		}
+	}
+	
+    var i = 0
+	
     @objc
     func handleClick(_ gestureRecognizer: NSGestureRecognizer) {
         // retrieve the SCNView
@@ -161,7 +185,21 @@ class GameViewController: NSViewController {
 			}
 			if name != "pin" { return }
 			print(node.position, name)
-			moveStone(position: node.position)
+			let x = Int(node.position.x + 9)
+			let y = Int(node.position.z + 9)
+			var stone: Stone = .white
+			if i % 2 == 0 {
+				stone = .black
+			}
+			i += 1
+			let point = Point(x, y)
+			if self.board.placeStone(point: point, stone: stone) {
+				moveStone(position: node.position)
+				if let poinst = self.board.captures(point: point, stone: stone) {
+					deleteStones(points: poinst)
+				}
+			}
+			self.board.printBourd()
             
             // get its material
             let material = node.geometry!.firstMaterial!
@@ -180,7 +218,7 @@ class GameViewController: NSViewController {
                 SCNTransaction.commit()
             }
             
-            material.emission.contents = NSColor.red
+            material.emission.contents = NSColor.green
             
             SCNTransaction.commit()
         }
