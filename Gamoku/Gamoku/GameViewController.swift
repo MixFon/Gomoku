@@ -12,12 +12,19 @@ import QuartzCore
 class GameViewController: NSViewController {
 	
 	let scene = SCNScene(named: "art.scnassets/gomoku.scn")!
-	var stones = [SCNNode]()
+	//var stones = [SCNNode]()
+	
+	var whiteStonesOnBoard = [SCNNode]()
+	var whiteStonesOnFloor = [SCNNode]()
+	var blackStonesOnBoard = [SCNNode]()
+	var blackStonesOnFloor = [SCNNode]()
 	
 	var board = Board()
 	
-	let radiusPin: CGFloat = 0.1
+	let radiusPin: CGFloat = 0.15
+	let namePin = "pin"
 	let radiusStone: CGFloat = 0.3
+	let nameStone = "stone"
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -58,7 +65,7 @@ class GameViewController: NSViewController {
 				//node.geometry?.firstMaterial?.normal.contents = NSColor.black
 				node.position = position
 				node.physicsBody = SCNPhysicsBody(type: .static, shape: nil)
-				node.name = "pin"
+				node.name = self.namePin
 				self.scene.rootNode.addChildNode(node)
 			}
 		}
@@ -72,23 +79,28 @@ class GameViewController: NSViewController {
 			var ramdomX = Double.random(in: -10...10)
 			var randomY = Double.random(in: 2...4)
 			var ramdomZ = Double.random(in: 11...15)
-			setOneNode(position: SCNVector3(ramdomX, randomY, ramdomZ), image: imageWhite)
+			let whiteNode = setOneNode(position: SCNVector3(ramdomX, randomY, ramdomZ))
+			whiteNode.geometry?.firstMaterial?.diffuse.contents = imageWhite
+			self.whiteStonesOnFloor.append(whiteNode)
+			
 			ramdomX = Double.random(in: -10...10)
 			randomY = Double.random(in: 2...4)
 			ramdomZ = Double.random(in: -15...(-11))
-			setOneNode(position: SCNVector3(ramdomX, randomY, ramdomZ), image: imageBlack)
+			let blackNode = setOneNode(position: SCNVector3(ramdomX, randomY, ramdomZ))
+			blackNode.geometry?.firstMaterial?.diffuse.contents = imageBlack
+			self.blackStonesOnFloor.append(blackNode)
 		}
 	}
 	
-	/// Устанавливает один шар в указанную точку с заданной текстурой.
-	private func setOneNode(position: SCNVector3, image: NSImage) {
+	/// Устанавливает один шар в указанную точку.
+	private func setOneNode(position: SCNVector3) -> SCNNode {
 		let node = SCNNode()
+		node.name = self.nameStone
 		node.geometry = SCNSphere(radius: self.radiusStone)
 		node.position = position
-		node.geometry?.firstMaterial?.diffuse.contents = image
 		node.physicsBody = SCNPhysicsBody(type: .dynamic, shape: nil)
 		self.scene.rootNode.addChildNode(node)
-		self.stones.append(node)
+		return node
 	}
 	
 	/// Установка источника света
@@ -108,15 +120,15 @@ class GameViewController: NSViewController {
 		scene.rootNode.addChildNode(ambientLightNode)
 	}
 	
-	/// Передвижение камня в указанную координату
-	private func moveStone(position: SCNVector3) {
-		let randomElem = self.stones.randomElement()
+	/// Передвижение камня в указанную координату. Содержит два движения вверх и вниз
+	private func moveStone(position: SCNVector3, stone: SCNNode) {
+		//let stone = self.stones.randomElement()
 		let positionUp = SCNVector3(position.x, position.y + 3, position.z)
-		randomElem?.physicsBody = SCNPhysicsBody(type: .static, shape: nil)
+		stone.physicsBody = SCNPhysicsBody(type: .static, shape: nil)
 		let moveUp = SCNAction.move(to: positionUp, duration: 0.7)
 		let moveDown = SCNAction.move(to: position, duration: 0.2)
 		let sequsens = SCNAction.sequence([moveUp, moveDown])
-		randomElem?.runAction(sequsens)
+		stone.runAction(sequsens)
 		//randomElem?.runAction(SCNAction.move(to: position, duration: 1))
 		//randomElem
 		//randomElem?.physicsBody = SCNPhysicsBody(type: .dynamic, shape: nil)
@@ -148,21 +160,36 @@ class GameViewController: NSViewController {
 	/// Удаление камней с доски анимационно
 	private func deleteStones(points: (Point, Point)) {
 		let stones = self.scene.rootNode.childNodes.filter( {
-			$0.position.x == CGFloat(points.0.x - 9) &&
-			$0.position.z == CGFloat(points.0.y - 9) ||
-			$0.position.x == CGFloat(points.1.x - 9) &&
-			$0.position.z == CGFloat(points.1.y - 9)
+			($0.position.x == CGFloat(points.0.x) &&
+			$0.position.z == CGFloat(points.0.y) ||
+			$0.position.x == CGFloat(points.1.x) &&
+			$0.position.z == CGFloat(points.1.y)) &&
+			$0.name == self.nameStone
 		} )
 		print(stones)
 		for stone in stones {
 			let randX = Double.random(in: 10...15)
 			let randY = Double.random(in: 3...8)
-			let randZ = Double.random(in: -14...7)
+			let randZ = Double.random(in: -7...7)
 			let position = SCNVector3(randX, randY, randZ)
 			let move = SCNAction.move(to: position, duration: 0.5)
 			stone.runAction(move)
 			stone.physicsBody = .dynamic()
 		}
+	}
+	
+	/// Передвижение в указанную позицию белогого камня
+	private func moveWhiteStone(position: SCNVector3) {
+		guard let whiteStone = self.whiteStonesOnFloor.popLast() else { return }
+		moveStone(position: position, stone: whiteStone)
+		self.whiteStonesOnBoard.append(whiteStone)
+	}
+	
+	/// Передвижение в указанную позицию черного камня
+	private func moveBlackStone(position: SCNVector3) {
+		guard let blackStone = self.blackStonesOnFloor.popLast() else { return }
+		moveStone(position: position, stone: blackStone)
+		self.blackStonesOnBoard.append(blackStone)
 	}
 	
     var i = 0
@@ -183,10 +210,10 @@ class GameViewController: NSViewController {
 			if name == "exit" {
 				exitScene()
 			}
-			if name != "pin" { return }
+			if name != self.namePin { return }
 			print(node.position, name)
-			let x = Int(node.position.x + 9)
-			let y = Int(node.position.z + 9)
+			let x = Int(node.position.x)
+			let y = Int(node.position.z)
 			var stone: Stone = .white
 			if i % 2 == 0 {
 				stone = .black
@@ -194,7 +221,11 @@ class GameViewController: NSViewController {
 			i += 1
 			let point = Point(x, y)
 			if self.board.placeStone(point: point, stone: stone) {
-				moveStone(position: node.position)
+				if stone == .white {
+					moveWhiteStone(position: node.position)
+				} else {
+					moveBlackStone(position: node.position)
+				}
 				if let poinst = self.board.captures(point: point, stone: stone) {
 					deleteStones(points: poinst)
 				}

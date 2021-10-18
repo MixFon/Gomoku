@@ -51,8 +51,9 @@ class Board {
 		}
 	}
 	
-	/// Установка камня нужного цвета в указанную координату.
+	/// Установка спота  нужного цвета в указанную координату.
 	func placeStone(point: Point, stone: Stone) -> Bool {
+		let point = convertCoordinateToBoard(point: point)
 		if !checkSpotCoordinate(point, .empty) {
 			return false
 		}
@@ -67,13 +68,26 @@ class Board {
 		return true
 	}
 	
+	/// Первод коорлинаты в систему координат доски (модели)
+	func convertCoordinateToBoard(point: Point) -> Point {
+		return Point(point.x + 9, point.y + 9)
+	}
+	
+	/// Перевод координаты в глобальную систему поординат.
+	func convertCoordinateToGlobal(point: Point) -> Point {
+		return Point(point.x - 9, point.y - 9)
+	}
+	
 	/// Проверка захвата. Если захват возможен возвращает коршеж точек камней которые нужно удалить с доски.
 	func captures(point: Point, stone: Stone) -> (Point, Point)? {
+		let point = convertCoordinateToBoard(point: point)
 		guard let spot = Spot(rawValue: stone.rawValue) else { return nil }
 		guard let points = isCaptures(point: point, spot: spot) else { return nil }
 		print(points)
 		deleteSpot(points: points)
-		return points
+		let firstPoint = convertCoordinateToGlobal(point: points.0)
+		let secondPoint = convertCoordinateToGlobal(point: points.1)
+		return (firstPoint, secondPoint)
 	}
 	
 	/// Удаляет споты в указанных координатах
