@@ -12,14 +12,16 @@ import QuartzCore
 class GameViewController: NSViewController {
 	
 	let scene = SCNScene(named: "art.scnassets/gomoku.scn")!
-	//var stones = [SCNNode]()
+	
+	let gomoku = Gomoku()
+	
+	/// Высона на которую устанавливаются pins
+	let y = 0.5
 	
 	var whiteStonesOnBoard = [SCNNode]()
 	var whiteStonesOnFloor = [SCNNode]()
 	var blackStonesOnBoard = [SCNNode]()
 	var blackStonesOnFloor = [SCNNode]()
-	
-	var board = Board()
 	
 	let radiusPin: CGFloat = 0.15
 	let namePin = "pin"
@@ -29,6 +31,7 @@ class GameViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+		self.gomoku.delegate = self
 		setLight()
 		setEmptyNodes()
 		setStones()
@@ -59,7 +62,7 @@ class GameViewController: NSViewController {
 	private func setEmptyNodes() {
 		for i in -9...9 {
 			for j in -9...9 {
-				let position = SCNVector3(Double(i), 0.5, Double(j))
+				let position = SCNVector3(Double(i), self.y, Double(j))
 				let node = SCNNode()
 				node.geometry = SCNSphere(radius: self.radiusPin)
 				//node.geometry?.firstMaterial?.normal.contents = NSColor.black
@@ -128,6 +131,7 @@ class GameViewController: NSViewController {
 		let moveUp = SCNAction.move(to: positionUp, duration: 0.7)
 		let moveDown = SCNAction.move(to: position, duration: 0.2)
 		let sequsens = SCNAction.sequence([moveUp, moveDown])
+		//stone.animation
 		stone.runAction(sequsens)
 		//randomElem?.runAction(SCNAction.move(to: position, duration: 1))
 		//randomElem
@@ -192,8 +196,6 @@ class GameViewController: NSViewController {
 		self.blackStonesOnBoard.append(blackStone)
 	}
 	
-    var i = 0
-	
     @objc
     func handleClick(_ gestureRecognizer: NSGestureRecognizer) {
         // retrieve the SCNView
@@ -212,25 +214,25 @@ class GameViewController: NSViewController {
 			}
 			if name != self.namePin { return }
 			print(node.position, name)
-			let x = Int(node.position.x)
-			let y = Int(node.position.z)
-			var stone: Stone = .white
-			if i % 2 == 0 {
-				stone = .black
+			let point = Point(Int(node.position.x), Int(node.position.z))
+			let color: NSColor
+			if !self.gomoku.movePalyer(point: point) {
+				color = .red
+			} else {
+				color = .green
+				self.gomoku.moveAI()
 			}
-			i += 1
-			let point = Point(x, y)
-			if self.board.placeStone(point: point, stone: stone) {
-				if stone == .white {
-					moveWhiteStone(position: node.position)
-				} else {
-					moveBlackStone(position: node.position)
-				}
-				if let poinst = self.board.captures(point: point, stone: stone) {
-					deleteStones(points: poinst)
-				}
-			}
-			self.board.printBourd()
+//			if self.board.placeStone(point: point, stone: stone) {
+//				if stone == .white {
+//					moveWhiteStone(position: node.position)
+//				} else {
+//					moveBlackStone(position: node.position)
+//				}
+//				if let poinst = self.board.captures(point: point, stone: stone) {
+//					deleteStones(points: poinst)
+//				}
+//			}
+//			self.board.printBourd()
             
             // get its material
             let material = node.geometry!.firstMaterial!
@@ -249,11 +251,29 @@ class GameViewController: NSViewController {
                 SCNTransaction.commit()
             }
             
-            material.emission.contents = NSColor.green
+            material.emission.contents = color
             
             SCNTransaction.commit()
         }
     }
+}
+
+extension GameViewController: MoveProtocol {
+	/// Удаление пара комней с доски в результате захвата.
+	func delete(points: (Point, Point)) {
+		deleteStones(points: points)
+	}
+	
+	/// Перемещение камня в указанную точку
+	func moving(point: Point, stone: Stone) {
+		let position = SCNVector3(Double(point.x), self.y , Double(point.y))
+		switch stone {
+		case .white:
+			moveWhiteStone(position: position)
+		case .black:
+			moveBlackStone(position: position)
+		}
+	}
 }
 
 /*
