@@ -6,8 +6,10 @@
 //
 
 import Foundation
+import SceneKit
 
 protocol MoveProtocol: AnyObject {
 	func moving(point: Point, stone: Stone)
-	func delete(points: (Point, Point))
+	func delete(points: (Point, Point), stone: Stone)
+	func pinShine(point: Point, color: NSColor)
 }

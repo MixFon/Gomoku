@@ -18,10 +18,12 @@ class GameViewController: NSViewController {
 	/// Высона на которую устанавливаются pins
 	let y = 0.5
 	
-	var whiteStonesOnBoard = [SCNNode]()
-	var whiteStonesOnFloor = [SCNNode]()
-	var blackStonesOnBoard = [SCNNode]()
-	var blackStonesOnFloor = [SCNNode]()
+	var whiteStonesOnBoard = [(SCNNode, Point?)]()
+	var whiteStonesOnFloor = [(SCNNode, Point?)]()
+	var blackStonesOnBoard = [(SCNNode, Point?)]()
+	var blackStonesOnFloor = [(SCNNode, Point?)]()
+	
+	var sequsens = SCNAction()
 	
 	let radiusPin: CGFloat = 0.15
 	let namePin = "pin"
@@ -84,14 +86,14 @@ class GameViewController: NSViewController {
 			var ramdomZ = Double.random(in: 11...15)
 			let whiteNode = setOneNode(position: SCNVector3(ramdomX, randomY, ramdomZ))
 			whiteNode.geometry?.firstMaterial?.diffuse.contents = imageWhite
-			self.whiteStonesOnFloor.append(whiteNode)
+			self.whiteStonesOnFloor.append((whiteNode, nil))
 			
 			ramdomX = Double.random(in: -10...10)
 			randomY = Double.random(in: 2...4)
 			ramdomZ = Double.random(in: -15...(-11))
 			let blackNode = setOneNode(position: SCNVector3(ramdomX, randomY, ramdomZ))
 			blackNode.geometry?.firstMaterial?.diffuse.contents = imageBlack
-			self.blackStonesOnFloor.append(blackNode)
+			self.blackStonesOnFloor.append((blackNode, nil))
 		}
 	}
 	
@@ -124,8 +126,9 @@ class GameViewController: NSViewController {
 	}
 	
 	/// Передвижение камня в указанную координату. Содержит два движения вверх и вниз
-	private func moveStone(position: SCNVector3, stone: SCNNode) {
+	private func moveStone(point: Point, stone: SCNNode) {
 		//let stone = self.stones.randomElement()
+		let position = SCNVector3(Double(point.x), self.y , Double(point.y))
 		let positionUp = SCNVector3(position.x, position.y + 3, position.z)
 		stone.physicsBody = SCNPhysicsBody(type: .static, shape: nil)
 		let moveUp = SCNAction.move(to: positionUp, duration: 0.7)
@@ -162,37 +165,61 @@ class GameViewController: NSViewController {
 	}
 	
 	/// Удаление камней с доски анимационно
-	private func deleteStones(points: (Point, Point)) {
-		let stones = self.scene.rootNode.childNodes.filter( {
-			($0.position.x == CGFloat(points.0.x) &&
-			$0.position.z == CGFloat(points.0.y) ||
-			$0.position.x == CGFloat(points.1.x) &&
-			$0.position.z == CGFloat(points.1.y)) &&
-			$0.name == self.nameStone
-		} )
+	private func deleteStones(stones: [SCNNode]) {
+//		let stones = self.scene.rootNode.childNodes.filter( {
+//			($0.position.x == CGFloat(points.0.x) &&
+//			$0.position.z == CGFloat(points.0.y) ||
+//			$0.position.x == CGFloat(points.1.x) &&
+//			$0.position.z == CGFloat(points.1.y)) &&
+//			$0.name == self.nameStone
+//		} )
 		print(stones)
 		for stone in stones {
 			let randX = Double.random(in: 10...15)
 			let randY = Double.random(in: 3...8)
 			let randZ = Double.random(in: -7...7)
 			let position = SCNVector3(randX, randY, randZ)
+			let wait = SCNAction.wait(duration: 2)
 			let move = SCNAction.move(to: position, duration: 0.5)
-			stone.runAction(move)
+			let sequsence = SCNAction.sequence([wait, move])
+			stone.runAction(sequsence)
 			stone.physicsBody = .dynamic()
 		}
 	}
 	
+	/// Удаление белых камней, имеющие координаты points
+	private func deleteWhiteStones(points: (Point, Point)) {
+		var points = self.whiteStonesOnBoard.filter( {$0.1 == points.0 || $0.1 == points.1} )
+		let stones = points.map( {$0.0} )
+		deleteStones(stones: stones)
+		points[0].1 = nil
+		points[1].1 = nil
+		self.whiteStonesOnFloor = points + self.whiteStonesOnFloor
+	}
+	
+	/// Удаление черных камней, имеющие координаты points
+	private func deleteBlackStones(points: (Point, Point)) {
+		var points = self.blackStonesOnBoard.filter( {$0.1 == points.0 || $0.1 == points.1} )
+		let stones = points.map( {$0.0} )
+		deleteStones(stones: stones)
+		points[0].1 = nil
+		points[1].1 = nil
+		self.blackStonesOnBoard = points + self.blackStonesOnBoard
+	}
+	
 	/// Передвижение в указанную позицию белогого камня
-	private func moveWhiteStone(position: SCNVector3) {
-		guard let whiteStone = self.whiteStonesOnFloor.popLast() else { return }
-		moveStone(position: position, stone: whiteStone)
+	private func moveWhiteStone(point: Point) {
+		guard var whiteStone = self.whiteStonesOnFloor.popLast() else { return }
+		moveStone(point: point, stone: whiteStone.0)
+		whiteStone.1 = point
 		self.whiteStonesOnBoard.append(whiteStone)
 	}
 	
 	/// Передвижение в указанную позицию черного камня
-	private func moveBlackStone(position: SCNVector3) {
-		guard let blackStone = self.blackStonesOnFloor.popLast() else { return }
-		moveStone(position: position, stone: blackStone)
+	private func moveBlackStone(point: Point) {
+		guard var blackStone = self.blackStonesOnFloor.popLast() else { return }
+		moveStone(point: point, stone: blackStone.0)
+		blackStone.1 = point
 		self.blackStonesOnBoard.append(blackStone)
 	}
 	
@@ -215,13 +242,14 @@ class GameViewController: NSViewController {
 			if name != self.namePin { return }
 			print(node.position, name)
 			let point = Point(Int(node.position.x), Int(node.position.z))
-			let color: NSColor
-			if !self.gomoku.movePalyer(point: point) {
-				color = .red
-			} else {
-				color = .green
-				self.gomoku.moveAI()
-			}
+			self.gomoku.nextMove(point: point)
+			//let color: NSColor
+//			if !self.gomoku.movePalyer(point: point) {
+//				color = .red
+//			} else {
+//				color = .green
+//				self.gomoku.moveAI()
+//			}
 //			if self.board.placeStone(point: point, stone: stone) {
 //				if stone == .white {
 //					moveWhiteStone(position: node.position)
@@ -234,45 +262,64 @@ class GameViewController: NSViewController {
 //			}
 //			self.board.printBourd()
             
-            // get its material
-            let material = node.geometry!.firstMaterial!
-            
-            // highlight it
-            SCNTransaction.begin()
-            SCNTransaction.animationDuration = 0.5
-            
-            // on completion - unhighlight
-            SCNTransaction.completionBlock = {
-                SCNTransaction.begin()
-                SCNTransaction.animationDuration = 0.5
-                
-                material.emission.contents = NSColor.black
-                
-                SCNTransaction.commit()
-            }
-            
-            material.emission.contents = color
-            
-            SCNTransaction.commit()
         }
     }
 }
 
 extension GameViewController: MoveProtocol {
 	/// Удаление пара комней с доски в результате захвата.
-	func delete(points: (Point, Point)) {
-		deleteStones(points: points)
+	func delete(points: (Point, Point), stone: Stone) {
+		switch stone {
+		case .white:
+			deleteWhiteStones(points: points)
+		case .black:
+			deleteBlackStones(points: points)
+		}
+		//deleteStones(points: points)
 	}
 	
 	/// Перемещение камня в указанную точку
 	func moving(point: Point, stone: Stone) {
-		let position = SCNVector3(Double(point.x), self.y , Double(point.y))
 		switch stone {
 		case .white:
-			moveWhiteStone(position: position)
+			moveWhiteStone(point: point)
 		case .black:
-			moveBlackStone(position: position)
+			moveBlackStone(point: point)
 		}
+	}
+	
+	/// Подсветка pin указанным цветом.
+	func pinShine(point: Point, color: NSColor) {
+		let position = SCNVector3(Double(point.x), self.y, Double(point.y))
+		guard let node = self.scene.rootNode.childNodes.first(where: {
+			$0.name == self.namePin &&
+			$0.position == position}) else { return }
+		// get its material
+		let material = node.geometry!.firstMaterial!
+		
+		// highlight it
+		SCNTransaction.begin()
+		SCNTransaction.animationDuration = 0.5
+		
+		// on completion - unhighlight
+		SCNTransaction.completionBlock = {
+			SCNTransaction.begin()
+			SCNTransaction.animationDuration = 0.5
+			
+			material.emission.contents = NSColor.black
+			
+			SCNTransaction.commit()
+		}
+		
+		material.emission.contents = color
+		
+		SCNTransaction.commit()
+	}
+}
+
+extension SCNVector3 {
+	static func == (left: SCNVector3, right: SCNVector3) -> Bool {
+		return left.x == right.x && left.y == right.y && left.z == right.z
 	}
 }
 

@@ -10,14 +10,14 @@ import Foundation
 enum Stone: Character {
 	case white = "W"
 	case black = "B"
-}
-
-struct Point {
-	var x = 0
-	var y = 0
-	init(_ x: Int, _ y: Int) {
-		self.x = x
-		self.y = y
+	
+	func opposite() -> Stone {
+		switch self {
+		case .black:
+			return .white
+		case .white:
+			return .black
+		}
 	}
 }
 

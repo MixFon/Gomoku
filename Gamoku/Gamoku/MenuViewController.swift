@@ -16,6 +16,11 @@ class MenuViewController: NSViewController {
     
 	@IBAction func pressStart(_ sender: NSButton) {
 		if let gameVC = self.storyboard?.instantiateController(withIdentifier: "GameVC") as? GameViewController {
+			if sender.identifier?.rawValue == "pvc" {
+				gameVC.gomoku.mode = .pvc
+			} else {
+				gameVC.gomoku.mode = .pvp
+			}
 			self.view.window?.contentViewController = gameVC
 		}
 	}

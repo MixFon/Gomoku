@@ -15,6 +15,7 @@
 		2953EB0D2715AF25009927F3 /* MenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2953EB0C2715AF25009927F3 /* MenuViewController.swift */; };
 		29620887271EA739000BDB63 /* Gomoku.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29620886271EA739000BDB63 /* Gomoku.swift */; };
 		2962088B271ED18A000BDB63 /* MoveProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2962088A271ED18A000BDB63 /* MoveProtocol.swift */; };
+		2962088E271FEE9F000BDB63 /* Point.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2962088D271FEE9F000BDB63 /* Point.swift */; };
 		29907EF827195BED00F12B58 /* Bourd.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29907EF727195BED00F12B58 /* Bourd.swift */; };
 /* End PBXBuildFile section */
 
@@ -30,6 +31,7 @@
 		2953EB0C2715AF25009927F3 /* MenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuViewController.swift; sourceTree = "<group>"; };
 		29620886271EA739000BDB63 /* Gomoku.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gomoku.swift; sourceTree = "<group>"; };
 		2962088A271ED18A000BDB63 /* MoveProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoveProtocol.swift; sourceTree = "<group>"; };
+		2962088D271FEE9F000BDB63 /* Point.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Point.swift; sourceTree = "<group>"; };
 		29907EF727195BED00F12B58 /* Bourd.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bourd.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -74,6 +76,7 @@
 				2953EB042715AB2F009927F3 /* Info.plist */,
 				2953EB052715AB2F009927F3 /* Gamoku.entitlements */,
 				2962088A271ED18A000BDB63 /* MoveProtocol.swift */,
+				2962088D271FEE9F000BDB63 /* Point.swift */,
 			);
 			path = Gamoku;
 			sourceTree = "<group>";
@@ -152,6 +155,7 @@
 				2953EB0D2715AF25009927F3 /* MenuViewController.swift in Sources */,
 				29620887271EA739000BDB63 /* Gomoku.swift in Sources */,
 				29907EF827195BED00F12B58 /* Bourd.swift in Sources */,
+				2962088E271FEE9F000BDB63 /* Point.swift in Sources */,
 				2962088B271ED18A000BDB63 /* MoveProtocol.swift in Sources */,
 				2953EAFA2715AB2D009927F3 /* AppDelegate.swift in Sources */,
 			);
