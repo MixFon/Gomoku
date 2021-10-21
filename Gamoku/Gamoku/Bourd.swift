@@ -51,6 +51,15 @@ class Board {
 		}
 	}
 	
+	/// Установка всех значений доски в empty (удаление всех элементов с доски)
+	func clearBoard() {
+		for i in self.board.indices {
+			for j in self.board[i].indices {
+				self.board[i][j] = .empty
+			}
+		}
+	}
+	
 	/// Установка спота  нужного цвета в указанную координату.
 	func placeStone(point: Point, stone: Stone) -> Bool {
 		let point = convertCoordinateToBoard(point: point)
@@ -69,12 +78,12 @@ class Board {
 	}
 	
 	/// Первод коорлинаты в систему координат доски (модели)
-	func convertCoordinateToBoard(point: Point) -> Point {
+	private func convertCoordinateToBoard(point: Point) -> Point {
 		return Point(point.x + 9, point.y + 9)
 	}
 	
 	/// Перевод координаты в глобальную систему поординат.
-	func convertCoordinateToGlobal(point: Point) -> Point {
+	private func convertCoordinateToGlobal(point: Point) -> Point {
 		return Point(point.x - 9, point.y - 9)
 	}
 	
@@ -155,7 +164,7 @@ class Board {
 		return (point.x < 0 || point.x >= 19 || point.y < 0 || point.y >= 19)
 	}
 	
-	/// Проверка на то что в координате находится установленный спот
+	/// Проверка на то что в координате находится установленный спот true - находится false - нет
 	private func checkSpotCoordinate(_ point: Point, _ spot: Spot) -> Bool {
 		if inBoard(point: point) {
 			return false
@@ -368,6 +377,126 @@ class Board {
 			checkSpotCoordinate(Point(point.x - 2, point.y - 2), spot) &&
 			checkSpotCoordinate(Point(point.x - 1, point.y - 1), spot)
 		return one || two
+	}
+	
+	
+	/// Проверка пяти стоящих подряд
+	func checkWinerToFiveSpots(point: Point, stone: Stone) -> Bool {
+		let point = convertCoordinateToBoard(point: point)
+		guard let spot = Spot(rawValue: stone.rawValue) else { return false }
+		if checkFiveOne(point: point, spot: spot) {
+			return true
+		}
+		if checkFiveTwo(point: point, spot: spot) {
+			return true
+		}
+		if checkFiveThree(point: point, spot: spot) {
+			return true
+		}
+		if checkFiveFour(point: point, spot: spot) {
+			return true
+		}
+		return false
+	}
+	
+	// #x#
+	// #o#
+	// #x#
+	private func checkFiveOne(point: Point, spot: Spot) -> Bool {
+		var count = 0
+		var up = point
+		var down = point
+		for i in 1...4 {
+			up.x = point.x - i
+			if !checkSpotCoordinate(up, spot) {
+				break
+			}
+			count += 1
+		}
+		for i in 1...4 {
+			down.x = point.x + i
+			if !checkSpotCoordinate(down, spot) {
+				break
+			}
+			count += 1
+		}
+		return count >= 4
+	}
+	
+	// ##x
+	// #o#
+	// x##
+	private func checkFiveTwo(point: Point, spot: Spot) -> Bool {
+		var count = 0
+		var up = point
+		var down = point
+		for i in 1...4 {
+			up.x = point.x - i
+			up.y = point.y + i
+			if !checkSpotCoordinate(up, spot) {
+				break
+			}
+			count += 1
+		}
+		for i in 1...4 {
+			down.x = point.x + i
+			down.y = point.y - i
+			if !checkSpotCoordinate(down, spot) {
+				break
+			}
+			count += 1
+		}
+		return count >= 4
+	}
+	
+	// ###
+	// xox
+	// ###
+	private func checkFiveThree(point: Point, spot: Spot) -> Bool {
+		var count = 0
+		var up = point
+		var down = point
+		for i in 1...4 {
+			up.y = point.y + i
+			if !checkSpotCoordinate(up, spot) {
+				break
+			}
+			count += 1
+		}
+		for i in 1...4 {
+			down.y = point.y - i
+			if !checkSpotCoordinate(down, spot) {
+				break
+			}
+			count += 1
+		}
+		return count >= 4
+	}
+	
+	// x##
+	// #o#
+	// ##x
+	private func checkFiveFour(point: Point, spot: Spot) -> Bool {
+		var count = 0
+		var up = point
+		var down = point
+		for i in 1...4 {
+			up.x = point.x + i
+			up.y = point.y + i
+			if !checkSpotCoordinate(up, spot) {
+				break
+			}
+			count += 1
+		}
+		for i in 1...4 {
+			down.x = point.x - i
+			down.y = point.y - i
+			if !checkSpotCoordinate(down, spot) {
+				break
+			}
+			count += 1
+		}
+		return count >= 4
 	}
 }
 

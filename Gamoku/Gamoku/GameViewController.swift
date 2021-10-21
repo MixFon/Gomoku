@@ -9,6 +9,8 @@ import AppKit
 import SceneKit
 import QuartzCore
 
+typealias Node = (SCNNode, Point?)
+
 class GameViewController: NSViewController {
 	
 	let scene = SCNScene(named: "art.scnassets/gomoku.scn")!
@@ -18,10 +20,10 @@ class GameViewController: NSViewController {
 	/// Высона на которую устанавливаются pins
 	let y = 0.5
 	
-	var whiteStonesOnBoard = [(SCNNode, Point?)]()
-	var whiteStonesOnFloor = [(SCNNode, Point?)]()
-	var blackStonesOnBoard = [(SCNNode, Point?)]()
-	var blackStonesOnFloor = [(SCNNode, Point?)]()
+	var whiteStonesOnBoard = [Node]()
+	var whiteStonesOnFloor = [Node]()
+	var blackStonesOnBoard = [Node]()
+	var blackStonesOnFloor = [Node]()
 	
 	var sequsens = SCNAction()
 	
@@ -165,15 +167,7 @@ class GameViewController: NSViewController {
 	}
 	
 	/// Удаление камней с доски анимационно
-	private func deleteStones(stones: [SCNNode]) {
-//		let stones = self.scene.rootNode.childNodes.filter( {
-//			($0.position.x == CGFloat(points.0.x) &&
-//			$0.position.z == CGFloat(points.0.y) ||
-//			$0.position.x == CGFloat(points.1.x) &&
-//			$0.position.z == CGFloat(points.1.y)) &&
-//			$0.name == self.nameStone
-//		} )
-		print(stones)
+	private func movingStonesFromBoard(stones: [SCNNode]) {
 		for stone in stones {
 			let randX = Double.random(in: 10...15)
 			let randY = Double.random(in: 3...8)
@@ -187,24 +181,14 @@ class GameViewController: NSViewController {
 		}
 	}
 	
-	/// Удаление белых камней, имеющие координаты points
-	private func deleteWhiteStones(points: (Point, Point)) {
-		var points = self.whiteStonesOnBoard.filter( {$0.1 == points.0 || $0.1 == points.1} )
-		let stones = points.map( {$0.0} )
-		deleteStones(stones: stones)
-		points[0].1 = nil
-		points[1].1 = nil
-		self.whiteStonesOnFloor = points + self.whiteStonesOnFloor
-	}
-	
-	/// Удаление черных камней, имеющие координаты points
-	private func deleteBlackStones(points: (Point, Point)) {
-		var points = self.blackStonesOnBoard.filter( {$0.1 == points.0 || $0.1 == points.1} )
-		let stones = points.map( {$0.0} )
-		deleteStones(stones: stones)
-		points[0].1 = nil
-		points[1].1 = nil
-		self.blackStonesOnBoard = points + self.blackStonesOnBoard
+	/// Перемещение из массива камней на доске в массив камней на полу
+	private func deleteStonesFromBouard(_ stones: [Node], _ onBoard: inout [Node], _ onFloor: inout [Node]) {
+		for stone in stones {
+			guard let index = onBoard.firstIndex(where: { $0.1 == stone.1}) else { continue }
+			onBoard.remove(at: index)
+			onFloor.insert((stone.0, nil), at: 0)
+		}
+		movingStonesFromBoard(stones: stones.map({$0.0}))
 	}
 	
 	/// Передвижение в указанную позицию белогого камня
@@ -243,39 +227,28 @@ class GameViewController: NSViewController {
 			print(node.position, name)
 			let point = Point(Int(node.position.x), Int(node.position.z))
 			self.gomoku.nextMove(point: point)
-			//let color: NSColor
-//			if !self.gomoku.movePalyer(point: point) {
-//				color = .red
-//			} else {
-//				color = .green
-//				self.gomoku.moveAI()
-//			}
-//			if self.board.placeStone(point: point, stone: stone) {
-//				if stone == .white {
-//					moveWhiteStone(position: node.position)
-//				} else {
-//					moveBlackStone(position: node.position)
-//				}
-//				if let poinst = self.board.captures(point: point, stone: stone) {
-//					deleteStones(points: poinst)
-//				}
-//			}
-//			self.board.printBourd()
-            
         }
     }
 }
 
 extension GameViewController: MoveProtocol {
+	
+	/// Показ победителя. Очистка камней с доски.
+	func showingWinner(stone: Stone) {
+		deleteStonesFromBouard(self.whiteStonesOnBoard, &self.whiteStonesOnBoard, &self.whiteStonesOnFloor)
+		deleteStonesFromBouard(self.blackStonesOnBoard, &self.blackStonesOnBoard, &self.blackStonesOnFloor)
+	}
+	
 	/// Удаление пара комней с доски в результате захвата.
 	func delete(points: (Point, Point), stone: Stone) {
 		switch stone {
 		case .white:
-			deleteWhiteStones(points: points)
+			let whiteStones = self.whiteStonesOnBoard.filter( {$0.1 == points.0 || $0.1 == points.1} )
+			deleteStonesFromBouard(whiteStones, &self.whiteStonesOnBoard, &self.whiteStonesOnFloor)
 		case .black:
-			deleteBlackStones(points: points)
+			let blackStones = self.blackStonesOnBoard.filter( {$0.1 == points.0 || $0.1 == points.1} )
+			deleteStonesFromBouard(blackStones, &self.blackStonesOnBoard, &self.blackStonesOnFloor)
 		}
-		//deleteStones(points: points)
 	}
 	
 	/// Перемещение камня в указанную точку
