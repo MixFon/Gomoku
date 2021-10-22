@@ -40,6 +40,7 @@ class GameViewController: NSViewController {
 		setEmptyNodes()
 		setStones()
 		//movingCircle()
+		
         // retrieve the SCNView
         let scnView = self.view as! SCNView
         
@@ -229,12 +230,41 @@ class GameViewController: NSViewController {
 			self.gomoku.nextMove(point: point)
         }
     }
+	
+	/// Подсвечивание node указанного цвета
+	private func nodeShine(node: SCNNode, color: NSColor) {
+		// get its material
+		let material = node.geometry!.firstMaterial!
+		
+		// highlight it
+		SCNTransaction.begin()
+		SCNTransaction.animationDuration = 0.5
+		
+		// on completion - unhighlight
+		SCNTransaction.completionBlock = {
+			SCNTransaction.begin()
+			SCNTransaction.animationDuration = 0.5
+			
+			material.emission.contents = NSColor.black
+			
+			SCNTransaction.commit()
+		}
+		
+		material.emission.contents = color
+		
+		SCNTransaction.commit()
+	}
 }
 
 extension GameViewController: MoveProtocol {
 	
 	/// Показ победителя. Очистка камней с доски.
 	func showingWinner(stone: Stone) {
+		if stone == .white {
+			self.whiteStonesOnBoard.forEach( { nodeShine(node: $0.0, color: .green) } )
+		} else {
+			self.blackStonesOnBoard.forEach( { nodeShine(node: $0.0, color: .green) } )
+		}
 		deleteStonesFromBouard(self.whiteStonesOnBoard, &self.whiteStonesOnBoard, &self.whiteStonesOnFloor)
 		deleteStonesFromBouard(self.blackStonesOnBoard, &self.blackStonesOnBoard, &self.blackStonesOnFloor)
 	}
@@ -267,26 +297,7 @@ extension GameViewController: MoveProtocol {
 		guard let node = self.scene.rootNode.childNodes.first(where: {
 			$0.name == self.namePin &&
 			$0.position == position}) else { return }
-		// get its material
-		let material = node.geometry!.firstMaterial!
-		
-		// highlight it
-		SCNTransaction.begin()
-		SCNTransaction.animationDuration = 0.5
-		
-		// on completion - unhighlight
-		SCNTransaction.completionBlock = {
-			SCNTransaction.begin()
-			SCNTransaction.animationDuration = 0.5
-			
-			material.emission.contents = NSColor.black
-			
-			SCNTransaction.commit()
-		}
-		
-		material.emission.contents = color
-		
-		SCNTransaction.commit()
+		nodeShine(node: node, color: color)
 	}
 }
 
@@ -295,71 +306,3 @@ extension SCNVector3 {
 		return left.x == right.x && left.y == right.y && left.z == right.z
 	}
 }
-
-/*
-
-//		let board = scene.rootNode.childNode(withName: "board", recursively: true)!
-//		let material = SCNMaterial()
-//		material.diffuse.contents = NSColor.black
-//		material.normal.contents = NSImage(named: "board2")
-//		material.shininess = 1
-//		board.geometry?.materials.append(material)
-//
-//		self.scene.rootNode.addChildNode(board)
-override func viewDidLoad() {
-	super.viewDidLoad()
-	
-	// create a new scene
-	let scene = SCNScene(named: "art.scnassets/ship.scn")!
-	
-	// create and add a camera to the scene
-	let cameraNode = SCNNode()
-	cameraNode.camera = SCNCamera()
-	scene.rootNode.addChildNode(cameraNode)
-	
-	// place the camera
-	cameraNode.position = SCNVector3(x: 0, y: 0, z: 15)
-	
-	// create and add a light to the scene
-	let lightNode = SCNNode()
-	lightNode.light = SCNLight()
-	lightNode.light!.type = .omni
-	lightNode.position = SCNVector3(x: 0, y: 10, z: 10)
-	scene.rootNode.addChildNode(lightNode)
-	
-	// create and add an ambient light to the scene
-	let ambientLightNode = SCNNode()
-	ambientLightNode.light = SCNLight()
-	ambientLightNode.light!.type = .ambient
-	ambientLightNode.light!.color = NSColor.darkGray
-	scene.rootNode.addChildNode(ambientLightNode)
-	
-	// retrieve the ship node
-	let ship = scene.rootNode.childNode(withName: "ship", recursively: true)!
-	
-	// animate the 3d object
-	ship.runAction(SCNAction.repeatForever(SCNAction.rotateBy(x: 0, y: 2, z: 0, duration: 1)))
-	
-	// retrieve the SCNView
-	let scnView = self.view as! SCNView
-	
-	// set the scene to the view
-	scnView.scene = scene
-	
-	// allows the user to manipulate the camera
-	scnView.allowsCameraControl = true
-	
-	// show statistics such as fps and timing information
-	scnView.showsStatistics = true
-	
-	// configure the view
-	scnView.backgroundColor = NSColor.black
-	
-	// Add a click gesture recognizer
-	let clickGesture = NSClickGestureRecognizer(target: self, action: #selector(handleClick(_:)))
-	var gestureRecognizers = scnView.gestureRecognizers
-	gestureRecognizers.insert(clickGesture, at: 0)
-	scnView.gestureRecognizers = gestureRecognizers
-}
-
-*/
