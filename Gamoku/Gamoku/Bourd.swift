@@ -60,7 +60,7 @@ class Board {
 		}
 	}
 	
-	/// Установка спота  нужного цвета в указанную координату.
+	/// Установка спота  нужного цвета в указанную координату. Предварительно делает провкрку на размещение
 	func placeStone(point: Point, stone: Stone) -> Bool {
 		let point = convertCoordinateToBoard(point: point)
 		if !checkSpotCoordinate(point, .empty) {
@@ -70,9 +70,10 @@ class Board {
 		if !checkDoubleThree(point: point, spot: spot) {
 			return false
 		}
-		if !checkCaptures(point: point, spot: spot) {
-			return false
-		}
+//		Убрать проверку на переход в захват, переходить в захват можно 
+//		if !checkCaptures(point: point, spot: spot) {
+//			return false
+//		}
 		setSpot(point: point, spot: spot)
 		return true
 	}

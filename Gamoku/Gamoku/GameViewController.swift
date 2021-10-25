@@ -28,9 +28,15 @@ class GameViewController: NSViewController {
 	var sequsens = SCNAction()
 	
 	let radiusPin: CGFloat = 0.15
-	let namePin = "pin"
 	let radiusStone: CGFloat = 0.3
-	let nameStone = "stone"
+	
+	/// Имена обьектов взаимодействия на сцене
+	enum NamesNode: String {
+		case namePin = "pin"
+		case nameStone = "stone"
+		case nameExit = "exit"
+		case nameSave = "save"
+	}
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -73,7 +79,7 @@ class GameViewController: NSViewController {
 				//node.geometry?.firstMaterial?.normal.contents = NSColor.black
 				node.position = position
 				node.physicsBody = SCNPhysicsBody(type: .static, shape: nil)
-				node.name = self.namePin
+				node.name = NamesNode.namePin.rawValue
 				self.scene.rootNode.addChildNode(node)
 			}
 		}
@@ -103,7 +109,7 @@ class GameViewController: NSViewController {
 	/// Устанавливает один шар в указанную точку.
 	private func setOneNode(position: SCNVector3) -> SCNNode {
 		let node = SCNNode()
-		node.name = self.nameStone
+		node.name = NamesNode.nameStone.rawValue
 		node.geometry = SCNSphere(radius: self.radiusStone)
 		node.position = position
 		node.physicsBody = SCNPhysicsBody(type: .dynamic, shape: nil)
@@ -163,6 +169,7 @@ class GameViewController: NSViewController {
 	/// Закрывает сцену и преходит к предыдущему окну.
 	private func exitScene() {
 		if let menuVC = self.storyboard?.instantiateController(withIdentifier: "MenuVC") as? MenuViewController {
+			self.gomoku.ai?.task.interrupt()
 			self.view.window?.contentViewController = menuVC
 		}
 	}
@@ -174,7 +181,7 @@ class GameViewController: NSViewController {
 			let randY = Double.random(in: 3...8)
 			let randZ = Double.random(in: -7...7)
 			let position = SCNVector3(randX, randY, randZ)
-			let wait = SCNAction.wait(duration: 2)
+			let wait = SCNAction.wait(duration: 1)
 			let move = SCNAction.move(to: position, duration: 0.5)
 			let sequsence = SCNAction.sequence([wait, move])
 			stone.runAction(sequsence)
@@ -208,6 +215,25 @@ class GameViewController: NSViewController {
 		self.blackStonesOnBoard.append(blackStone)
 	}
 	
+	/// Сохранение состояния доски и сохранение изображения
+	private func saveScene() {
+		let saveManager = SaveManager()
+		saveManager.saving(whiteStones: [Point(1, 1)], blackStone: [Point(2, 2)])
+//		guard let view = self.view as? SCNView else { return }
+//		let temp = Bundle.main.path(forResource: "saves", ofType: "json")
+		//guard let url = Bundle.main.url(forResource: "saves", withExtension: "json") else { return }
+		//print(url.path)
+		//let fileManager = FileManager.default
+		//_ = try! fileManager.removeItem(at: url)
+//		let data = try! JSONEncoder().encode(save)
+//		_ = try! data.write(to: url, options: .atomic)
+		//guard let data = try? Data(contentsOf: url) else { return }
+		//guard let message = try? String(contentsOf: url) else { return }
+		//print("Yes", message)
+		//let snapshot = view.snapshot()
+		//let fileManager = FileManager.default.urls(for: ., in: <#T##FileManager.SearchPathDomainMask#>)
+	}
+	
     @objc
     func handleClick(_ gestureRecognizer: NSGestureRecognizer) {
         // retrieve the SCNView
@@ -220,14 +246,19 @@ class GameViewController: NSViewController {
         if hitResults.count > 0 {
             // retrieved the first clicked object
 			let node = hitResults[0].node
-			guard let name = node.name else { return }
-			if name == "exit" {
+			guard let name = NamesNode(rawValue: node.name ?? "") else { return }
+			switch name {
+			case .nameExit:
 				exitScene()
+			case .nameSave:
+				saveScene()
+			case .namePin:
+				print(node.position, name)
+				let point = Point(Int(node.position.x), Int(node.position.z))
+				self.gomoku.nextMove(point: point)
+			default:
+				break
 			}
-			if name != self.namePin { return }
-			print(node.position, name)
-			let point = Point(Int(node.position.x), Int(node.position.z))
-			self.gomoku.nextMove(point: point)
         }
     }
 	
@@ -295,7 +326,7 @@ extension GameViewController: MoveProtocol {
 	func pinShine(point: Point, color: NSColor) {
 		let position = SCNVector3(Double(point.x), self.y, Double(point.y))
 		guard let node = self.scene.rootNode.childNodes.first(where: {
-			$0.name == self.namePin &&
+			$0.name == NamesNode.namePin.rawValue &&
 			$0.position == position}) else { return }
 		nodeShine(node: node, color: color)
 	}

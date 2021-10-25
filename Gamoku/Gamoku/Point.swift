@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Point {
+struct Point: Codable {
 	var x = 0
 	var y = 0
 	init(_ x: Int, _ y: Int) {

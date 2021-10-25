@@ -11,43 +11,41 @@ class AI {
 	var task = Process()
 	let inputPipe = Pipe()
 	let outputPipe = Pipe()
-	let errorPipe = Pipe()
+	
+	private let pathonPath = "/Library/Frameworks/Python.framework/Versions/3.7/bin/python3"
+	private let scriptAIPath = "/Library/Frameworks/Python.framework/Versions/3.7/bin/AI.py"
+	
 	init() throws {
+		self.task.executableURL = URL(fileURLWithPath: self.pathonPath)
+		self.task.arguments = [self.scriptAIPath]
+		self.task.standardInput = self.inputPipe
 		
-		//task.executableURL = URL(fileURLWithPath: "/Users/mixfon/TaskmasterTasks")
-		//task.arguments = ["/Users/mixfon/MyFiles/Swift/Gomoku/Gamoku/AI/AI.py"]
-		
-		self.task.executableURL = URL(fileURLWithPath: "/Library/Frameworks/Python.framework/Versions/3.7/bin/python3")
-		//self.task.executableURL = URL(fileURLWithPath: "/usr/bin/say")
+		self.task.standardOutput = self.outputPipe
+		self.outputPipe.fileHandleForReading.waitForDataInBackgroundAndNotify()
+		  
+		NotificationCenter.default.addObserver(forName: .NSFileHandleDataAvailable, object: self.outputPipe.fileHandleForReading , queue: nil) { notification in
 			
-		self.task.arguments = ["/Library/Frameworks/Python.framework/Versions/3.7/bin/AI2.py"]
-		//self.task.arguments = ["Hello Ira Ira Ira Ira Ira Ira Ira Ira Ira Ira Ira Ira Ira IraIra Ira "]
-			self.task.standardInput = self.inputPipe
-			self.task.standardOutput = self.outputPipe
-			self.task.standardError = self.errorPipe
+			let outputData = self.outputPipe.fileHandleForReading.availableData
+			guard let outputString = String(data: outputData, encoding: .utf8) else { return }
 			
-//			self.outputPipe.fileHandleForReading.readabilityHandler = { pipe in
-//				let line = String(decoding: pipe.availableData, as: UTF8.self)
-//					// Update your view with the new text here
-//					print("New ouput: \(line)")
-//			}
-		//let queue = DispatchQueue.global(qos: .background)
-		//queue.async{
-			try self.task.run()
-		//}
-		//print(ai.getRequest(message: "temp"), "!!!")
-//		let outputData = self.outputPipe.fileHandleForReading.readDataToEndOfFile()
-//		let errorData = self.errorPipe.fileHandleForReading.readDataToEndOfFile()
-//		let output = String(decoding: outputData, as: UTF8.self)
-//		let error = String(decoding: errorData, as: UTF8.self)
-//		print(output + error)
+			//5.
+			print(outputString, "111")
+			if outputString.isEmpty {
+				return
+			}
+			
+			DispatchQueue.main.async(execute: {
+				// какие-то действия с UI в главном потоке.
+			})
+			self.outputPipe.fileHandleForReading.waitForDataInBackgroundAndNotify()
+		}
+		try self.task.run()
 	}
 	
-	func getRequest(message: String) -> String {
-		let outputData = self.outputPipe.fileHandleForReading.readData(ofLength: 10)
-		//let errorData = self.errorPipe.fileHandleForReading.readData(ofLength: 10)
-		let output = String(decoding: outputData, as: UTF8.self)
-		//let error = String(decoding: errorData, as: UTF8.self)
-		return output
+	/// Отправляет запрос дочернему процессу в стандартный поток ввода.
+	func getRequestToAI(message: String) {
+		if let data = message.data(using: .utf8) {
+			self.inputPipe.fileHandleForWriting.write(data)
+		}
 	}
 }

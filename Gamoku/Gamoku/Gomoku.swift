@@ -9,7 +9,7 @@ import Foundation
 
 class Gomoku {
 	var ai = try? AI()
-	var mode = Mode.pvc
+	var mode = Mode.pvp
 	private var board = Board()
 	private var slone = Stone.white
 	
@@ -41,29 +41,7 @@ class Gomoku {
 	
 	/// Ход ИИ
 	private func moveAI() {
-//		if self.ai == nil {
-//			let queue = DispatchQueue.global(qos: .utility)
-//			queue.async {
-//				self.ai = try? AI()
-//				if self.ai == nil {
-//					print("AAAAA")
-//				}
-//			}
-//		}
-//		guard let ai = self.ai else {
-//			print("Xui")
-//			return
-//		}
-//		let queue = DispatchQueue.global(qos: .utility)
-//		queue.async {
-//			let message = ai.getRequest(message: "temp")
-//			DispatchQueue.main.async {
-//				print(message, "!!!")
-//			}
-//
-//		}
-		print(self.ai?.task.isRunning, "bool")
-		//print(ai?.getRequest(message: "temp") ?? "@@@", "!!!")
+		ai?.getRequestToAI(message: "temp\n")
 		var i = 0
 		let stone = Stone.black
 		var point = Point(i - 9, i - 9)
