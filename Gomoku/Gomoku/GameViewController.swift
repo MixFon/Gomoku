@@ -50,6 +50,7 @@ class GameViewController: NSViewController {
         // retrieve the SCNView
         let scnView = self.view as! SCNView
         
+		//scnView.snapshot()
         // set the scene to the view
 		scnView.scene = self.scene
         
@@ -218,7 +219,8 @@ class GameViewController: NSViewController {
 	/// Сохранение состояния доски и сохранение изображения
 	private func saveScene() {
 		let saveManager = SaveManager()
-		saveManager.saving(whiteStones: [Point(1, 1)], blackStone: [Point(2, 2)])
+		saveManager.delegate = self
+		saveManager.saving()
 	}
 	
     @objc
@@ -238,6 +240,7 @@ class GameViewController: NSViewController {
 			case .nameExit:
 				exitScene()
 			case .nameSave:
+				nodeShine(node: node, color: .blue)
 				saveScene()
 			case .namePin:
 				print(node.position, name)
@@ -274,6 +277,7 @@ class GameViewController: NSViewController {
 	}
 }
 
+// MARK: MoveProtocol
 extension GameViewController: MoveProtocol {
 	
 	/// Показ победителя. Очистка камней с доски.
@@ -319,6 +323,24 @@ extension GameViewController: MoveProtocol {
 	}
 }
 
+// MARK: GetProtocol
+extension GameViewController: GetProtocol {
+	func getPointsWhiteStonesOnBoard() -> [Point] {
+		return self.whiteStonesOnBoard.compactMap( { $0.1 } )
+	}
+	
+	func getPointsBlackStonesOnBoard() -> [Point] {
+		return self.blackStonesOnBoard.compactMap( { $0.1 } )
+	}
+	
+	/// Возвращает моментальный снимок экрана
+	func getSnapshop() -> NSImage? {
+		let view = self.view as? SCNView
+		return view?.snapshot()
+	}
+}
+
+// MARK: SCNVector3
 extension SCNVector3 {
 	static func == (left: SCNVector3, right: SCNVector3) -> Bool {
 		return left.x == right.x && left.y == right.y && left.z == right.z

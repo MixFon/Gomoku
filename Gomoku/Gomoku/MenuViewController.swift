@@ -24,4 +24,14 @@ class MenuViewController: NSViewController {
 			self.view.window?.contentViewController = gameVC
 		}
 	}
+	
+	@IBAction func pressDownload(_ sender: NSButton) {
+		let downloadSB = NSStoryboard(name: "DounloadSourybouard", bundle: nil)
+		//self.storyboard = downloadSB
+		if let download = downloadSB.instantiateController(withIdentifier: "Download") as? DownloadViewController {
+			self.view.window?.contentViewController = download
+		}
+	}
+	
+	
 }

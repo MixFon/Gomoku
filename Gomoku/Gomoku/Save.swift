@@ -8,8 +8,10 @@
 import Foundation
 
 struct Save: Codable {
-	private var name: String?
-	private var date: Date?
-	private var whiteStones: [Point]?
-	private var blackPoints: [Point]?
+	var name: String?
+	var date: String?
+	var pathImage: String?
+	var whitePoints: [Point]?
+	var blackPoints: [Point]?
+	var number: Int = 0
 }
