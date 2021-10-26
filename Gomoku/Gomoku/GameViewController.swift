@@ -219,19 +219,6 @@ class GameViewController: NSViewController {
 	private func saveScene() {
 		let saveManager = SaveManager()
 		saveManager.saving(whiteStones: [Point(1, 1)], blackStone: [Point(2, 2)])
-//		guard let view = self.view as? SCNView else { return }
-//		let temp = Bundle.main.path(forResource: "saves", ofType: "json")
-		//guard let url = Bundle.main.url(forResource: "saves", withExtension: "json") else { return }
-		//print(url.path)
-		//let fileManager = FileManager.default
-		//_ = try! fileManager.removeItem(at: url)
-//		let data = try! JSONEncoder().encode(save)
-//		_ = try! data.write(to: url, options: .atomic)
-		//guard let data = try? Data(contentsOf: url) else { return }
-		//guard let message = try? String(contentsOf: url) else { return }
-		//print("Yes", message)
-		//let snapshot = view.snapshot()
-		//let fileManager = FileManager.default.urls(for: ., in: <#T##FileManager.SearchPathDomainMask#>)
 	}
 	
     @objc

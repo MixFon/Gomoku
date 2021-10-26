@@ -10,33 +10,28 @@ import AppKit
 
 class SaveManager {
 	
-	private let keyPathSaveFolder = "keyPathSaveFolder"
-	private let saveFolder = "SavesGomoku"
-	private let saveFileJSON = "saves.json"
+	private let keyURLSaveFolder = "keyURLSaveFolder"
+	private let nameSaveFolder = "SavesGomoku"
+	private let nameSaveFileJSON = "saves.json"
 	
 	/// Сохранение координат в файле.
 	func saving(whiteStones:[Point], blackStone: [Point]) {
 		let userDefaults = UserDefaults.standard
-		userDefaults.removeObject(forKey: self.keyPathSaveFolder)
-		let pathSaveFolder = userDefaults.object(forKey: self.keyPathSaveFolder) as? String
-		if pathSaveFolder == nil {
+		//userDefaults.removeObject(forKey: self.keyURLSaveFolder)
+		let urlSaveFolder = userDefaults.object(forKey: self.keyURLSaveFolder) as? URL
+		if urlSaveFolder == nil {
 			guard let url = createSaveFolder() else { return }
-			userDefaults.set(url, forKey: self.keyPathSaveFolder)
+			userDefaults.set(url, forKey: self.keyURLSaveFolder)
 			print("create", url.absoluteURL)
 		}
-		print("!!!", pathSaveFolder)
+		print(urlSaveFolder?.absoluteURL ?? "Nil")
 	}
 	
 	/// Создание папки сохранения.
 	private func createSaveFolder() -> URL? {
 		let fileManager = FileManager.default
-		
-		//guard var url = fileManager.urls(for: .userDirectory, in: .userDomainMask).first else { return nil }
-		let homeDirectory = "\(NSHomeDirectory())/\(self.saveFolder)"
-//		var url = try! fileManager.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+		let homeDirectory = "\(NSHomeDirectory())/\(self.nameSaveFolder)"
 		do {
-			//try fileManager.url(for: .userDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-			//url.appendPathComponent(self.saveFolder)
 			if !fileManager.fileExists(atPath: homeDirectory) {
 				try fileManager.createDirectory(atPath: homeDirectory, withIntermediateDirectories: false, attributes: nil)
 			}
