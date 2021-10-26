@@ -11,12 +11,13 @@ import AppKit
 class SaveManager {
 	
 	private let keyPathSaveFolder = "keyPathSaveFolder"
-	private let saveFolder = ".SavesGomoku"
+	private let saveFolder = "SavesGomoku"
 	private let saveFileJSON = "saves.json"
 	
 	/// Сохранение координат в файле.
 	func saving(whiteStones:[Point], blackStone: [Point]) {
 		let userDefaults = UserDefaults.standard
+		userDefaults.removeObject(forKey: self.keyPathSaveFolder)
 		let pathSaveFolder = userDefaults.object(forKey: self.keyPathSaveFolder) as? String
 		if pathSaveFolder == nil {
 			guard let url = createSaveFolder() else { return }
@@ -31,18 +32,19 @@ class SaveManager {
 		let fileManager = FileManager.default
 		
 		//guard var url = fileManager.urls(for: .userDirectory, in: .userDomainMask).first else { return nil }
-		var url = try! fileManager.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+		let homeDirectory = "\(NSHomeDirectory())/\(self.saveFolder)"
+//		var url = try! fileManager.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
 		do {
 			//try fileManager.url(for: .userDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-			url.appendPathComponent(self.saveFolder)
-			if !fileManager.fileExists(atPath: url.absoluteString) {
-				try fileManager.createDirectory(at: url, withIntermediateDirectories: false, attributes: nil)
+			//url.appendPathComponent(self.saveFolder)
+			if !fileManager.fileExists(atPath: homeDirectory) {
+				try fileManager.createDirectory(atPath: homeDirectory, withIntermediateDirectories: false, attributes: nil)
 			}
 		} catch {
 			print("Error create directory.")
 			return nil
 		}
-		return url
+		return URL(fileURLWithPath: homeDirectory)
 	}
 	
 	/// Возвращает URL папки сохранения из домашней дериктории пользователя

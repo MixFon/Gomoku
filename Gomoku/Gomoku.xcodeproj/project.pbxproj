@@ -23,7 +23,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		2953EAF62715AB2D009927F3 /* Gamoku.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Gamoku.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2953EAF62715AB2D009927F3 /* Gomoku.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Gomoku.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2953EAF92715AB2D009927F3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2953EAFB2715AB2D009927F3 /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
 		2953EAFD2715AB2D009927F3 /* art.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = art.scnassets; sourceTree = "<group>"; };
@@ -55,7 +55,7 @@
 		2953EAED2715AB2C009927F3 = {
 			isa = PBXGroup;
 			children = (
-				2953EAF82715AB2D009927F3 /* Gamoku */,
+				2953EAF82715AB2D009927F3 /* Gomoku */,
 				2953EAF72715AB2D009927F3 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -63,12 +63,12 @@
 		2953EAF72715AB2D009927F3 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2953EAF62715AB2D009927F3 /* Gamoku.app */,
+				2953EAF62715AB2D009927F3 /* Gomoku.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		2953EAF82715AB2D009927F3 /* Gamoku */ = {
+		2953EAF82715AB2D009927F3 /* Gomoku */ = {
 			isa = PBXGroup;
 			children = (
 				2953EAF92715AB2D009927F3 /* AppDelegate.swift */,
@@ -87,15 +87,15 @@
 				297DB7622726C905007D0286 /* Save.swift */,
 				297DB7672726D689007D0286 /* SaveManager.swift */,
 			);
-			path = Gamoku;
+			path = Gomoku;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		2953EAF52715AB2D009927F3 /* Gamoku */ = {
+		2953EAF52715AB2D009927F3 /* Gomoku */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2953EB082715AB2F009927F3 /* Build configuration list for PBXNativeTarget "Gamoku" */;
+			buildConfigurationList = 2953EB082715AB2F009927F3 /* Build configuration list for PBXNativeTarget "Gomoku" */;
 			buildPhases = (
 				2953EAF22715AB2D009927F3 /* Sources */,
 				2953EAF32715AB2D009927F3 /* Frameworks */,
@@ -105,9 +105,9 @@
 			);
 			dependencies = (
 			);
-			name = Gamoku;
+			name = Gomoku;
 			productName = Gamoku;
-			productReference = 2953EAF62715AB2D009927F3 /* Gamoku.app */;
+			productReference = 2953EAF62715AB2D009927F3 /* Gomoku.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -124,7 +124,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 2953EAF12715AB2C009927F3 /* Build configuration list for PBXProject "Gamoku" */;
+			buildConfigurationList = 2953EAF12715AB2C009927F3 /* Build configuration list for PBXProject "Gomoku" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -137,7 +137,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				2953EAF52715AB2D009927F3 /* Gamoku */,
+				2953EAF52715AB2D009927F3 /* Gomoku */,
 			);
 		};
 /* End PBXProject section */
@@ -347,7 +347,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		2953EAF12715AB2C009927F3 /* Build configuration list for PBXProject "Gamoku" */ = {
+		2953EAF12715AB2C009927F3 /* Build configuration list for PBXProject "Gomoku" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2953EB062715AB2F009927F3 /* Debug */,
@@ -356,7 +356,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2953EB082715AB2F009927F3 /* Build configuration list for PBXNativeTarget "Gamoku" */ = {
+		2953EB082715AB2F009927F3 /* Build configuration list for PBXNativeTarget "Gomoku" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2953EB092715AB2F009927F3 /* Debug */,
