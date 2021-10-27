@@ -51,6 +51,25 @@ class Board {
 		}
 	}
 	
+	/// Возвращает кортеж ко
+	func getWhiteBlackPointsSpot() -> ([Point],[Point]) {
+		var whitePoint = [Point]()
+		var blackPoint = [Point]()
+		for (i, line) in self.board.enumerated() {
+			for (j, spot) in line.enumerated() {
+				switch spot {
+				case .white:
+					whitePoint.append(convertCoordinateToGlobal(point: Point(i, j)))
+				case .black:
+					blackPoint.append(convertCoordinateToGlobal(point: Point(i, j)))
+				case .empty:
+					continue
+				}
+			}
+		}
+		return (whitePoint, blackPoint)
+	}
+	
 	/// Вызывается при закрузке сохраненной игры. На доске устанавливаются нужные spots
 	func setStartSpotsOnBouard(whitePoints: [Point], blackPoints: [Point]) {
 		for point in whitePoints {

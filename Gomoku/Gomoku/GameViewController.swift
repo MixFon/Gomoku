@@ -51,6 +51,12 @@ class GameViewController: NSViewController {
 		setStartStones()
 		//movingCircle()
 		
+		// callback
+		self.gomoku.makeSnapshot = { [weak self] in
+			let view = self?.view as? SCNView
+			return view?.snapshot()
+		}
+		
         // retrieve the SCNView
         let scnView = self.view as! SCNView
         
@@ -76,9 +82,7 @@ class GameViewController: NSViewController {
 	
 	/// Вызывается при загрузке сохраненной игры.
 	private func setStartStones() {
-		if self.whiteStartPointsOnBoard == nil && self.blackStartPointsOnBoard == nil {
-			return
-		}
+		if self.whiteStartPointsOnBoard == nil && self.blackStartPointsOnBoard == nil { return }
 		let whitePoints = self.whiteStartPointsOnBoard ?? []
 		let blackPoints = self.blackStartPointsOnBoard ?? []
 		for point in whitePoints {
@@ -87,7 +91,6 @@ class GameViewController: NSViewController {
 		for point in blackPoints {
 			moveBlackStone(point: point)
 		}
-		self.gomoku.setStartPointOnBouard(whitePoints: whitePoints, blackPoints: blackPoints)
 		self.whiteStartPointsOnBoard = nil
 		self.blackStartPointsOnBoard = nil
 	}
@@ -231,12 +234,6 @@ class GameViewController: NSViewController {
 		self.blackStonesOnBoard.append(blackStone)
 	}
 	
-	/// Сохранение состояния доски и сохранение изображения
-	private func saveScene() {
-		let saveManager = SaveManager()
-		saveManager.delegate = self
-		saveManager.saving()
-	}
 	
     @objc
     func handleClick(_ gestureRecognizer: NSGestureRecognizer) {
@@ -256,7 +253,8 @@ class GameViewController: NSViewController {
 				exitScene()
 			case .nameSave:
 				nodeShine(node: node, color: .blue)
-				saveScene()
+				self.gomoku.saving()
+				//saveScene()
 			case .namePin:
 				print(node.position, name)
 				let point = Point(Int(node.position.x), Int(node.position.z))
@@ -335,35 +333,6 @@ extension GameViewController: MoveProtocol {
 			$0.name == NamesNode.namePin.rawValue &&
 			$0.position == position}) else { return }
 		nodeShine(node: node, color: color)
-	}
-}
-
-// MARK: GetProtocol
-extension GameViewController: GetProtocol {
-	
-	func getStone() -> String {
-		self.gomoku.getCurrentStone()
-	}
-	
-	/// Возвращает текущий режим игры
-	func getMode() -> String {
-		return self.gomoku.getCurrentMode()
-	}
-	
-	/// Возвращает координаты белых камней, находящихся на доске
-	func getPointsWhiteStonesOnBoard() -> [Point] {
-		return self.whiteStonesOnBoard.compactMap( { $0.1 } )
-	}
-	
-	/// Возвращает координаты черных камней, находящихся на доске
-	func getPointsBlackStonesOnBoard() -> [Point] {
-		return self.blackStonesOnBoard.compactMap( { $0.1 } )
-	}
-	
-	/// Возвращает моментальный снимок экрана
-	func getSnapshop() -> NSImage? {
-		let view = self.view as? SCNView
-		return view?.snapshot()
 	}
 }
 

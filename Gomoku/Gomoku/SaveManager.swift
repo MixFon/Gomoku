@@ -46,10 +46,19 @@ class SaveManager {
 		urlFolder.appendPathExtension("png")
 		if !image.writeToFile(file: urlFolder.standardizedFileURL, atomically: true, usingType: .png){return nil }
 		save.pathImage = urlFolder.path
+		
 		save.date = Date().getStringDate()
-		save.whitePoints = self.delegate.getPointsWhiteStonesOnBoard()
-		save.blackPoints = self.delegate.getPointsBlackStonesOnBoard()
+		
+		let points = self.delegate.getPoints()
+		save.whitePoints = points.0
+		save.blackPoints = points.1
+		
+		let captures = self.delegate.getCaptures()
+		save.whiteCaptures = captures.0
+		save.blackCaptures = captures.1
+		
 		save.mode = self.delegate.getMode()
+		
 		save.stone = self.delegate.getStone()
 		return save
 	}

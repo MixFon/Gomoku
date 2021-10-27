@@ -97,9 +97,12 @@ extension DownloadViewController: NSCollectionViewDataSource, NSCollectionViewDe
 			if let mode = Gomoku.Mode(rawValue: save.mode ?? "") {
 				gameVC.gomoku.setMode(mode: mode)
 			}
-			if let currentStone = save.stone {
-				gameVC.gomoku.setCurrentStone(stone: currentStone)
-			}
+			gameVC.gomoku.setCurrentStone(stone: save.stone ?? "")
+			gameVC.gomoku.setCaptures(save.whiteCaptures ?? 0, save.blackCaptures ?? 0)
+			gameVC.gomoku.setStartPointOnBouard(
+				whitePoints: gameVC.whiteStartPointsOnBoard ?? [],
+				blackPoints: gameVC.blackStartPointsOnBoard ?? []
+			)
 			self.view.window?.contentViewController = gameVC
 		}
 		print()

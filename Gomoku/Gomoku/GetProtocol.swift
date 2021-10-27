@@ -10,8 +10,8 @@ import AppKit
 
 protocol GetProtocol: AnyObject  {
 	func getSnapshop() -> NSImage?
-	func getPointsWhiteStonesOnBoard() -> [Point]
-	func getPointsBlackStonesOnBoard() -> [Point]
+	func getPoints() -> ([Point],[Point])
 	func getMode() -> String
 	func getStone() -> String
+	func getCaptures() -> (Int, Int)
 }

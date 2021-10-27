@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AppKit
 
 class Gomoku {
 	var ai = try? AI()
@@ -13,12 +14,14 @@ class Gomoku {
 	private var board = Board()
 	private var stone = Stone.white
 	
-	private var captureWhite: Int = 0
-	private var captureBlack: Int = 0
+	private var whiteCaptures: Int = 0
+	private var blackCaptures: Int = 0
 	
 	let numberCapturesToWin: Int = 2
 	 
 	weak var delegate: MoveProtocol?
+	
+	var makeSnapshot: (()->NSImage?)?
 	
 	enum Mode: String {
 		case pvp
@@ -28,6 +31,7 @@ class Gomoku {
 	/// Вызывается при закрузке сохраненной игры. На доске устанавливаются нужные spots
 	func setStartPointOnBouard(whitePoints: [Point], blackPoints: [Point]) {
 		self.board.printBourd()
+		self.board.clearBoard()
 		self.board.setStartSpotsOnBouard(whitePoints: whitePoints, blackPoints: blackPoints)
 		self.board.printBourd()
 	}
@@ -46,9 +50,10 @@ class Gomoku {
 		}
 	}
 	
-	/// Возвращает камень, который должен ходить следеющим
-	func getCurrentStone() -> String {
-		return String(self.stone.rawValue)
+	/// Установка количества захвата. Вызвается во время загрухки сохраненной игры.
+	func setCaptures(_ whiteCaptures: Int, _ blackCaptures: Int) {
+		self.whiteCaptures = whiteCaptures
+		self.blackCaptures = blackCaptures
 	}
 	
 	/// Возвращает камень, который должен ходить следеющим
@@ -61,11 +66,6 @@ class Gomoku {
 	/// Установка режима игры
 	func setMode(mode: Mode) {
 		self.mode = mode
-	}
-	
-	/// Возвращает режим игры в виде строки
-	func getCurrentMode() -> String {
-		return self.mode.rawValue
 	}
 	
 	/// Ход ИИ
@@ -107,25 +107,71 @@ class Gomoku {
 	
 	/// Проверка победител по захвату. Для победы нужно провести 5 захватов
 	private func checkWinerToCapture() {
-		if self.captureWhite >= self.numberCapturesToWin {
+		if self.whiteCaptures >= self.numberCapturesToWin {
 			self.delegate?.showingWinner(stone: .white)
-			self.board.clearBoard()
-		} else if self.captureBlack >= self.numberCapturesToWin {
+			reset()
+		} else if self.blackCaptures >= self.numberCapturesToWin {
 			self.delegate?.showingWinner(stone: .black)
-			self.board.clearBoard()
+			reset()
 		}
+	}
+	
+	/// Сбразыватеся до начальных настроек
+	private func reset() {
+		self.board.clearBoard()
+		self.blackCaptures = 0
+		self.whiteCaptures = 0
+		self.stone = .white
+		self.ai?.task.interrupt()
+		self.ai = try? AI()
 	}
 	
 	/// Производит захват камней
 	private func capturesStones(point: Point, stone: Stone) {
 		if let poinst = self.board.captures(point: point, stone: stone) {
 			if stone == .white {
-				self.captureWhite += 1
+				self.whiteCaptures += 1
 			} else {
-				self.captureBlack += 1
+				self.blackCaptures += 1
 			}
 			self.delegate?.delete(points: poinst, stone: stone.opposite())
 			checkWinerToCapture()
 		}
+	}
+	
+	/// Сохранение состояния доски и сохранение изображения
+	func saving() {
+		let saveManager = SaveManager()
+		saveManager.delegate = self
+		saveManager.saving()
+	}
+}
+
+// MARK: GetProtocol
+extension Gomoku: GetProtocol {
+	
+	/// Возвращает кортеж количества захватов. Первыми идут белые
+	func getCaptures() -> (Int, Int) {
+		return (self.whiteCaptures, self.blackCaptures)
+	}
+	
+	/// Возвращает кортеж массивов координат камней. Первым идут белые, вторым идут черные
+	func getPoints() -> ([Point], [Point]) {
+		return board.getWhiteBlackPointsSpot()
+	}
+	
+	/// Возвращает камень, который должен ходить следеющим
+	func getStone() -> String {
+		return String(self.stone.rawValue)
+	}
+	
+	/// Возвращает текущий режим игры
+	func getMode() -> String {
+		return self.mode.rawValue
+	}
+	
+	/// Возвращает моментальный снимок экрана
+	func getSnapshop() -> NSImage? {
+		return self.makeSnapshot?()
 	}
 }
