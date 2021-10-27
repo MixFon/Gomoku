@@ -51,6 +51,18 @@ class Board {
 		}
 	}
 	
+	/// Вызывается при закрузке сохраненной игры. На доске устанавливаются нужные spots
+	func setStartSpotsOnBouard(whitePoints: [Point], blackPoints: [Point]) {
+		for point in whitePoints {
+			let pointInBoard = convertCoordinateToBoard(point: point)
+			setSpot(point: pointInBoard, spot: .white)
+		}
+		for point in blackPoints {
+			let pointInBoard = convertCoordinateToBoard(point: point)
+			setSpot(point: pointInBoard, spot: .black)
+		}
+	}
+	
 	/// Установка всех значений доски в empty (удаление всех элементов с доски)
 	func clearBoard() {
 		for i in self.board.indices {
@@ -155,7 +167,7 @@ class Board {
 		return nil
 	}
 	
-	/// Установка спота нужного цвета
+	/// Установка спота нужного цвета на доску в заданную координату
 	private func setSpot(point: Point, spot: Spot) {
 		self.board[point.x][point.y] = spot
 	}

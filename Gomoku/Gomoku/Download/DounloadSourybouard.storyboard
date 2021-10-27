@@ -2,6 +2,7 @@
 <document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="17701"/>
+        <capability name="NSView safe area layout guides" minToolsVersion="12.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -13,14 +14,14 @@
                         <rect key="frame" x="0.0" y="0.0" width="1024" height="768"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
-                            <scrollView wantsLayer="YES" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lVp-1i-z1i">
-                                <rect key="frame" x="200" y="200" width="624" height="368"/>
+                            <scrollView wantsLayer="YES" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lVp-1i-z1i">
+                                <rect key="frame" x="20" y="73" width="984" height="675"/>
                                 <clipView key="contentView" id="SLp-7R-mmL">
-                                    <rect key="frame" x="1" y="1" width="622" height="366"/>
+                                    <rect key="frame" x="1" y="1" width="982" height="673"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <collectionView selectable="YES" id="CAv-qZ-eol">
-                                            <rect key="frame" x="0.0" y="0.0" width="622" height="158"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="982" height="673"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
                                             <collectionViewFlowLayout key="collectionViewLayout" minimumInteritemSpacing="50" minimumLineSpacing="50" id="81h-Gc-5D8">
                                                 <size key="itemSize" width="50" height="50"/>
@@ -34,22 +35,43 @@
                                     <color key="backgroundColor" name="systemRedColor" catalog="System" colorSpace="catalog"/>
                                 </clipView>
                                 <scroller key="horizontalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="YES" id="cFM-QN-D4i">
-                                    <rect key="frame" x="1" y="351" width="622" height="16"/>
+                                    <rect key="frame" x="-100" y="-100" width="622" height="16"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
-                                <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="eNz-ST-fsd">
-                                    <rect key="frame" x="234" y="1" width="15" height="143"/>
+                                <scroller key="verticalScroller" hidden="YES" wantsLayer="YES" verticalHuggingPriority="750" horizontal="NO" id="eNz-ST-fsd">
+                                    <rect key="frame" x="967" y="1" width="16" height="654"/>
                                     <autoresizingMask key="autoresizingMask"/>
                                 </scroller>
                             </scrollView>
+                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="Iid-D6-9WA">
+                                <rect key="frame" x="20" y="20" width="984" height="45"/>
+                                <subviews>
+                                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Mbb-RM-EBX">
+                                        <rect key="frame" x="898" y="6" width="70" height="32"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <buttonCell key="cell" type="push" title="Close" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="nBL-SC-kof">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <action selector="pressClose:" target="90x-Tb-fqh" id="Y57-XV-LmW"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <viewLayoutGuide key="safeArea" id="USa-le-4as"/>
+                                <viewLayoutGuide key="layoutMargins" id="he4-a7-1nk"/>
+                            </customView>
                         </subviews>
                         <constraints>
-                            <constraint firstItem="lVp-1i-z1i" firstAttribute="centerY" secondItem="RYQ-MT-y3i" secondAttribute="centerY" id="U30-5q-VBF"/>
-                            <constraint firstAttribute="trailing" secondItem="lVp-1i-z1i" secondAttribute="trailing" constant="200" id="a4s-8N-Zda"/>
-                            <constraint firstAttribute="bottom" secondItem="lVp-1i-z1i" secondAttribute="bottom" constant="200" id="bHf-EL-04a"/>
-                            <constraint firstItem="lVp-1i-z1i" firstAttribute="leading" secondItem="RYQ-MT-y3i" secondAttribute="leading" constant="200" id="eoo-aY-GsB"/>
-                            <constraint firstItem="lVp-1i-z1i" firstAttribute="top" secondItem="RYQ-MT-y3i" secondAttribute="top" constant="200" id="jq7-sa-joo"/>
-                            <constraint firstItem="lVp-1i-z1i" firstAttribute="centerX" secondItem="RYQ-MT-y3i" secondAttribute="centerX" id="sm6-Gh-XZe"/>
+                            <constraint firstItem="Iid-D6-9WA" firstAttribute="leading" secondItem="RYQ-MT-y3i" secondAttribute="leading" constant="20" id="2OQ-le-9eR"/>
+                            <constraint firstItem="lVp-1i-z1i" firstAttribute="centerX" secondItem="RYQ-MT-y3i" secondAttribute="centerX" id="7jo-dn-82o"/>
+                            <constraint firstItem="Iid-D6-9WA" firstAttribute="top" secondItem="RYQ-MT-y3i" secondAttribute="top" constant="703" id="7rL-h1-WI8"/>
+                            <constraint firstAttribute="bottom" secondItem="Iid-D6-9WA" secondAttribute="bottom" constant="20" symbolic="YES" id="Mc0-sx-eCg"/>
+                            <constraint firstAttribute="trailing" secondItem="lVp-1i-z1i" secondAttribute="trailing" constant="20" symbolic="YES" id="OwQ-pT-nun"/>
+                            <constraint firstAttribute="trailing" secondItem="Iid-D6-9WA" secondAttribute="trailing" constant="20" id="Us3-Lz-qUs"/>
+                            <constraint firstItem="Iid-D6-9WA" firstAttribute="top" secondItem="lVp-1i-z1i" secondAttribute="bottom" constant="8" id="XrY-Ch-wku"/>
+                            <constraint firstItem="lVp-1i-z1i" firstAttribute="top" secondItem="RYQ-MT-y3i" secondAttribute="top" constant="20" symbolic="YES" id="XvQ-89-Vwj"/>
+                            <constraint firstItem="lVp-1i-z1i" firstAttribute="leading" secondItem="RYQ-MT-y3i" secondAttribute="leading" constant="20" symbolic="YES" id="mnR-0p-nbf"/>
                         </constraints>
                     </view>
                     <connections>

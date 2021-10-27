@@ -28,8 +28,7 @@ class AI {
 			let outputData = self.outputPipe.fileHandleForReading.availableData
 			guard let outputString = String(data: outputData, encoding: .utf8) else { return }
 			
-			//5.
-			print(outputString, "111")
+			print(outputString, "AI")
 			if outputString.isEmpty {
 				return
 			}

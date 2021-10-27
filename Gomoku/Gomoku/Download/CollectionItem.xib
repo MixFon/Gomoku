@@ -7,38 +7,43 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="CollectionItem" customModule="Gomoku" customModuleProvider="target">
             <connections>
-                <outlet property="lable" destination="YYN-xv-exd" id="Z1a-wo-Uvt"/>
+                <outlet property="imageV" destination="VPE-E0-PT2" id="4Sg-Gd-jaq"/>
+                <outlet property="lable" destination="leH-8X-sA6" id="9dE-Df-HVw"/>
                 <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customView id="Hz6-mo-xeY">
-            <rect key="frame" x="0.0" y="0.0" width="480" height="272"/>
+            <rect key="frame" x="0.0" y="0.0" width="400" height="200"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
-                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="XGq-8p-snn">
-                    <rect key="frame" x="202" y="119" width="76" height="32"/>
-                    <buttonCell key="cell" type="push" title="Button" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="JH1-TD-yE1">
-                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VPE-E0-PT2">
+                    <rect key="frame" x="20" y="44" width="360" height="136"/>
+                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="axesIndependently" id="p3T-0U-cFB"/>
+                </imageView>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="leH-8X-sA6">
+                    <rect key="frame" x="18" y="20" width="364" height="16"/>
+                    <textFieldCell key="cell" lineBreakMode="clipping" alignment="center" title="Date" id="gWg-fc-BdP">
                         <font key="font" metaFont="system"/>
-                    </buttonCell>
-                </button>
-                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="YYN-xv-exd">
-                    <rect key="frame" x="222" y="105" width="37" height="62"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <textFieldCell key="cell" lineBreakMode="clipping" title="Label" id="9P0-QT-9F3">
-                        <font key="font" usesAppearanceFont="YES"/>
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                 </textField>
             </subviews>
             <constraints>
-                <constraint firstItem="XGq-8p-snn" firstAttribute="centerY" secondItem="Hz6-mo-xeY" secondAttribute="centerY" id="s0l-il-ui2"/>
-                <constraint firstItem="XGq-8p-snn" firstAttribute="centerX" secondItem="Hz6-mo-xeY" secondAttribute="centerX" id="u7d-up-zZD"/>
+                <constraint firstItem="leH-8X-sA6" firstAttribute="top" secondItem="VPE-E0-PT2" secondAttribute="bottom" constant="8" symbolic="YES" id="2nV-kd-b4C"/>
+                <constraint firstAttribute="trailing" secondItem="VPE-E0-PT2" secondAttribute="trailing" constant="20" symbolic="YES" id="5Kr-J7-jEq"/>
+                <constraint firstItem="VPE-E0-PT2" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" constant="20" symbolic="YES" id="FhJ-fO-eJi"/>
+                <constraint firstItem="leH-8X-sA6" firstAttribute="top" secondItem="VPE-E0-PT2" secondAttribute="bottom" constant="8" symbolic="YES" id="K08-Lv-100"/>
+                <constraint firstItem="leH-8X-sA6" firstAttribute="centerX" secondItem="Hz6-mo-xeY" secondAttribute="centerX" id="K0b-Mq-Ucn"/>
+                <constraint firstAttribute="bottom" secondItem="leH-8X-sA6" secondAttribute="bottom" constant="20" symbolic="YES" id="OXx-Y7-MHM"/>
+                <constraint firstItem="leH-8X-sA6" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="20" symbolic="YES" id="YRh-mN-Xcx"/>
+                <constraint firstAttribute="trailing" secondItem="leH-8X-sA6" secondAttribute="trailing" constant="20" symbolic="YES" id="dgE-nq-9ah"/>
+                <constraint firstItem="leH-8X-sA6" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" constant="164" id="lwO-bc-wxi"/>
+                <constraint firstItem="VPE-E0-PT2" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="20" symbolic="YES" id="oVU-fi-AiZ"/>
             </constraints>
-            <point key="canvasLocation" x="-146" y="120"/>
+            <point key="canvasLocation" x="-146" y="160.5"/>
         </customView>
     </objects>
 </document>

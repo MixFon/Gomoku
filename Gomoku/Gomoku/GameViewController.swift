@@ -30,6 +30,9 @@ class GameViewController: NSViewController {
 	let radiusPin: CGFloat = 0.15
 	let radiusStone: CGFloat = 0.3
 	
+	var whiteStartPointsOnBoard: [Point]?
+	var blackStartPointsOnBoard: [Point]?
+	
 	/// Имена обьектов взаимодействия на сцене
 	enum NamesNode: String {
 		case namePin = "pin"
@@ -45,6 +48,7 @@ class GameViewController: NSViewController {
 		setLight()
 		setEmptyNodes()
 		setStones()
+		setStartStones()
 		//movingCircle()
 		
         // retrieve the SCNView
@@ -69,6 +73,24 @@ class GameViewController: NSViewController {
         gestureRecognizers.insert(clickGesture, at: 0)
         scnView.gestureRecognizers = gestureRecognizers
     }
+	
+	/// Вызывается при загрузке сохраненной игры.
+	private func setStartStones() {
+		if self.whiteStartPointsOnBoard == nil && self.blackStartPointsOnBoard == nil {
+			return
+		}
+		let whitePoints = self.whiteStartPointsOnBoard ?? []
+		let blackPoints = self.blackStartPointsOnBoard ?? []
+		for point in whitePoints {
+			moveWhiteStone(point: point)
+		}
+		for point in blackPoints {
+			moveBlackStone(point: point)
+		}
+		self.gomoku.setStartPointOnBouard(whitePoints: whitePoints, blackPoints: blackPoints)
+		self.whiteStartPointsOnBoard = nil
+		self.blackStartPointsOnBoard = nil
+	}
 	
 	/// Установка пустых сферических нод
 	private func setEmptyNodes() {
@@ -137,20 +159,13 @@ class GameViewController: NSViewController {
 	
 	/// Передвижение камня в указанную координату. Содержит два движения вверх и вниз
 	private func moveStone(point: Point, stone: SCNNode) {
-		//let stone = self.stones.randomElement()
 		let position = SCNVector3(Double(point.x), self.y , Double(point.y))
 		let positionUp = SCNVector3(position.x, position.y + 3, position.z)
 		stone.physicsBody = SCNPhysicsBody(type: .static, shape: nil)
 		let moveUp = SCNAction.move(to: positionUp, duration: 0.7)
 		let moveDown = SCNAction.move(to: position, duration: 0.2)
 		let sequsens = SCNAction.sequence([moveUp, moveDown])
-		//stone.animation
 		stone.runAction(sequsens)
-		//randomElem?.runAction(SCNAction.move(to: position, duration: 1))
-		//randomElem
-		//randomElem?.physicsBody = SCNPhysicsBody(type: .dynamic, shape: nil)
-		//randomElem?.position = position
-		//result.node.physicsBody = SCNPhysicsBody(type: .dynamic, shape: nil)
 	}
 	
 	/// Движение по окружности
@@ -325,10 +340,22 @@ extension GameViewController: MoveProtocol {
 
 // MARK: GetProtocol
 extension GameViewController: GetProtocol {
+	
+	func getStone() -> String {
+		self.gomoku.getCurrentStone()
+	}
+	
+	/// Возвращает текущий режим игры
+	func getMode() -> String {
+		return self.gomoku.getCurrentMode()
+	}
+	
+	/// Возвращает координаты белых камней, находящихся на доске
 	func getPointsWhiteStonesOnBoard() -> [Point] {
 		return self.whiteStonesOnBoard.compactMap( { $0.1 } )
 	}
 	
+	/// Возвращает координаты черных камней, находящихся на доске
 	func getPointsBlackStonesOnBoard() -> [Point] {
 		return self.blackStonesOnBoard.compactMap( { $0.1 } )
 	}

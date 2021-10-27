@@ -12,4 +12,6 @@ protocol GetProtocol: AnyObject  {
 	func getSnapshop() -> NSImage?
 	func getPointsWhiteStonesOnBoard() -> [Point]
 	func getPointsBlackStonesOnBoard() -> [Point]
+	func getMode() -> String
+	func getStone() -> String
 }

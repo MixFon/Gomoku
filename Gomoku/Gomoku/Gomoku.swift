@@ -9,9 +9,9 @@ import Foundation
 
 class Gomoku {
 	var ai = try? AI()
-	var mode = Mode.pvp
+	private var mode = Mode.pvp
 	private var board = Board()
-	private var slone = Stone.white
+	private var stone = Stone.white
 	
 	private var captureWhite: Int = 0
 	private var captureBlack: Int = 0
@@ -20,23 +20,52 @@ class Gomoku {
 	 
 	weak var delegate: MoveProtocol?
 	
-	enum Mode {
+	enum Mode: String {
 		case pvp
 		case pvc
 	}
 	
+	/// Вызывается при закрузке сохраненной игры. На доске устанавливаются нужные spots
+	func setStartPointOnBouard(whitePoints: [Point], blackPoints: [Point]) {
+		self.board.printBourd()
+		self.board.setStartSpotsOnBouard(whitePoints: whitePoints, blackPoints: blackPoints)
+		self.board.printBourd()
+	}
+	
 	/// Следующий ход. Может быть как ход PvP так и PvC. В зависимости от типа игры.
 	func nextMove(point: Point) {
-		if movePalyer(point: point, stone: self.slone) {
+		if movePalyer(point: point, stone: self.stone) {
 			self.delegate?.pinShine(point: point, color: .green)
 			if self.mode == .pvc {
 				moveAI()
 			} else {
-				self.slone = self.slone.opposite()
+				self.stone = self.stone.opposite()
 			}
 		} else {
 			self.delegate?.pinShine(point: point, color: .red)
 		}
+	}
+	
+	/// Возвращает камень, который должен ходить следеющим
+	func getCurrentStone() -> String {
+		return String(self.stone.rawValue)
+	}
+	
+	/// Возвращает камень, который должен ходить следеющим
+	func setCurrentStone(stone: String) {
+		if let stone = Stone(rawValue: Character(stone)) {
+			self.stone = stone
+		}
+	}
+	
+	/// Установка режима игры
+	func setMode(mode: Mode) {
+		self.mode = mode
+	}
+	
+	/// Возвращает режим игры в виде строки
+	func getCurrentMode() -> String {
+		return self.mode.rawValue
 	}
 	
 	/// Ход ИИ
@@ -59,11 +88,11 @@ class Gomoku {
 	
 	/// Ход игрока
 	private func movePalyer(point: Point, stone: Stone) -> Bool {
-		if !self.board.placeStone(point: point, stone: slone) {
+		if !self.board.placeStone(point: point, stone: stone) {
 			return false
 		}
-		self.delegate?.moving(point: point, stone: slone)
-		capturesStones(point: point, stone: slone)
+		self.delegate?.moving(point: point, stone: stone)
+		capturesStones(point: point, stone: stone)
 		checkWinerToFiveStones(point: point, stone: stone)
 		return true
 	}

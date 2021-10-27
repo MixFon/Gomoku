@@ -17,9 +17,9 @@ class MenuViewController: NSViewController {
 	@IBAction func pressStart(_ sender: NSButton) {
 		if let gameVC = self.storyboard?.instantiateController(withIdentifier: "GameVC") as? GameViewController {
 			if sender.identifier?.rawValue == "pvc" {
-				gameVC.gomoku.mode = .pvc
+				gameVC.gomoku.setMode(mode: .pvc)
 			} else {
-				gameVC.gomoku.mode = .pvp
+				gameVC.gomoku.setMode(mode: .pvp)
 			}
 			self.view.window?.contentViewController = gameVC
 		}
@@ -27,7 +27,6 @@ class MenuViewController: NSViewController {
 	
 	@IBAction func pressDownload(_ sender: NSButton) {
 		let downloadSB = NSStoryboard(name: "DounloadSourybouard", bundle: nil)
-		//self.storyboard = downloadSB
 		if let download = downloadSB.instantiateController(withIdentifier: "Download") as? DownloadViewController {
 			self.view.window?.contentViewController = download
 		}

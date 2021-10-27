@@ -43,12 +43,14 @@ class SaveManager {
 		var save = Save()
 		save.name = "save_\(number)"
 		urlFolder.appendPathComponent(save.name ?? "image")
-		urlFolder.appendPathExtension("jpeg")
-		if !image.writeToFile(file: urlFolder.standardizedFileURL, atomically: true, usingType: .jpeg) { return nil }
-		save.pathImage = urlFolder.absoluteString
+		urlFolder.appendPathExtension("png")
+		if !image.writeToFile(file: urlFolder.standardizedFileURL, atomically: true, usingType: .png){return nil }
+		save.pathImage = urlFolder.path
 		save.date = Date().getStringDate()
 		save.whitePoints = self.delegate.getPointsWhiteStonesOnBoard()
-		save.whitePoints = self.delegate.getPointsWhiteStonesOnBoard()
+		save.blackPoints = self.delegate.getPointsBlackStonesOnBoard()
+		save.mode = self.delegate.getMode()
+		save.stone = self.delegate.getStone()
 		return save
 	}
 
@@ -59,7 +61,7 @@ class SaveManager {
 		guard let pathJSON = getPathSaveFileJSON() else { return nil }
 		do {
 			let data = try Data(contentsOf: URL(fileURLWithPath: pathJSON))
-			print("data yes", print(data))
+			//print("data yes", print(data))
 			return try decoter.decode([Save].self, from: data)
 		} catch  {
 			print("Error reading the file {\(pathJSON)}")
@@ -83,7 +85,6 @@ class SaveManager {
 			return false
 		}
 		setValueUserDeafaults(value: pathSaveFileJSON, kye: self.keyPathSaveFileJSON)
-		print(pathSaveFileJSON)
 		return true
 	}
 	

@@ -10,14 +10,17 @@ import Cocoa
 class CollectionItem: NSCollectionViewItem {
 
 	@IBOutlet weak var lable: NSTextField!
+	@IBOutlet weak var imageV: NSImageView!
 	
-	static var itemIdentifier = NSUserInterfaceItemIdentifier("itemIdentifier")
+	static let itemIdentifier = NSUserInterfaceItemIdentifier("itemIdentifier")
 
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
-		view.wantsLayer = true
-		view.layer?.cornerRadius = 8.0
-		print("collectionItem")
+		self.imageV.wantsLayer = true
+		self.imageV.layer?.borderWidth = 1.0
+		//self.imageV.layer?.borderColor = NSColor.red.cgColor
+		self.imageV.layer?.cornerRadius = 10.0
+		self.imageV.layer?.masksToBounds = true
 	}
 }
