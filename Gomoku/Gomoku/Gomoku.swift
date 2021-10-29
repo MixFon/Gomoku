@@ -101,7 +101,7 @@ class Gomoku {
 	private func checkWinerToFiveStones(point: Point, stone: Stone) {
 		if self.board.checkWinerToFiveSpots(point: point, stone: stone) {
 			self.delegate?.showingWinner(stone: stone)
-			self.board.clearBoard()
+			self.reset()
 		}
 	}
 	

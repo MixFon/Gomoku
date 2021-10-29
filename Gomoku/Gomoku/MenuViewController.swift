@@ -32,5 +32,8 @@ class MenuViewController: NSViewController {
 		}
 	}
 	
+	@IBAction func pressExit(_ sender: Any) {
+		NSApplication.shared.terminate(self)
+	}
 	
 }

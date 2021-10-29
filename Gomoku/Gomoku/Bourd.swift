@@ -25,6 +25,9 @@ class Board {
 	
 	var board = Array(repeating: Array(repeating: Spot.empty, count: 19), count: 19)
 	
+	/// 4 ставится потому что учитывается камень который ставится
+	private let numberStonesToWin = 4
+	
 	func printBourd() {
 		for line in board {
 			for elem in line {
@@ -49,6 +52,20 @@ class Board {
 				return .empty
 			}
 		}
+	}
+	
+	/// Перечисление служит для назначения значения при расчете стоимости spot при расчете тройки
+	enum SpotWeight: Int {
+		case empty = 0
+		case current = 2
+		case opposite = 3
+		case offBouard = 5
+	}
+	
+	/// Направление движения, используется при подряд идущих камней.
+	enum Direction {
+		case up
+		case down
 	}
 	
 	/// Возвращает кортеж ко
@@ -182,7 +199,7 @@ class Board {
 			checkSpotCoordinate(Point(x - 1, y - 1), opposite) {
 			return (Point(x - 2, y - 2), Point(x - 1, y - 1))
 		}
-		print("nil")
+		//print("nil")
 		return nil
 	}
 	
@@ -196,12 +213,17 @@ class Board {
 		return (point.x < 0 || point.x >= 19 || point.y < 0 || point.y >= 19)
 	}
 	
+	/// Проверяет нахотится ли в указанной точке указанный спот. true - находится false - нет. Проверка на вхождение на доску НЕ проводится
+	private func isSpotInBouard(_ point: Point,_ spot: Spot) -> Bool {
+		return self.board[point.x][point.y] == spot
+	}
+	
 	/// Проверка на то что в координате находится установленный спот true - находится false - нет
 	private func checkSpotCoordinate(_ point: Point, _ spot: Spot) -> Bool {
 		if inBoard(point: point) {
 			return false
 		}
-		return self.board[point.x][point.y] == spot
+		return isSpotInBouard(point, spot)
 	}
 	
 	/// Проверка положения перехода в захват
@@ -252,285 +274,332 @@ class Board {
 		return true
 	}
 	
-	/// Проверка наличия двойной троки
-	private func checkDoubleThree(point: Point, spot: Spot) -> Bool {
-		var count = 0
-		if doubleThreeOne(point: point, spot: spot) {
-			count += 1
-		}
-		if doubleThreeTwo(point: point, spot: spot) {
-			count += 1
-		}
-		if doubleThreeThree(point: point, spot: spot) {
-			count += 1
-		}
-		if doubleThreeFour(point: point, spot: spot) {
-			count += 1
-		}
-		if doubleThreeFive(point: point, spot: spot) {
-			count += 1
-		}
-		if doubleThreeSix(point: point, spot: spot) {
-			count += 1
-		}
-		if doubleThreeSeven(point: point, spot: spot) {
-			count += 1
-		}
-		if doubleThreeEight(point: point, spot: spot) {
-			count += 1
-		}
-		print("count =", count)
-		return count < 2
-	}
-	
-	// #x#
-	// #o#
-	// ###
-	private func doubleThreeOne(point: Point, spot: Spot) -> Bool {
-		var one = false
-		var two = false
-		one =
-			checkSpotCoordinate(Point(point.x - 3, point.y), spot) &&
-			checkSpotCoordinate(Point(point.x - 2, point.y), spot) &&
-			checkSpotCoordinate(Point(point.x - 1, point.y), .empty)
-		two =
-			checkSpotCoordinate(Point(point.x - 2, point.y), spot) &&
-			checkSpotCoordinate(Point(point.x - 1, point.y), spot)
-		return one || two
-	}
-	
-	// ##x
-	// #o#
-	// ###
-	private func doubleThreeTwo(point: Point, spot: Spot) -> Bool {
-		var one = false
-		var two = false
-		one =
-			checkSpotCoordinate(Point(point.x - 3, point.y + 3), spot) &&
-			checkSpotCoordinate(Point(point.x - 2, point.y + 2), spot) &&
-			checkSpotCoordinate(Point(point.x - 1, point.y + 1), .empty)
-		two =
-			checkSpotCoordinate(Point(point.x - 2, point.y + 2), spot) &&
-			checkSpotCoordinate(Point(point.x - 1, point.y + 1), spot)
-		return one || two
-	}
-	
-	// ###
-	// #ox
-	// ###
-	private func doubleThreeThree(point: Point, spot: Spot) -> Bool {
-		var one = false
-		var two = false
-		one =
-			checkSpotCoordinate(Point(point.x, point.y + 3), spot) &&
-			checkSpotCoordinate(Point(point.x, point.y + 2), spot) &&
-			checkSpotCoordinate(Point(point.x, point.y + 1), .empty)
-		two =
-			checkSpotCoordinate(Point(point.x, point.y + 2), spot) &&
-			checkSpotCoordinate(Point(point.x, point.y + 1), spot)
-		return one || two
-	}
-	
-	// ###
-	// #o#
-	// ##x
-	private func doubleThreeFour(point: Point, spot: Spot) -> Bool {
-		var one = false
-		var two = false
-		one =
-			checkSpotCoordinate(Point(point.x + 3, point.y + 3), spot) &&
-			checkSpotCoordinate(Point(point.x + 2, point.y + 2), spot) &&
-			checkSpotCoordinate(Point(point.x + 1, point.y + 1), .empty)
-		two =
-			checkSpotCoordinate(Point(point.x + 2, point.y + 2), spot) &&
-			checkSpotCoordinate(Point(point.x + 1, point.y + 1), spot)
-		return one || two
-	}
-	
-	// ###
-	// #o#
-	// #x#
-	private func doubleThreeFive(point: Point, spot: Spot) -> Bool {
-		var one = false
-		var two = false
-		one =
-			checkSpotCoordinate(Point(point.x + 3, point.y), spot) &&
-			checkSpotCoordinate(Point(point.x + 2, point.y), spot) &&
-			checkSpotCoordinate(Point(point.x + 1, point.y), .empty)
-		two =
-			checkSpotCoordinate(Point(point.x + 2, point.y), spot) &&
-			checkSpotCoordinate(Point(point.x + 1, point.y), spot)
-		return one || two
-	}
-	
-	// ###
-	// #o#
-	// x##
-	private func doubleThreeSix(point: Point, spot: Spot) -> Bool {
-		var one = false
-		var two = false
-		one =
-			checkSpotCoordinate(Point(point.x + 3, point.y - 3), spot) &&
-			checkSpotCoordinate(Point(point.x + 2, point.y - 2), spot) &&
-			checkSpotCoordinate(Point(point.x + 1, point.y - 1), .empty)
-		two =
-			checkSpotCoordinate(Point(point.x + 2, point.y - 2), spot) &&
-			checkSpotCoordinate(Point(point.x + 1, point.y - 1), spot)
-		return one || two
-	}
-	
-	// ###
-	// xo#
-	// ###
-	private func doubleThreeSeven(point: Point, spot: Spot) -> Bool {
-		var one = false
-		var two = false
-		one =
-			checkSpotCoordinate(Point(point.x, point.y - 3), spot) &&
-			checkSpotCoordinate(Point(point.x, point.y - 2), spot) &&
-			checkSpotCoordinate(Point(point.x, point.y - 1), .empty)
-		two =
-			checkSpotCoordinate(Point(point.x, point.y - 2), spot) &&
-			checkSpotCoordinate(Point(point.x, point.y - 1), spot)
-		return one || two
-	}
-	
-	// x##
-	// #o#
-	// ###
-	private func doubleThreeEight(point: Point, spot: Spot) -> Bool {
-		var one = false
-		var two = false
-		one =
-			checkSpotCoordinate(Point(point.x - 3, point.y - 3), spot) &&
-			checkSpotCoordinate(Point(point.x - 2, point.y - 2), spot) &&
-			checkSpotCoordinate(Point(point.x - 1, point.y - 1), .empty)
-		two =
-			checkSpotCoordinate(Point(point.x - 2, point.y - 2), spot) &&
-			checkSpotCoordinate(Point(point.x - 1, point.y - 1), spot)
-		return one || two
-	}
-	
-	
-	/// Проверка пяти стоящих подряд
-	func checkWinerToFiveSpots(point: Point, stone: Stone) -> Bool {
-		let point = convertCoordinateToBoard(point: point)
-		guard let spot = Spot(rawValue: stone.rawValue) else { return false }
-		if checkFiveOne(point: point, spot: spot) {
-			return true
-		}
-		if checkFiveTwo(point: point, spot: spot) {
-			return true
-		}
-		if checkFiveThree(point: point, spot: spot) {
-			return true
-		}
-		if checkFiveFour(point: point, spot: spot) {
-			return true
-		}
-		return false
-	}
-	
-	// #x#
-	// #o#
-	// #x#
-	private func checkFiveOne(point: Point, spot: Spot) -> Bool {
-		var count = 0
-		var up = point
-		var down = point
-		for i in 1...4 {
-			up.x = point.x - i
-			if !checkSpotCoordinate(up, spot) {
-				break
+	// MARK: Проветка двойной троки (новый вариант)
+	/// Проверяет наличие троек. Если тройка есть, возвращает массив точек составляющее тройку.
+	func checkDoubleThree(point: Point, spot: Spot) -> Bool {
+		if let points = checkThree(point: point, spot: spot) {
+			for point in points {
+				print(point)
 			}
-			count += 1
 		}
-		for i in 1...4 {
-			down.x = point.x + i
-			if !checkSpotCoordinate(down, spot) {
-				break
-			}
-			count += 1
+		return true
+	}
+	
+	/// Возвращает вес spot. Текущий - 2, противоположный - 3, пустой - 0, конец доски - 5
+	private func getWeightOfSpor(point: Point, spot: Spot) -> SpotWeight {
+		// Если конец доски
+		if inBoard(point: point) {
+			return .offBouard
 		}
-		return count >= 4
+		// Если текущий spot
+		if isSpotInBouard(point, spot) {
+			return .current
+		}
+		// Если противоположный spot
+		if isSpotInBouard(point, spot.opposite()) {
+			return .opposite
+		}
+		// Остается только пустой spot, он равен 0
+		return .empty
+	}
+	
+	// #x#
+	// #o#
+	// #x#
+	private func checkOne(point: Point, i: Int, direction: Direction) -> Point {
+		switch direction {
+		case .up:
+			return Point(point.x - i, point.y)
+		case .down:
+			return Point(point.x + i, point.y)
+		}
 	}
 	
 	// ##x
 	// #o#
 	// x##
-	private func checkFiveTwo(point: Point, spot: Spot) -> Bool {
-		var count = 0
-		var up = point
-		var down = point
-		for i in 1...4 {
-			up.x = point.x - i
-			up.y = point.y + i
-			if !checkSpotCoordinate(up, spot) {
-				break
-			}
-			count += 1
+	private func checkTwo(point: Point, i: Int, direction: Direction) -> Point {
+		switch direction {
+		case .up:
+			return Point(point.x - i, point.y + i)
+		case .down:
+			return Point(point.x + i, point.y - i)
 		}
-		for i in 1...4 {
-			down.x = point.x + i
-			down.y = point.y - i
-			if !checkSpotCoordinate(down, spot) {
-				break
-			}
-			count += 1
-		}
-		return count >= 4
 	}
 	
 	// ###
 	// xox
 	// ###
-	private func checkFiveThree(point: Point, spot: Spot) -> Bool {
-		var count = 0
-		var up = point
-		var down = point
-		for i in 1...4 {
-			up.y = point.y + i
-			if !checkSpotCoordinate(up, spot) {
-				break
-			}
-			count += 1
+	private func checkThree(point: Point, i: Int, direction: Direction) -> Point {
+		switch direction {
+		case .up:
+			return Point(point.x, point.y + i)
+		case .down:
+			return Point(point.x, point.y - i)
 		}
-		for i in 1...4 {
-			down.y = point.y - i
-			if !checkSpotCoordinate(down, spot) {
-				break
-			}
-			count += 1
-		}
-		return count >= 4
 	}
 	
 	// x##
 	// #o#
 	// ##x
-	private func checkFiveFour(point: Point, spot: Spot) -> Bool {
+	private func checkFour(point: Point, i: Int, direction: Direction) -> Point {
+		switch direction {
+		case .up:
+			return Point(point.x + i, point.y + i)
+		case .down:
+			return Point(point.x - i, point.y - i)
+		}
+	}
+	
+	/// Проверка идущих подрят троеек
+	private func checkThree(point: Point, spot: Spot) -> [Point]? {
+		return checkThreeAll(point: point, spot: spot,nextPoint: checkOne)
+	}
+
+	/// Проверка двойных троек по всех 8 направлениям
+	private func checkThreeAll(point: Point, spot: Spot,nextPoint: ((Point, Int, Direction) -> Point)) -> [Point]?{
+		var points = [point]
+		var index = 4;
+		var summa = 0
+		for i in 1...index {
+			let up = nextPoint(point, i, .up)
+			let weight = getWeightOfSpor(point: up, spot: spot)
+			index -= 1
+			summa += weight.rawValue
+			if weight == .current {
+				points.append(up)
+			} else {
+				break
+			}
+		}
+		if index == 0 {
+			return nil
+		}
+		for i in 1...index {
+			let down = nextPoint(point, i, .down)
+			let weight = getWeightOfSpor(point: down, spot: spot)
+			summa += weight.rawValue
+			if weight == .current {
+				points.append(down)
+			} else {
+				break
+			}
+		}
+		if summa == 4 {
+			return points
+		} else {
+			return nil
+		}
+	}
+	
+	/// Проверка пяти стоящих подряд камней.
+	func checkWinerToFiveSpots(point: Point, stone: Stone) -> Bool {
+		// -1 ставится потому что учитывается камень, который ставится
+		return checkingConsecutiveStones(point: point, stone: stone)
+	}
+	
+	// MARK: Проверка пяти подряд идущих камней.
+	/// Проверяет подряд идущие камни, во всех 8 направлениях на доске.
+	private func checkingConsecutiveStones(point: Point, stone: Stone) -> Bool {
+		let point = convertCoordinateToBoard(point: point)
+		guard let spot = Spot(rawValue: stone.rawValue) else { return false }
+		if checkFiveAll(point: point, spot: spot, nextPoint: checkOne) {
+			return true
+		}
+		if checkFiveAll(point: point, spot: spot, nextPoint: checkTwo) {
+			return true
+		}
+		if checkFiveAll(point: point, spot: spot, nextPoint: checkThree) {
+			return true
+		}
+		if checkFiveAll(point: point, spot: spot, nextPoint: checkFour) {
+			return true
+		}
+		return false
+	}
+	
+	/// Проверка пяти идущих подряд камней, определяется для определения победителя
+	private func checkFiveAll(point: Point, spot: Spot, nextPoint: ((Point, Int, Direction) -> Point)) -> Bool {
 		var count = 0
-		var up = point
-		var down = point
-		for i in 1...4 {
-			up.x = point.x + i
-			up.y = point.y + i
+		for i in 1...self.numberStonesToWin {
+			let up = nextPoint(point, i, .up)
 			if !checkSpotCoordinate(up, spot) {
 				break
 			}
 			count += 1
 		}
-		for i in 1...4 {
-			down.x = point.x - i
-			down.y = point.y - i
+		for i in 1...self.numberStonesToWin {
+			let down = nextPoint(point, i, .down)
 			if !checkSpotCoordinate(down, spot) {
 				break
 			}
 			count += 1
 		}
-		return count >= 4
+		return count >= self.numberStonesToWin
 	}
 }
 
 extension String : Error { }
+
+/*
+// MARK: Проверка двойной тройки (неверно работает)
+/// Проверка наличия двойной троки
+private func checkDoubleThree(point: Point, spot: Spot) -> Bool {
+	var count = 0
+	if doubleThreeOne(point: point, spot: spot) {
+		count += 1
+	}
+	if doubleThreeTwo(point: point, spot: spot) {
+		count += 1
+	}
+	if doubleThreeThree(point: point, spot: spot) {
+		count += 1
+	}
+	if doubleThreeFour(point: point, spot: spot) {
+		count += 1
+	}
+	if doubleThreeFive(point: point, spot: spot) {
+		count += 1
+	}
+	if doubleThreeSix(point: point, spot: spot) {
+		count += 1
+	}
+	if doubleThreeSeven(point: point, spot: spot) {
+		count += 1
+	}
+	if doubleThreeEight(point: point, spot: spot) {
+		count += 1
+	}
+	print("count =", count)
+	return count < 2
+}
+
+// #x#
+// #o#
+// ###
+private func doubleThreeOne(point: Point, spot: Spot) -> Bool {
+	var one = false
+	var two = false
+	one =
+		checkSpotCoordinate(Point(point.x - 3, point.y), spot) &&
+		checkSpotCoordinate(Point(point.x - 2, point.y), spot) &&
+		checkSpotCoordinate(Point(point.x - 1, point.y), .empty)
+	two =
+		checkSpotCoordinate(Point(point.x - 2, point.y), spot) &&
+		checkSpotCoordinate(Point(point.x - 1, point.y), spot)
+	return one || two
+}
+
+// ##x
+// #o#
+// ###
+private func doubleThreeTwo(point: Point, spot: Spot) -> Bool {
+	var one = false
+	var two = false
+	one =
+		checkSpotCoordinate(Point(point.x - 3, point.y + 3), spot) &&
+		checkSpotCoordinate(Point(point.x - 2, point.y + 2), spot) &&
+		checkSpotCoordinate(Point(point.x - 1, point.y + 1), .empty)
+	two =
+		checkSpotCoordinate(Point(point.x - 2, point.y + 2), spot) &&
+		checkSpotCoordinate(Point(point.x - 1, point.y + 1), spot)
+	return one || two
+}
+
+// ###
+// #ox
+// ###
+private func doubleThreeThree(point: Point, spot: Spot) -> Bool {
+	var one = false
+	var two = false
+	one =
+		checkSpotCoordinate(Point(point.x, point.y + 3), spot) &&
+		checkSpotCoordinate(Point(point.x, point.y + 2), spot) &&
+		checkSpotCoordinate(Point(point.x, point.y + 1), .empty)
+	two =
+		checkSpotCoordinate(Point(point.x, point.y + 2), spot) &&
+		checkSpotCoordinate(Point(point.x, point.y + 1), spot)
+	return one || two
+}
+
+// ###
+// #o#
+// ##x
+private func doubleThreeFour(point: Point, spot: Spot) -> Bool {
+	var one = false
+	var two = false
+	one =
+		checkSpotCoordinate(Point(point.x + 3, point.y + 3), spot) &&
+		checkSpotCoordinate(Point(point.x + 2, point.y + 2), spot) &&
+		checkSpotCoordinate(Point(point.x + 1, point.y + 1), .empty)
+	two =
+		checkSpotCoordinate(Point(point.x + 2, point.y + 2), spot) &&
+		checkSpotCoordinate(Point(point.x + 1, point.y + 1), spot)
+	return one || two
+}
+
+// ###
+// #o#
+// #x#
+private func doubleThreeFive(point: Point, spot: Spot) -> Bool {
+	var one = false
+	var two = false
+	one =
+		checkSpotCoordinate(Point(point.x + 3, point.y), spot) &&
+		checkSpotCoordinate(Point(point.x + 2, point.y), spot) &&
+		checkSpotCoordinate(Point(point.x + 1, point.y), .empty)
+	two =
+		checkSpotCoordinate(Point(point.x + 2, point.y), spot) &&
+		checkSpotCoordinate(Point(point.x + 1, point.y), spot)
+	return one || two
+}
+
+// ###
+// #o#
+// x##
+private func doubleThreeSix(point: Point, spot: Spot) -> Bool {
+	var one = false
+	var two = false
+	one =
+		checkSpotCoordinate(Point(point.x + 3, point.y - 3), spot) &&
+		checkSpotCoordinate(Point(point.x + 2, point.y - 2), spot) &&
+		checkSpotCoordinate(Point(point.x + 1, point.y - 1), .empty)
+	two =
+		checkSpotCoordinate(Point(point.x + 2, point.y - 2), spot) &&
+		checkSpotCoordinate(Point(point.x + 1, point.y - 1), spot)
+	return one || two
+}
+
+// ###
+// xo#
+// ###
+private func doubleThreeSeven(point: Point, spot: Spot) -> Bool {
+	var one = false
+	var two = false
+	one =
+		checkSpotCoordinate(Point(point.x, point.y - 3), spot) &&
+		checkSpotCoordinate(Point(point.x, point.y - 2), spot) &&
+		checkSpotCoordinate(Point(point.x, point.y - 1), .empty)
+	two =
+		checkSpotCoordinate(Point(point.x, point.y - 2), spot) &&
+		checkSpotCoordinate(Point(point.x, point.y - 1), spot)
+	return one || two
+}
+
+// x##
+// #o#
+// ###
+private func doubleThreeEight(point: Point, spot: Spot) -> Bool {
+	var one = false
+	var two = false
+	one =
+		checkSpotCoordinate(Point(point.x - 3, point.y - 3), spot) &&
+		checkSpotCoordinate(Point(point.x - 2, point.y - 2), spot) &&
+		checkSpotCoordinate(Point(point.x - 1, point.y - 1), .empty)
+	two =
+		checkSpotCoordinate(Point(point.x - 2, point.y - 2), spot) &&
+		checkSpotCoordinate(Point(point.x - 1, point.y - 1), spot)
+	return one || two
+}
+*/
 

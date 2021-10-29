@@ -713,10 +713,10 @@
                         <autoresizingMask key="autoresizingMask"/>
                         <subviews>
                             <stackView distribution="equalSpacing" orientation="vertical" alignment="centerX" spacing="100" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ham-LH-myW">
-                                <rect key="frame" x="444" y="230" width="136" height="308"/>
+                                <rect key="frame" x="449" y="162" width="126" height="444"/>
                                 <subviews>
                                     <button identifier="pvc" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="djV-9A-GBK">
-                                        <rect key="frame" x="5" y="272" width="126" height="36"/>
+                                        <rect key="frame" x="0.0" y="408" width="126" height="36"/>
                                         <buttonCell key="cell" type="bevel" title="Start PvC" bezelStyle="rounded" alignment="center" inset="2" id="BNW-Rh-MTP">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system" size="30"/>
@@ -726,7 +726,7 @@
                                         </connections>
                                     </button>
                                     <button identifier="pvp" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="L7k-3Q-LZI">
-                                        <rect key="frame" x="6" y="136" width="124" height="36"/>
+                                        <rect key="frame" x="1" y="272" width="124" height="36"/>
                                         <buttonCell key="cell" type="bevel" title="Start PvP" bezelStyle="rounded" alignment="center" imageScaling="proportionallyDown" inset="2" id="5qs-rZ-EMW">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system" size="30"/>
@@ -736,8 +736,8 @@
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="uSM-9d-PUL">
-                                        <rect key="frame" x="0.0" y="0.0" width="136" height="36"/>
-                                        <buttonCell key="cell" type="bevel" title="Download" bezelStyle="rounded" alignment="center" imageScaling="proportionallyDown" inset="2" id="F3f-pv-PoD">
+                                        <rect key="frame" x="8" y="136" width="110" height="36"/>
+                                        <buttonCell key="cell" type="bevel" title="Loading" bezelStyle="rounded" alignment="center" imageScaling="proportionallyDown" inset="2" id="F3f-pv-PoD">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system" size="30"/>
                                         </buttonCell>
@@ -745,13 +745,25 @@
                                             <action selector="pressDownload:" target="ltV-jC-fPU" id="8O6-yg-xoL"/>
                                         </connections>
                                     </button>
+                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ppx-LF-5Mq">
+                                        <rect key="frame" x="37" y="0.0" width="52" height="36"/>
+                                        <buttonCell key="cell" type="bevel" title="Exit" bezelStyle="rounded" alignment="center" imageScaling="proportionallyDown" inset="2" id="dfL-XY-b1h">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system" size="30"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <action selector="pressExit:" target="ltV-jC-fPU" id="u0n-cf-2bq"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <visibilityPriorities>
                                     <integer value="1000"/>
                                     <integer value="1000"/>
                                     <integer value="1000"/>
+                                    <integer value="1000"/>
                                 </visibilityPriorities>
                                 <customSpacing>
+                                    <real value="3.4028234663852886e+38"/>
                                     <real value="3.4028234663852886e+38"/>
                                     <real value="3.4028234663852886e+38"/>
                                     <real value="3.4028234663852886e+38"/>
