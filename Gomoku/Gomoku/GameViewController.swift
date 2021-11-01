@@ -45,6 +45,8 @@ class GameViewController: NSViewController {
         super.viewDidLoad()
         
 		self.gomoku.delegate = self
+		// !!! Потом убрать!
+		self.gomoku.board.delegate = self
 		setLight()
 		setEmptyNodes()
 		setStones()
@@ -331,6 +333,15 @@ extension GameViewController: MoveProtocol {
 		let position = SCNVector3(Double(point.x), self.y, Double(point.y))
 		guard let node = self.scene.rootNode.childNodes.first(where: {
 			$0.name == NamesNode.namePin.rawValue &&
+			$0.position == position}) else { return }
+		nodeShine(node: node, color: color)
+	}
+	
+	/// Подсветка pin указанным цветом.
+	func stoneShine(point: Point, color: NSColor) {
+		let position = SCNVector3(Double(point.x), self.y, Double(point.y))
+		guard let node = self.scene.rootNode.childNodes.first(where: {
+			$0.name == NamesNode.nameStone.rawValue &&
 			$0.position == position}) else { return }
 		nodeShine(node: node, color: color)
 	}

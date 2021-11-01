@@ -16,7 +16,7 @@ struct Point: Codable {
 	}
 }
 
-extension Point: Equatable {
+extension Point: Equatable, Hashable {
 	static func == (left: Point, right: Point) -> Bool {
 		return (left.x == right.x) && (left.y == right.y)
 	}

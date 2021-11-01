@@ -11,15 +11,18 @@ import AppKit
 class Gomoku {
 	var ai = try? AI()
 	private var mode = Mode.pvp
-	private var board = Board()
+	
+	// Поставить private
+	var board = Board()
+	
+	weak var delegate: MoveProtocol?
+	
 	private var stone = Stone.white
 	
 	private var whiteCaptures: Int = 0
 	private var blackCaptures: Int = 0
 	
 	let numberCapturesToWin: Int = 2
-	 
-	weak var delegate: MoveProtocol?
 	
 	var makeSnapshot: (()->NSImage?)?
 	

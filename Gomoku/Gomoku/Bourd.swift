@@ -23,18 +23,31 @@ enum Stone: Character {
 
 class Board {
 	
+	/// Используется для обработка случая расстановки Rabbit
+	typealias RabbitFunction = (Point, Spot, ((Point, Int, Direction) -> Point)) -> [Point]?
+	typealias NextPoint = ((Point, Int, Direction) -> Point)
+	
+	// !!!! Удалить, используется для подсвечивания камней
+	weak var delegate: MoveProtocol?
+	
 	var board = Array(repeating: Array(repeating: Spot.empty, count: 19), count: 19)
 	
 	/// 4 ставится потому что учитывается камень который ставится
 	private let numberStonesToWin = 4
-	
+
 	func printBourd() {
-		for line in board {
-			for elem in line {
-				print(elem.rawValue, terminator: " ")
+		for i in 0..<19 {
+			for j in 0..<19 {
+				print(self.board[j][i].rawValue, terminator: " ")
 			}
 			print()
 		}
+//		for line in board {
+//			for elem in line {
+//				print(elem.rawValue, terminator: " ")
+//			}
+//			print()
+//		}
 	}
 	
 	enum Spot: Character {
@@ -218,7 +231,7 @@ class Board {
 		return self.board[point.x][point.y] == spot
 	}
 	
-	/// Проверка на то что в координате находится установленный спот true - находится false - нет
+	/// Проверка на то что в координате находится установленный spot true - находится false - нет
 	private func checkSpotCoordinate(_ point: Point, _ spot: Spot) -> Bool {
 		if inBoard(point: point) {
 			return false
@@ -279,6 +292,16 @@ class Board {
 	func checkDoubleThree(point: Point, spot: Spot) -> Bool {
 		if let points = checkThree(point: point, spot: spot) {
 			for point in points {
+				let pointGlobal = convertCoordinateToGlobal(point: point)
+				self.delegate?.stoneShine(point: pointGlobal, color: .brown)
+				print(point)
+			}
+		}
+		if let points = checkThreeRabbit(point: point, spot: spot) {
+			print("rabbit:")
+			for point in points {
+				let pointGlobal = convertCoordinateToGlobal(point: point)
+				self.delegate?.stoneShine(point: pointGlobal, color: .cyan)
 				print(point)
 			}
 		}
@@ -303,6 +326,7 @@ class Board {
 		return .empty
 	}
 	
+	// MARK: Функции для проверки подряд идуих камней
 	// #x#
 	// #o#
 	// #x#
@@ -351,9 +375,181 @@ class Board {
 		}
 	}
 	
+	// MARK: Проверка тройки в виде кролика
+	
+	// up x o x down
+	// где x - empty spot, o текущая точка, . spot  такого же типа как и o
+	/// Проверяет xox во всех 8 направлениях. Если совпадает, возвращает [point], нет nil
+	private func checkI(_ point: Point, _ spot: Spot, _ centreSpot: Spot, _ nextPoint: NextPoint) -> [Point]? {
+		let up = nextPoint(point, 1, .up)
+		let down = nextPoint(point, 1, .down)
+		if checkSpotCoordinate(up, .empty) &&
+			checkSpotCoordinate(point, centreSpot) &&
+			checkSpotCoordinate(down, .empty) {
+			return [point]
+		} else {
+			return nil
+		}
+	}
+	
+	// up o o x down
+	// где x - empty spot, o текущая точка, . spot  такого же типа как и o
+	/// Проверяет xox во всех 8 направлениях. Если совпадает, возвращает [point], нет nil
+	private func checkII(_ point: Point, _ spot: Spot, _ centreSpot: Spot, _ nextPoint: NextPoint) -> [Point]? {
+		let up = nextPoint(point, 1, .up)
+		let down = nextPoint(point, 1, .down)
+		if checkSpotCoordinate(up, spot) &&
+			checkSpotCoordinate(point, centreSpot) &&
+			checkSpotCoordinate(down, .empty) {
+			return [point, up]
+		} else {
+			return nil
+		}
+	}
+	
+	// up x o o down
+	// где x - empty spot, o текущая точка, . spot  такого же типа как и o
+	/// Проверяет xox во всех 8 направлениях. Если совпадает, возвращает [point], нет nil
+	private func checkIII(_ point: Point, _ spot: Spot, _ centreSpot: Spot, _ nextPoint: NextPoint) -> [Point]? {
+		let up = nextPoint(point, 1, .up)
+		let down = nextPoint(point, 1, .down)
+		if checkSpotCoordinate(up, .empty) &&
+			checkSpotCoordinate(point, centreSpot) &&
+			checkSpotCoordinate(down, spot) {
+			return [point, down]
+		} else {
+			return nil
+		}
+	}
+	
+	// MARK: Rabbit all functions
+	/// Проверка тройки в виде кролика
+	private func checkThreeRabbit(point: Point, spot: Spot) -> [Point]? {
+		if let rabbitOne = rabbitAllFunctions(point: point, spot: spot, rabbitFunction: rabbitOne) {
+			return rabbitOne
+		}
+		if let rabbitTwo = rabbitAllFunctions(point: point, spot: spot, rabbitFunction: rabbitTwo) {
+			return rabbitTwo
+		}
+		if let rabbitThree = rabbitAllFunctions(point: point, spot: spot, rabbitFunction: rabbitThree) {
+			return rabbitThree
+		}
+		return nil
+	}
+	
+	/// Каждый переданная функция rabbitFunction обрабатывается в 8 направлениях (функции check*)
+	private func rabbitAllFunctions(point: Point, spot: Spot, rabbitFunction: RabbitFunction) -> [Point]? {
+		if let one = rabbitFunction(point, spot, checkOne) {
+			return one
+		}
+		if let two = rabbitFunction(point, spot, checkTwo) {
+			return two
+		}
+		if let three = rabbitFunction(point, spot, checkThree) {
+			return three
+		}
+		if let four = rabbitFunction(point, spot, checkFour) {
+			return four
+		}
+		return nil
+	}
+	
+	
+	// MARK: Rabbit проверки
+	// up x . . x o x down
+	// где x - пусеой spot, o текущая точка, . spot  такого же типа как и o
+	/// Провека ситуции когда точка пришлась в нижнюю точку следа кролика
+	private func rabbitOne(point: Point, spot: Spot,nextPoint: ((Point, Int, Direction) -> Point)) -> [Point]? {
+		guard var points = checkI(point, spot, .empty, nextPoint) else { return nil }
+		
+		// up +3
+		let pointUp = nextPoint(point, 3, .up)
+		if let pointsIII = checkIII(pointUp, spot, spot, nextPoint) {
+			points.append(contentsOf: pointsIII)
+			return points
+		}
+		
+		// down -3
+		let pointDown = nextPoint(point, 3, .down)
+		if let pointsII = checkII(pointDown, spot, spot ,nextPoint) {
+			points.append(contentsOf: pointsII)
+			return points
+		}
+		return nil
+	}
+	
+	// up x . o x . x down   или   up x . x . o x down
+	// где x - пусеой spot, o текущая точка, . spot  такого же типа как и o
+	/// Провека ситуции когда точка пришлась в нижнюю точку следа кролика
+	private func rabbitTwo(point: Point, spot: Spot,nextPoint: ((Point, Int, Direction) -> Point)) -> [Point]? {
+		guard var points = checkII(point, spot, .empty, nextPoint) else { return nil }
+		
+		// up +3
+		let pointUp = nextPoint(point, 3, .up)
+		if let pointsI = checkI(pointUp, spot, spot, nextPoint) {
+			points.append(contentsOf: pointsI)
+			return points
+		}
+		
+		// down +2
+		let pointDownUp = nextPoint(point, 2, .up)
+		if !checkSpotCoordinate(pointDownUp, .empty) { return nil }
+		// down -2
+		let pointDown = nextPoint(point, 2, .down)
+		if let pointsI = checkI(pointDown, spot, spot, nextPoint) {
+			points.append(contentsOf: pointsI)
+			return points
+		}
+		return nil
+	}
+	
+	// up x o . x . x down   или   up x . x o . x down
+	// где x - пусеой spot, o текущая точка, . spot  такого же типа как и o
+	/// Провека ситуции когда точка пришлась в нижнюю точку следа кролика
+	private func rabbitThree(point: Point, spot: Spot,nextPoint: ((Point, Int, Direction) -> Point)) -> [Point]? {
+		guard var points = checkIII(point, spot, .empty, nextPoint) else { return nil }
+		
+		// up -2
+		let pointUpDown = nextPoint(point, 2, .down)
+		if !checkSpotCoordinate(pointUpDown, .empty) { return nil }
+		
+		// up +2
+		let pointUp = nextPoint(point, 2, .up)
+		if let pointsI = checkI(pointUp, spot, spot, nextPoint) {
+			points.append(contentsOf: pointsI)
+			return points
+		}
+		
+		// down -3
+		let pointDown = nextPoint(point, 3, .down)
+		if let pointsI = checkI(pointDown, spot, spot, nextPoint) {
+			points.append(contentsOf: pointsI)
+			return points
+		}
+		return nil
+	}
+	
+	
+	
+	// MARK: Проверка троек камней идущих подряд
 	/// Проверка идущих подрят троеек
 	private func checkThree(point: Point, spot: Spot) -> [Point]? {
-		return checkThreeAll(point: point, spot: spot,nextPoint: checkOne)
+		var setPoints = Set<Point>()
+		//var points = [Point]()
+		if let one = checkThreeAll(point: point, spot: spot, nextPoint: checkOne) {
+			one.forEach({ setPoints.insert($0)})
+		}
+		if let two = checkThreeAll(point: point, spot: spot, nextPoint: checkTwo) {
+			two.forEach({ setPoints.insert($0)})
+		}
+		if let three = checkThreeAll(point: point, spot: spot, nextPoint: checkThree) {
+			three.forEach({ setPoints.insert($0)})
+		}
+		if let four = checkThreeAll(point: point, spot: spot, nextPoint: checkFour) {
+			four.forEach({ setPoints.insert($0)})
+		}
+		let points = [Point](setPoints)
+		return points
 	}
 
 	/// Проверка двойных троек по всех 8 направлениям
@@ -392,15 +588,9 @@ class Board {
 		}
 	}
 	
-	/// Проверка пяти стоящих подряд камней.
-	func checkWinerToFiveSpots(point: Point, stone: Stone) -> Bool {
-		// -1 ставится потому что учитывается камень, который ставится
-		return checkingConsecutiveStones(point: point, stone: stone)
-	}
-	
 	// MARK: Проверка пяти подряд идущих камней.
 	/// Проверяет подряд идущие камни, во всех 8 направлениях на доске.
-	private func checkingConsecutiveStones(point: Point, stone: Stone) -> Bool {
+	func checkWinerToFiveSpots(point: Point, stone: Stone) -> Bool {
 		let point = convertCoordinateToBoard(point: point)
 		guard let spot = Spot(rawValue: stone.rawValue) else { return false }
 		if checkFiveAll(point: point, spot: spot, nextPoint: checkOne) {
