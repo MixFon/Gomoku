@@ -290,22 +290,56 @@ class Board {
 	// MARK: Проветка двойной троки (новый вариант)
 	/// Проверяет наличие троек. Если тройка есть, возвращает массив точек составляющее тройку.
 	func checkDoubleThree(point: Point, spot: Spot) -> Bool {
-		if let points = checkThree(point: point, spot: spot) {
-			for point in points {
-				let pointGlobal = convertCoordinateToGlobal(point: point)
-				self.delegate?.stoneShine(point: pointGlobal, color: .brown)
-				print(point)
-			}
+		var setResult = Set<Point>()
+		let uniqueStone = uniquePointThree(point: point, spot: spot)
+		for point in uniqueStone {
+			let unique = uniquePointThree(point: point, spot: spot)
+			unique.forEach( { setResult.insert($0) } )
 		}
-		if let points = checkThreeRabbit(point: point, spot: spot) {
-			print("rabbit:")
-			for point in points {
-				let pointGlobal = convertCoordinateToGlobal(point: point)
-				self.delegate?.stoneShine(point: pointGlobal, color: .cyan)
-				print(point)
+		if setResult.count == 3 || setResult.count == 0 {
+			for uniquePoint in setResult {
+				let point = convertCoordinateToGlobal(point: uniquePoint)
+				self.delegate?.stoneShine(point: point, color: .green)
 			}
+			return true
+		} else {
+			for uniquePoint in setResult {
+				let point = convertCoordinateToGlobal(point: uniquePoint)
+				self.delegate?.stoneShine(point: point, color: .red)
+			}
+			return false
 		}
-		return true
+	}
+	
+	/**
+	Возвращает уникальные элементы состовляющие тройки по всем направлениям.
+	Вычисления выполнятся на разных очередях с помощью DispatchGroup. Главный поток ожидает завершения обоих вычислений.
+	*/
+	private func uniquePointThree(point: Point, spot: Spot) -> [Point] {
+		var setPoints = Set<Point>()
+		
+		var pointsThree = [Point]()
+		var pointsRabbitThree = [Point]()
+		
+		let group = DispatchGroup()
+		group.enter()
+		DispatchQueue.global(qos: .userInitiated).async {
+			pointsThree = self.checkThree(point: point, spot: spot)
+			print("one")
+			group.leave()
+		}
+		group.enter()
+		DispatchQueue.global(qos: .userInitiated).async {
+			pointsRabbitThree = self.checkThreeRabbit(point: point, spot: spot)
+			print("two")
+			group.leave()
+		}
+		group.wait()
+		pointsThree.forEach( { setPoints.insert($0)} )
+		pointsRabbitThree.forEach( { setPoints.insert($0)} )
+		print("Done")
+		let points = [Point](setPoints)
+		return points
 	}
 	
 	/// Возвращает вес spot. Текущий - 2, противоположный - 3, пустой - 0, конец доски - 5
@@ -424,34 +458,34 @@ class Board {
 	
 	// MARK: Rabbit all functions
 	/// Проверка тройки в виде кролика
-	private func checkThreeRabbit(point: Point, spot: Spot) -> [Point]? {
-		if let rabbitOne = rabbitAllFunctions(point: point, spot: spot, rabbitFunction: rabbitOne) {
-			return rabbitOne
-		}
-		if let rabbitTwo = rabbitAllFunctions(point: point, spot: spot, rabbitFunction: rabbitTwo) {
-			return rabbitTwo
-		}
-		if let rabbitThree = rabbitAllFunctions(point: point, spot: spot, rabbitFunction: rabbitThree) {
-			return rabbitThree
-		}
-		return nil
+	private func checkThreeRabbit(point: Point, spot: Spot) -> [Point] {
+		var setPoints = Set<Point>()
+		let one = rabbitAllFunctions(point: point, spot: spot, rabbitFunction: rabbitOne)
+		one.forEach({setPoints.insert($0)})
+		let two = rabbitAllFunctions(point: point, spot: spot, rabbitFunction: rabbitTwo)
+		two.forEach({setPoints.insert($0)})
+		let three = rabbitAllFunctions(point: point, spot: spot, rabbitFunction: rabbitThree)
+		three.forEach({setPoints.insert($0)})
+		let points = [Point](setPoints)
+		return points
 	}
 	
 	/// Каждый переданная функция rabbitFunction обрабатывается в 8 направлениях (функции check*)
-	private func rabbitAllFunctions(point: Point, spot: Spot, rabbitFunction: RabbitFunction) -> [Point]? {
+	private func rabbitAllFunctions(point: Point, spot: Spot, rabbitFunction: RabbitFunction) -> [Point] {
+		var points = [Point]()
 		if let one = rabbitFunction(point, spot, checkOne) {
-			return one
+			points.append(contentsOf: one)
 		}
 		if let two = rabbitFunction(point, spot, checkTwo) {
-			return two
+			points.append(contentsOf: two)
 		}
 		if let three = rabbitFunction(point, spot, checkThree) {
-			return three
+			points.append(contentsOf: three)
 		}
 		if let four = rabbitFunction(point, spot, checkFour) {
-			return four
+			points.append(contentsOf: four)
 		}
-		return nil
+		return points
 	}
 	
 	
@@ -466,7 +500,7 @@ class Board {
 		let pointUp = nextPoint(point, 3, .up)
 		if let pointsIII = checkIII(pointUp, spot, spot, nextPoint) {
 			points.append(contentsOf: pointsIII)
-			return points
+			//return points
 		}
 		
 		// down -3
@@ -475,7 +509,10 @@ class Board {
 			points.append(contentsOf: pointsII)
 			return points
 		}
-		return nil
+		if points.count < 3 {
+			return nil
+		}
+		return points
 	}
 	
 	// up x . o x . x down   или   up x . x . o x down
@@ -488,7 +525,7 @@ class Board {
 		let pointUp = nextPoint(point, 3, .up)
 		if let pointsI = checkI(pointUp, spot, spot, nextPoint) {
 			points.append(contentsOf: pointsI)
-			return points
+			//return points
 		}
 		
 		// down +2
@@ -500,7 +537,10 @@ class Board {
 			points.append(contentsOf: pointsI)
 			return points
 		}
-		return nil
+		if points.count < 3 {
+			return nil
+		}
+		return points
 	}
 	
 	// up x o . x . x down   или   up x . x o . x down
@@ -517,7 +557,7 @@ class Board {
 		let pointUp = nextPoint(point, 2, .up)
 		if let pointsI = checkI(pointUp, spot, spot, nextPoint) {
 			points.append(contentsOf: pointsI)
-			return points
+			//return points
 		}
 		
 		// down -3
@@ -526,34 +566,35 @@ class Board {
 			points.append(contentsOf: pointsI)
 			return points
 		}
-		return nil
+		if points.count < 3 {
+			return nil
+		}
+		return points
 	}
-	
-	
 	
 	// MARK: Проверка троек камней идущих подряд
 	/// Проверка идущих подрят троеек
-	private func checkThree(point: Point, spot: Spot) -> [Point]? {
+	private func checkThree(point: Point, spot: Spot) -> [Point] {
 		var setPoints = Set<Point>()
 		//var points = [Point]()
 		if let one = checkThreeAll(point: point, spot: spot, nextPoint: checkOne) {
-			one.forEach({ setPoints.insert($0)})
+			one.forEach( { setPoints.insert($0) } )
 		}
 		if let two = checkThreeAll(point: point, spot: spot, nextPoint: checkTwo) {
-			two.forEach({ setPoints.insert($0)})
+			two.forEach( { setPoints.insert($0) } )
 		}
 		if let three = checkThreeAll(point: point, spot: spot, nextPoint: checkThree) {
-			three.forEach({ setPoints.insert($0)})
+			three.forEach( { setPoints.insert($0) } )
 		}
 		if let four = checkThreeAll(point: point, spot: spot, nextPoint: checkFour) {
-			four.forEach({ setPoints.insert($0)})
+			four.forEach( { setPoints.insert($0) } )
 		}
 		let points = [Point](setPoints)
 		return points
 	}
 
 	/// Проверка двойных троек по всех 8 направлениям
-	private func checkThreeAll(point: Point, spot: Spot,nextPoint: ((Point, Int, Direction) -> Point)) -> [Point]?{
+	private func checkThreeAll(point: Point, spot: Spot,nextPoint: NextPoint) -> [Point]? {
 		var points = [point]
 		var index = 4;
 		var summa = 0

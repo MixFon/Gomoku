@@ -20,4 +20,9 @@ extension Point: Equatable, Hashable {
 	static func == (left: Point, right: Point) -> Bool {
 		return (left.x == right.x) && (left.y == right.y)
 	}
+	
+	func hash(into hasher: inout Hasher) {
+		  hasher.combine(x)
+		  hasher.combine(y)
+	  }
 }

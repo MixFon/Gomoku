@@ -82,19 +82,28 @@ class GameViewController: NSViewController {
         scnView.gestureRecognizers = gestureRecognizers
     }
 	
-	/// Вызывается при загрузке сохраненной игры.
+	/// Вызывается при загрузке сохраненной игры. Создается таймер в отдельном потоке, по завершении которого расставляются камни.
 	private func setStartStones() {
 		if self.whiteStartPointsOnBoard == nil && self.blackStartPointsOnBoard == nil { return }
-		let whitePoints = self.whiteStartPointsOnBoard ?? []
-		let blackPoints = self.blackStartPointsOnBoard ?? []
-		for point in whitePoints {
-			moveWhiteStone(point: point)
+		let queue = DispatchQueue.global(qos: .default)
+		queue.async {
+			let timer = Timer.init(timeInterval: 2, repeats: false ) { _ in
+				DispatchQueue.main.async {
+					let whitePoints = self.whiteStartPointsOnBoard ?? []
+					let blackPoints = self.blackStartPointsOnBoard ?? []
+					for point in whitePoints {
+						self.moveWhiteStone(point: point)
+					}
+					for point in blackPoints {
+						self.moveBlackStone(point: point)
+					}
+					self.whiteStartPointsOnBoard = nil
+					self.blackStartPointsOnBoard = nil
+				}
+			}
+			RunLoop.current.add(timer, forMode: .default)
+			RunLoop.current.run()
 		}
-		for point in blackPoints {
-			moveBlackStone(point: point)
-		}
-		self.whiteStartPointsOnBoard = nil
-		self.blackStartPointsOnBoard = nil
 	}
 	
 	/// Установка пустых сферических нод
