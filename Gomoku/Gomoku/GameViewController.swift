@@ -39,6 +39,7 @@ class GameViewController: NSViewController {
 		case nameStone = "stone"
 		case nameExit = "exit"
 		case nameSave = "save"
+		case nameTime = "time"
 	}
     
     override func viewDidLoad() {
@@ -47,6 +48,7 @@ class GameViewController: NSViewController {
 		self.gomoku.delegate = self
 		// !!! Потом убрать!
 		self.gomoku.board.delegate = self
+		self.gomoku.ai?.delegate = self
 		setLight()
 		setEmptyNodes()
 		setStones()
@@ -303,6 +305,12 @@ class GameViewController: NSViewController {
 
 // MARK: MoveProtocol
 extension GameViewController: MoveProtocol {
+	func showTime(time: String) {
+		let node = self.scene.rootNode.childNodes.first(where: {$0.name == NamesNode.nameTime.rawValue})
+		guard let timeNode = node?.geometry as? SCNText else { return }
+		timeNode.string = time
+	}
+	
 	
 	/// Показ победителя. Очистка камней с доски.
 	func showingWinner(stone: Stone) {

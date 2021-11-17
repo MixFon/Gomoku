@@ -44,7 +44,7 @@ class Gomoku {
 		if movePalyer(point: point, stone: self.stone) {
 			self.delegate?.pinShine(point: point, color: .green)
 			if self.mode == .pvc {
-				moveAI()
+				moveAI(point: point)
 			} else {
 				self.stone = self.stone.opposite()
 			}
@@ -72,21 +72,22 @@ class Gomoku {
 	}
 	
 	/// Ход ИИ
-	private func moveAI() {
-		ai?.getRequestToAI(message: "temp\n")
-		var i = 0
-		let stone = Stone.black
-		var point = Point(i - 9, i - 9)
-		while true {
-			point = Point(i - 9, i - 9)
-			if self.board.placeStone(point: point, stone: stone) {
-				break
-			}
-			i += 1
-		}
-		self.delegate?.moving(point: point, stone: stone)
-		capturesStones(point: point, stone: stone)
-		checkWinerToFiveStones(point: point, stone: stone)
+	private func moveAI(point: Point) {
+		print("y = \(point.y + 9) x =\(point.x + 9)")
+		ai?.getRequestToAI(message: "\(point.y + 9) \(point.x + 9)\n")
+//		var i = 0
+//		let stone = Stone.black
+//		var point = Point(i - 9, i - 9)
+//		while true {
+//			point = Point(i - 9, i - 9)
+//			if self.board.placeStone(point: point, stone: stone) {
+//				break
+//			}
+//			i += 1
+//		}
+//		self.delegate?.moving(point: point, stone: stone)
+//		capturesStones(point: point, stone: stone)
+//		checkWinerToFiveStones(point: point, stone: stone)
 	}
 	
 	/// Ход игрока

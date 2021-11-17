@@ -81,7 +81,7 @@ class Board {
 		case down
 	}
 	
-	/// Возвращает кортеж ко
+	/// Возвращает кортеж координат
 	func getWhiteBlackPointsSpot() -> ([Point],[Point]) {
 		var whitePoint = [Point]()
 		var blackPoint = [Point]()
@@ -154,20 +154,20 @@ class Board {
 		let point = convertCoordinateToBoard(point: point)
 		guard let spot = Spot(rawValue: stone.rawValue) else { return nil }
 		guard let points = isCaptures(point: point, spot: spot) else { return nil }
-		print(points)
+		//print(points)
 		deleteSpot(points: points)
 		let firstPoint = convertCoordinateToGlobal(point: points.0)
 		let secondPoint = convertCoordinateToGlobal(point: points.1)
 		return (firstPoint, secondPoint)
 	}
 	
-	/// Удаляет споты в указанных координатах
+	/// Удаляет споты в указанных координатах, используется при захвате камней
 	private func deleteSpot(points: (Point, Point)) {
 		self.board[points.0.x][points.0.y] = .empty
 		self.board[points.1.x][points.1.y] = .empty
 	}
 	
-	/// Проверяет позможен ли захват вражеских камней
+	/// Проверяет возможен ли захват вражеских камней
 	private func isCaptures(point: Point, spot: Spot) -> (Point, Point)? {
 		let opposite = spot.opposite()
 		let x = point.x
@@ -212,12 +212,11 @@ class Board {
 			checkSpotCoordinate(Point(x - 1, y - 1), opposite) {
 			return (Point(x - 2, y - 2), Point(x - 1, y - 1))
 		}
-		//print("nil")
 		return nil
 	}
 	
 	/// Установка спота нужного цвета на доску в заданную координату
-	private func setSpot(point: Point, spot: Spot) {
+	func setSpot(point: Point, spot: Spot) {
 		self.board[point.x][point.y] = spot
 	}
 	
@@ -227,7 +226,7 @@ class Board {
 	}
 	
 	/// Проверяет нахотится ли в указанной точке указанный спот. true - находится false - нет. Проверка на вхождение на доску НЕ проводится
-	private func isSpotInBouard(_ point: Point,_ spot: Spot) -> Bool {
+	private func isSpotInBouard(_ point: Point, _ spot: Spot) -> Bool {
 		return self.board[point.x][point.y] == spot
 	}
 	
@@ -239,56 +238,9 @@ class Board {
 		return isSpotInBouard(point, spot)
 	}
 	
-	/// Проверка положения перехода в захват
-	private func checkCaptures(point: Point, spot: Spot) -> Bool {
-		let opposite = spot.opposite()
-		let x = point.x
-		let y = point.y
-		if checkSpotCoordinate(Point(x - 2, y), opposite) &&
-			checkSpotCoordinate(Point(x - 1, y), spot) &&
-			checkSpotCoordinate(Point(x + 1, y), opposite) {
-			return false
-		}
-		if checkSpotCoordinate(Point(x - 2, y + 2), opposite) &&
-			checkSpotCoordinate(Point(x - 1, y + 1), spot) &&
-			checkSpotCoordinate(Point(x + 1, y - 1), opposite) {
-			return false
-		}
-		if checkSpotCoordinate(Point(x, y + 2), opposite) &&
-			checkSpotCoordinate(Point(x, y + 1), spot) &&
-			checkSpotCoordinate(Point(x, y - 1), opposite) {
-			return false
-		}
-		if checkSpotCoordinate(Point(x + 2, y + 2), opposite) &&
-			checkSpotCoordinate(Point(x + 1, y + 1), spot) &&
-			checkSpotCoordinate(Point(x - 1, y - 1), opposite) {
-			return false
-		}
-		if checkSpotCoordinate(Point(x + 2, y), opposite) &&
-			checkSpotCoordinate(Point(x + 1, y), spot) &&
-			checkSpotCoordinate(Point(x - 1, y), opposite) {
-			return false
-		}
-		if checkSpotCoordinate(Point(x + 2, y - 2), opposite) &&
-			checkSpotCoordinate(Point(x + 1, y - 1), spot) &&
-			checkSpotCoordinate(Point(x - 1, y + 1), opposite) {
-			return false
-		}
-		if checkSpotCoordinate(Point(x, y - 2), opposite) &&
-			checkSpotCoordinate(Point(x, y - 1), spot) &&
-			checkSpotCoordinate(Point(x, y + 1), opposite) {
-			return false
-		}
-		if checkSpotCoordinate(Point(x - 2, y - 2), opposite) &&
-			checkSpotCoordinate(Point(x - 1, y - 1), spot) &&
-			checkSpotCoordinate(Point(x + 1, y + 1), opposite) {
-			return false
-		}
-		return true
-	}
-	
 	// MARK: Проветка двойной троки (новый вариант)
-	/// Проверяет наличие троек. Если тройка есть, возвращает массив точек составляющее тройку.
+	// Нужно будет упростить вариант в случае долгой работы.
+	/// Проверяет наличие троек. Если тройка есть подсвечивает ее.
 	func checkDoubleThree(point: Point, spot: Spot) -> Bool {
 		var setResult = Set<Point>()
 		let uniqueStone = uniquePointThree(point: point, spot: spot)
@@ -296,6 +248,9 @@ class Board {
 			let unique = uniquePointThree(point: point, spot: spot)
 			unique.forEach( { setResult.insert($0) } )
 		}
+		return setResult.count == 3 || setResult.count == 0
+		/*
+		// Вариан с подсвечиваение тройки
 		if setResult.count == 3 || setResult.count == 0 {
 			for uniquePoint in setResult {
 				let point = convertCoordinateToGlobal(point: uniquePoint)
@@ -309,6 +264,7 @@ class Board {
 			}
 			return false
 		}
+*/
 	}
 	
 	/**
@@ -325,19 +281,19 @@ class Board {
 		group.enter()
 		DispatchQueue.global(qos: .userInitiated).async {
 			pointsThree = self.checkThree(point: point, spot: spot)
-			print("one")
+			//print("one")
 			group.leave()
 		}
 		group.enter()
 		DispatchQueue.global(qos: .userInitiated).async {
 			pointsRabbitThree = self.checkThreeRabbit(point: point, spot: spot)
-			print("two")
+			//print("two")
 			group.leave()
 		}
 		group.wait()
 		pointsThree.forEach( { setPoints.insert($0)} )
 		pointsRabbitThree.forEach( { setPoints.insert($0)} )
-		print("Done")
+		//print("Done")
 		let points = [Point](setPoints)
 		return points
 	}
@@ -594,7 +550,7 @@ class Board {
 	}
 
 	/// Проверка двойных троек по всех 8 направлениям
-	private func checkThreeAll(point: Point, spot: Spot,nextPoint: NextPoint) -> [Point]? {
+	private func checkThreeAll(point: Point, spot: Spot, nextPoint: NextPoint) -> [Point]? {
 		var points = [point]
 		var index = 4;
 		var summa = 0
@@ -650,7 +606,7 @@ class Board {
 	}
 	
 	/// Проверка пяти идущих подряд камней, определяется для определения победителя
-	private func checkFiveAll(point: Point, spot: Spot, nextPoint: ((Point, Int, Direction) -> Point)) -> Bool {
+	private func checkFiveAll(point: Point, spot: Spot, nextPoint: NextPoint) -> Bool {
 		var count = 0
 		for i in 1...self.numberStonesToWin {
 			let up = nextPoint(point, i, .up)
@@ -672,7 +628,58 @@ class Board {
 
 extension String : Error { }
 
+
 /*
+/// Проверка положения перехода в захват (не нужно это проверять)
+private func checkCaptures(point: Point, spot: Spot) -> Bool {
+	let opposite = spot.opposite()
+	let x = point.x
+	let y = point.y
+	if checkSpotCoordinate(Point(x - 2, y), opposite) &&
+		checkSpotCoordinate(Point(x - 1, y), spot) &&
+		checkSpotCoordinate(Point(x + 1, y), opposite) {
+		return false
+	}
+	if checkSpotCoordinate(Point(x - 2, y + 2), opposite) &&
+		checkSpotCoordinate(Point(x - 1, y + 1), spot) &&
+		checkSpotCoordinate(Point(x + 1, y - 1), opposite) {
+		return false
+	}
+	if checkSpotCoordinate(Point(x, y + 2), opposite) &&
+		checkSpotCoordinate(Point(x, y + 1), spot) &&
+		checkSpotCoordinate(Point(x, y - 1), opposite) {
+		return false
+	}
+	if checkSpotCoordinate(Point(x + 2, y + 2), opposite) &&
+		checkSpotCoordinate(Point(x + 1, y + 1), spot) &&
+		checkSpotCoordinate(Point(x - 1, y - 1), opposite) {
+		return false
+	}
+	if checkSpotCoordinate(Point(x + 2, y), opposite) &&
+		checkSpotCoordinate(Point(x + 1, y), spot) &&
+		checkSpotCoordinate(Point(x - 1, y), opposite) {
+		return false
+	}
+	if checkSpotCoordinate(Point(x + 2, y - 2), opposite) &&
+		checkSpotCoordinate(Point(x + 1, y - 1), spot) &&
+		checkSpotCoordinate(Point(x - 1, y + 1), opposite) {
+		return false
+	}
+	if checkSpotCoordinate(Point(x, y - 2), opposite) &&
+		checkSpotCoordinate(Point(x, y - 1), spot) &&
+		checkSpotCoordinate(Point(x, y + 1), opposite) {
+		return false
+	}
+	if checkSpotCoordinate(Point(x - 2, y - 2), opposite) &&
+		checkSpotCoordinate(Point(x - 1, y - 1), spot) &&
+		checkSpotCoordinate(Point(x + 1, y + 1), opposite) {
+		return false
+	}
+	return true
+}
+
+
+
 // MARK: Проверка двойной тройки (неверно работает)
 /// Проверка наличия двойной троки
 private func checkDoubleThree(point: Point, spot: Spot) -> Bool {

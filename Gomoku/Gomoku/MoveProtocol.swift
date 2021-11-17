@@ -14,4 +14,5 @@ protocol MoveProtocol: AnyObject {
 	func pinShine(point: Point, color: NSColor)
 	func stoneShine(point: Point, color: NSColor)
 	func showingWinner(stone: Stone)
+	func showTime(time: String)
 }
