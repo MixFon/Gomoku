@@ -9,7 +9,7 @@ import Foundation
 import AppKit
 
 class Gomoku {
-	var ai = try? AI()
+	var ai = AI()
 	private var mode = Mode.pvp
 	
 	// Поставить private
@@ -74,7 +74,7 @@ class Gomoku {
 	/// Ход ИИ
 	private func moveAI(point: Point) {
 		print("y = \(point.y + 9) x =\(point.x + 9)")
-		ai?.getRequestToAI(message: "\(point.y + 9) \(point.x + 9)\n")
+		
 //		var i = 0
 //		let stone = Stone.black
 //		var point = Point(i - 9, i - 9)
@@ -126,8 +126,8 @@ class Gomoku {
 		self.blackCaptures = 0
 		self.whiteCaptures = 0
 		self.stone = .white
-		self.ai?.task.interrupt()
-		self.ai = try? AI()
+		//self.ai?.task.interrupt()
+		self.ai = AI()
 	}
 	
 	/// Производит захват камней

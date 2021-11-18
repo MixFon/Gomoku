@@ -48,7 +48,6 @@ class GameViewController: NSViewController {
 		self.gomoku.delegate = self
 		// !!! Потом убрать!
 		self.gomoku.board.delegate = self
-		self.gomoku.ai?.delegate = self
 		setLight()
 		setEmptyNodes()
 		setStones()
@@ -201,7 +200,7 @@ class GameViewController: NSViewController {
 	/// Закрывает сцену и преходит к предыдущему окну.
 	private func exitScene() {
 		if let menuVC = self.storyboard?.instantiateController(withIdentifier: "MenuVC") as? MenuViewController {
-			self.gomoku.ai?.task.interrupt()
+			//self.gomoku.ai?.task.interrupt()
 			self.view.window?.contentViewController = menuVC
 		}
 	}

@@ -25,6 +25,7 @@
 		297DB7682726D689007D0286 /* SaveManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 297DB7672726D689007D0286 /* SaveManager.swift */; };
 		29907EF827195BED00F12B58 /* Bourd.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29907EF727195BED00F12B58 /* Bourd.swift */; };
 		29AB2F472722C3CD00A1C273 /* AI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29AB2F462722C3CD00A1C273 /* AI.swift */; };
+		29D741AA27463B0200278C9F /* Stone.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29D741A927463B0200278C9F /* Stone.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +49,7 @@
 		297DB7672726D689007D0286 /* SaveManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveManager.swift; sourceTree = "<group>"; };
 		29907EF727195BED00F12B58 /* Bourd.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bourd.swift; sourceTree = "<group>"; };
 		29AB2F462722C3CD00A1C273 /* AI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AI.swift; sourceTree = "<group>"; };
+		29D741A927463B0200278C9F /* Stone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stone.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,6 +109,7 @@
 				297DB7622726C905007D0286 /* Save.swift */,
 				297DB7672726D689007D0286 /* SaveManager.swift */,
 				290C22592727F1C8007B03F6 /* GetProtocol.swift */,
+				29D741A927463B0200278C9F /* Stone.swift */,
 			);
 			path = Gomoku;
 			sourceTree = "<group>";
@@ -192,6 +195,7 @@
 				29907EF827195BED00F12B58 /* Bourd.swift in Sources */,
 				2962088E271FEE9F000BDB63 /* Point.swift in Sources */,
 				29AB2F472722C3CD00A1C273 /* AI.swift in Sources */,
+				29D741AA27463B0200278C9F /* Stone.swift in Sources */,
 				290C225A2727F1C8007B03F6 /* GetProtocol.swift in Sources */,
 				2962088B271ED18A000BDB63 /* MoveProtocol.swift in Sources */,
 				291FA4572728282900E4AC88 /* DownloadViewController.swift in Sources */,

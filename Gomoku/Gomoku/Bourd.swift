@@ -7,47 +7,39 @@
 
 import Foundation
 
-enum Stone: Character {
-	case white = "W"
-	case black = "B"
-	
-	func opposite() -> Stone {
-		switch self {
-		case .black:
-			return .white
-		case .white:
-			return .black
-		}
-	}
-}
-
 class Board {
 	
 	/// Используется для обработка случая расстановки Rabbit
 	typealias RabbitFunction = (Point, Spot, ((Point, Int, Direction) -> Point)) -> [Point]?
 	typealias NextPoint = ((Point, Int, Direction) -> Point)
 	
+	typealias Weight = UInt16
+	
 	// !!!! Удалить, используется для подсвечивания камней
 	weak var delegate: MoveProtocol?
 	
-	var board = Array(repeating: Array(repeating: Spot.empty, count: 19), count: 19)
+	var board = Array(repeating: Array(repeating: Weight(0), count: 19), count: 19)
 	
-	/// 4 ставится потому что учитывается камень который ставится
+	/// Количество камней для попеды. 4 ставится потому что учитывается камень который ставится
 	private let numberStonesToWin = 4
 
+	/// Наилучшие точки для расставления белых камней
+	var pointsForWhite = [Point]()
+	
+	/// Наилучшие точки для расставления черных камней
+	var pointsForBlack = [Point]()
+	
+	/// Текущий spot, для определения, кото должен ходить в данный момент. Первые ходят белые.
+	var currentSpot = Spot.white
+	
+	/// Печать доски
 	func printBourd() {
 		for i in 0..<19 {
 			for j in 0..<19 {
-				print(self.board[j][i].rawValue, terminator: " ")
+				print(Spot(weight: self.board[j][i]).rawValue, terminator: " ")
 			}
 			print()
 		}
-//		for line in board {
-//			for elem in line {
-//				print(elem.rawValue, terminator: " ")
-//			}
-//			print()
-//		}
 	}
 	
 	enum Spot: Character {
@@ -55,6 +47,18 @@ class Board {
 		case black = "B"
 		case empty = "."
 		
+		init(weight: Weight) {
+			switch weight {
+			case 0x100:
+				self = .white
+			case 0x1:
+				self = .black
+			default:
+				self = .empty
+			}
+		}
+		
+		/// Возврат противоположенного значения
 		func opposite() -> Spot {
 			switch self {
 			case .black:
@@ -65,6 +69,54 @@ class Board {
 				return .empty
 			}
 		}
+		
+		/** Возвращет числовое значение веса  spot.
+			0x100 - белые (левая васть числа)
+			0x1 - берные (правая часть числа)
+			0x0 - пустая ячейка.*/
+		func wieghtSpot() -> Weight {
+			switch self {
+			case .white:
+				return 0x100
+			case .black:
+				return 0x1
+			case .empty:
+				return 0x0
+			}
+		}
+	}
+	
+	/// Возвращает массив точек в которые предпочтительнее всего ставить. Возвращабтся точки для currentSpot
+	func getBestPoints() -> [Point] {
+		switch self.currentSpot {
+		case .black:
+			return self.pointsForBlack
+		case .white:
+			return self.pointsForWhite
+		default:
+			return []
+		}
+	}
+	
+	/// Возвращает максимальный наилучший вес для текущего spot
+	func getBestWeithForCurrentSpot() -> Weight {
+		switch self.currentSpot {
+		case .black:
+			guard let blackPoints = self.pointsForBlack.last else { break }
+			return getWeith(point: blackPoints)
+		case .white:
+			guard let whitePoints = self.pointsForWhite.last else { break }
+			return getWeith(point: whitePoints)
+		default:
+			break
+		}
+		print("getBestWeithForCurrentSpot");
+		return 0
+	}
+	
+	/// Возвращает вес в указанной точке
+	private func getWeith(point: Point) -> Weight {
+		return self.board[point.x][point.y]
 	}
 	
 	/// Перечисление служит для назначения значения при расчете стоимости spot при расчете тройки
@@ -82,11 +134,12 @@ class Board {
 	}
 	
 	/// Возвращает кортеж координат
-	func getWhiteBlackPointsSpot() -> ([Point],[Point]) {
+	func getWhiteBlackPointsSpot() -> ([Point], [Point]) {
 		var whitePoint = [Point]()
 		var blackPoint = [Point]()
 		for (i, line) in self.board.enumerated() {
-			for (j, spot) in line.enumerated() {
+			for (j, weight) in line.enumerated() {
+				let spot = Spot(weight: weight)
 				switch spot {
 				case .white:
 					whitePoint.append(convertCoordinateToGlobal(point: Point(i, j)))
@@ -116,7 +169,7 @@ class Board {
 	func clearBoard() {
 		for i in self.board.indices {
 			for j in self.board[i].indices {
-				self.board[i][j] = .empty
+				self.board[i][j] = Spot.empty.wieghtSpot()
 			}
 		}
 	}
@@ -163,8 +216,8 @@ class Board {
 	
 	/// Удаляет споты в указанных координатах, используется при захвате камней
 	private func deleteSpot(points: (Point, Point)) {
-		self.board[points.0.x][points.0.y] = .empty
-		self.board[points.1.x][points.1.y] = .empty
+		self.board[points.0.x][points.0.y] = Spot.empty.wieghtSpot()
+		self.board[points.1.x][points.1.y] = Spot.empty.wieghtSpot()
 	}
 	
 	/// Проверяет возможен ли захват вражеских камней
@@ -217,7 +270,7 @@ class Board {
 	
 	/// Установка спота нужного цвета на доску в заданную координату
 	func setSpot(point: Point, spot: Spot) {
-		self.board[point.x][point.y] = spot
+		self.board[point.x][point.y] = spot.wieghtSpot()
 	}
 	
 	/// Проверяет нахождение коорлинаты на доске. true если координата не входит на доску
@@ -227,7 +280,7 @@ class Board {
 	
 	/// Проверяет нахотится ли в указанной точке указанный спот. true - находится false - нет. Проверка на вхождение на доску НЕ проводится
 	private func isSpotInBouard(_ point: Point, _ spot: Spot) -> Bool {
-		return self.board[point.x][point.y] == spot
+		return self.board[point.x][point.y] == spot.wieghtSpot()
 	}
 	
 	/// Проверка на то что в координате находится установленный spot true - находится false - нет
@@ -248,8 +301,8 @@ class Board {
 			let unique = uniquePointThree(point: point, spot: spot)
 			unique.forEach( { setResult.insert($0) } )
 		}
-		return setResult.count == 3 || setResult.count == 0
-		/*
+		//return setResult.count == 3 || setResult.count == 0
+		
 		// Вариан с подсвечиваение тройки
 		if setResult.count == 3 || setResult.count == 0 {
 			for uniquePoint in setResult {
@@ -264,7 +317,6 @@ class Board {
 			}
 			return false
 		}
-*/
 	}
 	
 	/**
