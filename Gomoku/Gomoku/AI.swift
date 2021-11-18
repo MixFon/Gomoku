@@ -17,10 +17,10 @@ class AI {
 	
 	/// Установка доски перед стартом расчета MiniMax
 	func setBoard(board: Board) {
-		self.board = board
+		self.board = Board(board: board)
 	}
 	
-	
+	/// Алгоритм MiniMax
 	func miniMax(board: Board, level: Int) -> Board.Weight {
 		
 		let newLevel = level - 1
@@ -28,10 +28,13 @@ class AI {
 			return board.getBestWeithForCurrentSpot()
 		}
 		for bestPoint in board.getBestPoints() {
-			
+			// Возможно будет долго работать, поменять
+			let newBoard = Board(board: board)
+			newBoard.setCurrentSpotToPoint(point: bestPoint)
+			let weight = miniMax(board: newBoard, level: newLevel)
+			board.setWeightToPoint(point: bestPoint, weight: weight)
 		}
-		
-		return 0
+		return board.getBestWeithForCurrentSpot()
 	}
 	
 }

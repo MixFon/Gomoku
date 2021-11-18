@@ -32,6 +32,15 @@ class Board {
 	/// Текущий spot, для определения, кото должен ходить в данный момент. Первые ходят белые.
 	var currentSpot = Spot.white
 	
+	init() { }
+	
+	init(board :Board) {
+		self.board = board.board
+		self.pointsForWhite = board.pointsForWhite
+		self.pointsForBlack = board.pointsForBlack
+		self.currentSpot = board.currentSpot
+	}
+	
 	/// Печать доски
 	func printBourd() {
 		for i in 0..<19 {
@@ -40,6 +49,21 @@ class Board {
 			}
 			print()
 		}
+	}
+	
+	// MARK: Enums
+	/// Перечисление служит для назначения значения при расчете стоимости spot при расчете тройки
+	enum SpotWeight: Int {
+		case empty = 0
+		case current = 2
+		case opposite = 3
+		case offBouard = 5
+	}
+	
+	/// Направление движения, используется при подряд идущих камней.
+	enum Direction {
+		case up
+		case down
 	}
 	
 	enum Spot: Character {
@@ -98,14 +122,14 @@ class Board {
 		}
 	}
 	
-	/// Возвращает максимальный наилучший вес для текущего spot
+	/// Возвращает максимальный наилучший вес для текущего spot. Это первый элемент списка.
 	func getBestWeithForCurrentSpot() -> Weight {
 		switch self.currentSpot {
 		case .black:
-			guard let blackPoints = self.pointsForBlack.last else { break }
+			guard let blackPoints = self.pointsForBlack.first else { break }
 			return getWeith(point: blackPoints)
 		case .white:
-			guard let whitePoints = self.pointsForWhite.last else { break }
+			guard let whitePoints = self.pointsForWhite.first else { break }
 			return getWeith(point: whitePoints)
 		default:
 			break
@@ -114,23 +138,61 @@ class Board {
 		return 0
 	}
 	
-	/// Возвращает вес в указанной точке
+	/// Возвращает вес в указанной точке. Полностю для всей точки.
 	private func getWeith(point: Point) -> Weight {
 		return self.board[point.x][point.y]
 	}
 	
-	/// Перечисление служит для назначения значения при расчете стоимости spot при расчете тройки
-	enum SpotWeight: Int {
-		case empty = 0
-		case current = 2
-		case opposite = 3
-		case offBouard = 5
+	/// Устанавливает текущий spot в заданную позицию. Ипользуется в miniMax перед переходом на следующий уровень.
+	func setCurrentSpotToPoint(point: Point) {
+		setSpot(point: point, spot: self.currentSpot)
 	}
 	
-	/// Направление движения, используется при подряд идущих камней.
-	enum Direction {
-		case up
-		case down
+	/// Устанавливает вес в заданную позицию. Вес для правого и левого одновременно. И обновляет массивы с лучшими ходами
+	func setWeightToPoint(point: Point, weight: Weight) {
+		self.board[point.x][point.y] = addingWeights(one: self.board[point.x][point.y], two: weight)
+		updateBestPoints(point: point, weight: self.board[point.x][point.y])
+	}
+	
+	/// Сложение весов. Правые скзадывает с правыми левые с левыми
+	private func addingWeights(one: Weight, two: Weight) -> Weight {
+		// 16 oct, 8 left oct - white, 8 right oct - black
+		var result = one
+		let white = (result >> 8) & 0xff
+		let black = result & 0xff
+		result = white + ((two >> 8) & 0xff)
+		result = result << 8
+		result = result | (black + (two & 0xff))
+		return result
+	}
+	
+	/// Обновление массивов с наилучшими весами.
+	func updateBestPoints(point: Point, weight: Weight) {
+		if self.pointsForWhite.isEmpty {
+			self.pointsForWhite.append(point)
+		}
+		if self.pointsForBlack.isEmpty {
+			self.pointsForBlack.append(point)
+			return
+		}
+		guard let lastWhite = self.pointsForWhite.last else { print("error update"); return }
+		guard let lastBlack = self.pointsForBlack.last else { print("error update"); return }
+		let whiteWeight = (self.board[lastWhite.x][lastWhite.y] >> 8) & 0xff
+		let blackWeight = self.board[lastBlack.x][lastBlack.y] & 0xff
+		
+		if ((weight >> 8) & 0xff) > whiteWeight {
+			self.pointsForWhite.append(point)
+			self.pointsForWhite.sort(by: {
+				((self.board[$0.x][$0.y] >> 8) & 0xff) > ((self.board[$1.x][$1.y] >> 8) & 0xff)
+			})
+		}
+		
+		if (weight & 0xff) > blackWeight {
+			self.pointsForBlack.append(point)
+			self.pointsForBlack.sort(by: {
+				((self.board[$0.x][$0.y] >> 8) & 0xff) > ((self.board[$1.x][$1.y] >> 8) & 0xff)
+			})
+		}
 	}
 	
 	/// Возвращает кортеж координат
@@ -268,9 +330,16 @@ class Board {
 		return nil
 	}
 	
-	/// Установка спота нужного цвета на доску в заданную координату
+	/// Перерасчет весов относительно только что поставленного spot. Во всех 8 направлениях.
+	private func recalculationWeights(point: Point) {
+		
+	}
+	
+	/// Установка спота нужного цвета на доску в заданную координату. Так же происходит перемена spot на противоположенный
 	func setSpot(point: Point, spot: Spot) {
 		self.board[point.x][point.y] = spot.wieghtSpot()
+		recalculationWeights(point: point)
+		self.currentSpot = self.currentSpot.opposite()
 	}
 	
 	/// Проверяет нахождение коорлинаты на доске. true если координата не входит на доску
