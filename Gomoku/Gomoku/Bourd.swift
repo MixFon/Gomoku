@@ -41,11 +41,17 @@ class Board {
 		self.currentSpot = board.currentSpot
 	}
 	
+	var ui :UInt16 = 2
+	
 	/// Печать доски
 	func printBourd() {
 		for i in 0..<19 {
 			for j in 0..<19 {
-				print(Spot(weight: self.board[j][i]).rawValue, terminator: " ")
+				if self.board[j][i] == 0x100 || self.board[j][i] == 0x1 || self.board[j][i] == 0x0 {
+					print(Spot(weight: self.board[j][i]).rawValue, terminator: " ")
+				} else {
+					print(self.board[j][i], terminator: " ")
+				}
 			}
 			print()
 		}
@@ -330,17 +336,95 @@ class Board {
 		return nil
 	}
 	
-	/// Перерасчет весов относительно только что поставленного spot. Во всех 8 направлениях.
-	private func recalculationWeights(point: Point) {
+	// MARK: Определение точек для перерасчета и перерасчет весов. (Пробовать многопоточить!!)
+	/// Определение точек для пресчета. Во всех 8 направлениях.
+	private func definingPointsForRecalculation(point: Point) {
+		// #x#
+		// #o#
+		// #x#
+		definingPoints(point: point, nextPoint: checkOne, direction: .up)
+		definingPoints(point: point, nextPoint: checkOne, direction: .down)
 		
+		// ##x
+		// #o#
+		// x##
+		definingPoints(point: point, nextPoint: checkTwo, direction: .up)
+		definingPoints(point: point, nextPoint: checkTwo, direction: .down)
+		
+		// ###
+		// xox
+		// ###
+		definingPoints(point: point, nextPoint: checkThree, direction: .up)
+		definingPoints(point: point, nextPoint: checkThree, direction: .down)
+		
+		// x##
+		// #o#
+		// ##x
+		definingPoints(point: point, nextPoint: checkFour, direction: .up)
+		definingPoints(point: point, nextPoint: checkFour, direction: .down)
 	}
 	
-	/// Установка спота нужного цвета на доску в заданную координату. Так же происходит перемена spot на противоположенный
+	//    .     .
+	//	  .     .
+	//	  W	    .	  .
+	//	  W	    B	  .
+	// 1. x  2. x  3. x  при x == W
+	/// Определение точер для перерасчета.
+	private func definingPoints(point: Point, nextPoint: NextPoint, direction: Direction) {
+		let currentSpot = self.currentSpot
+		var i = 1
+		var checkPoint = nextPoint(point, i, direction)
+		if checkSpotCoordinate(checkPoint, currentSpot) {
+			// 1.
+			repeat {
+				i += 1
+				checkPoint = nextPoint(point, i, direction)
+			} while checkSpotCoordinate(checkPoint, currentSpot)
+			recalculateWeight(point: checkPoint)
+		} else if checkSpotCoordinate(checkPoint, currentSpot.opposite()) {
+			// 2.
+			i += 1
+			checkPoint = nextPoint(point, i, direction)
+			recalculateWeight(point: checkPoint)
+		} else {
+			// 3.
+			recalculateWeight(point: checkPoint)
+		}
+		i += 1
+		checkPoint = nextPoint(point, i, direction)
+		recalculateWeight(point: checkPoint)
+	}
+	
+	/// Пересчет весов
+	private func recalculateWeight(point: Point) {
+		if !checkSpotCoordinate(point, .empty) { return }
+		let weightWhite = calculateWeightToWhite(point: point)
+		let weightBlack = calculateWeightToBlack(point: point)
+		//setWeightToPoint(point: point, weight: self.ui)
+	}
+	
+	/// Пересчет весов оносительно белого spot
+	private func calculateWeightToWhite(point: Point) -> Weight {
+		if checkDoubleThree(point: point, spot: .white) { return 0 }
+		return 0
+	}
+	
+	/// Пересчет весов оносительно черного spot
+	private func calculateWeightToBlack(point: Point) -> Weight {
+		if checkDoubleThree(point: point, spot: .black) { return 0 }
+		return 0
+	}
+	
+	/// Установка спота нужного цвета на доску в заданную координату. Так же происходит перемена spot на противоположенный.
+	/// Предполагается, что в заданную позицию можно установить заданный spot
 	func setSpot(point: Point, spot: Spot) {
 		self.board[point.x][point.y] = spot.wieghtSpot()
-		recalculationWeights(point: point)
+		definingPointsForRecalculation(point: point)
 		self.currentSpot = self.currentSpot.opposite()
+		printBourd()
 	}
+	
+	// MARK: Проверки координат и установок
 	
 	/// Проверяет нахождение коорлинаты на доске. true если координата не входит на доску
 	private func inBoard(point: Point) -> Bool {
@@ -349,7 +433,8 @@ class Board {
 	
 	/// Проверяет нахотится ли в указанной точке указанный спот. true - находится false - нет. Проверка на вхождение на доску НЕ проводится
 	private func isSpotInBouard(_ point: Point, _ spot: Spot) -> Bool {
-		return self.board[point.x][point.y] == spot.wieghtSpot()
+		let checkSpot = Spot(weight: self.board[point.x][point.y])
+		return checkSpot.wieghtSpot() == spot.wieghtSpot()
 	}
 	
 	/// Проверка на то что в координате находится установленный spot true - находится false - нет
@@ -437,7 +522,7 @@ class Board {
 		return .empty
 	}
 	
-	// MARK: Функции для проверки подряд идуих камней
+	// MARK: Функции для перемещения по 8 направлениям (Вынести функции в струкруту Point!!!)
 	// #x#
 	// #o#
 	// #x#
@@ -570,7 +655,7 @@ class Board {
 	// up x . . x o x down
 	// где x - пусеой spot, o текущая точка, . spot  такого же типа как и o
 	/// Провека ситуции когда точка пришлась в нижнюю точку следа кролика
-	private func rabbitOne(point: Point, spot: Spot,nextPoint: ((Point, Int, Direction) -> Point)) -> [Point]? {
+	private func rabbitOne(point: Point, spot: Spot, nextPoint: NextPoint) -> [Point]? {
 		guard var points = checkI(point, spot, .empty, nextPoint) else { return nil }
 		
 		// up +3
@@ -595,7 +680,7 @@ class Board {
 	// up x . o x . x down   или   up x . x . o x down
 	// где x - пусеой spot, o текущая точка, . spot  такого же типа как и o
 	/// Провека ситуции когда точка пришлась в нижнюю точку следа кролика
-	private func rabbitTwo(point: Point, spot: Spot,nextPoint: ((Point, Int, Direction) -> Point)) -> [Point]? {
+	private func rabbitTwo(point: Point, spot: Spot, nextPoint: NextPoint) -> [Point]? {
 		guard var points = checkII(point, spot, .empty, nextPoint) else { return nil }
 		
 		// up +3
@@ -623,7 +708,7 @@ class Board {
 	// up x o . x . x down   или   up x . x o . x down
 	// где x - пусеой spot, o текущая точка, . spot  такого же типа как и o
 	/// Провека ситуции когда точка пришлась в нижнюю точку следа кролика
-	private func rabbitThree(point: Point, spot: Spot,nextPoint: ((Point, Int, Direction) -> Point)) -> [Point]? {
+	private func rabbitThree(point: Point, spot: Spot, nextPoint: NextPoint) -> [Point]? {
 		guard var points = checkIII(point, spot, .empty, nextPoint) else { return nil }
 		
 		// up -2
@@ -670,7 +755,8 @@ class Board {
 		return points
 	}
 
-	/// Проверка двойных троек по всех 8 направлениям
+	// Возможно нужно будет поправть, убрать создание массива.
+	/// Проверка двойных троек по всех 8 направлениям.
 	private func checkThreeAll(point: Point, spot: Spot, nextPoint: NextPoint) -> [Point]? {
 		var points = [point]
 		var index = 4;
