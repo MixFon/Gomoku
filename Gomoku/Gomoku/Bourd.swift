@@ -32,6 +32,9 @@ class Board {
 	/// Текущий spot, для определения, кото должен ходить в данный момент. Первые ходят белые.
 	var currentSpot = Spot.white
 	
+	private var whiteCaptures: Int = 0
+	private var blackCaptures: Int = 0
+	
 	init() { }
 	
 	init(board :Board) {
@@ -275,6 +278,11 @@ class Board {
 		let point = convertCoordinateToBoard(point: point)
 		guard let spot = Spot(rawValue: stone.rawValue) else { return nil }
 		guard let points = isCaptures(point: point, spot: spot) else { return nil }
+		if spot == .white {
+			self.whiteCaptures += 1
+		} else {
+			self.blackCaptures += 1
+		}
 		//print(points)
 		deleteSpot(points: points)
 		let firstPoint = convertCoordinateToGlobal(point: points.0)
@@ -400,18 +408,145 @@ class Board {
 		if !checkSpotCoordinate(point, .empty) { return }
 		let weightWhite = calculateWeightToWhite(point: point)
 		let weightBlack = calculateWeightToBlack(point: point)
+		
 		//setWeightToPoint(point: point, weight: self.ui)
 	}
 	
 	/// Пересчет весов оносительно белого spot
 	private func calculateWeightToWhite(point: Point) -> Weight {
-		if checkDoubleThree(point: point, spot: .white) { return 0 }
+		let spot = Spot.white
+		var summaWeight: UInt16 = 0
+		summaWeight += calculateWeight(point: point, spot: spot, nextPoint: checkOne)
+		summaWeight += calculateWeight(point: point, spot: spot, nextPoint: checkTwo)
+		summaWeight += calculateWeight(point: point, spot: spot, nextPoint: checkThree)
+		summaWeight += calculateWeight(point: point, spot: spot, nextPoint: checkFour)
+		if isCaptures(point: point, spot: spot) != nil {
+			//summaWeight += self.
+		}
 		return 0
 	}
 	
 	/// Пересчет весов оносительно черного spot
 	private func calculateWeightToBlack(point: Point) -> Weight {
-		if checkDoubleThree(point: point, spot: .black) { return 0 }
+		
+		return 0
+	}
+	
+	/// Общая функция для расчета весов
+	private func calculateWeight(point: Point, spot: Spot, nextPoint: NextPoint) -> Weight {
+		let maxIteration = 6
+		if checkDoubleThree(point: point, spot: spot) { return 0 }
+		var sameStones = 0
+		var oppositeStones = 0
+		var space = 0
+		var i = 1
+		var checkPoint = nextPoint(point, i, .up)
+		if checkSpotCoordinate(checkPoint, .empty) {
+			i += 1
+			space += 1
+		}
+		for k in i..<maxIteration {
+			checkPoint = nextPoint(point, k, .up)
+			if checkSpotCoordinate(checkPoint, spot) {
+				sameStones += 1
+			} else if checkSpotCoordinate(checkPoint, spot.opposite()) {
+				oppositeStones += 1
+				break
+			}
+		}
+		
+		// down
+		i = 1
+		checkPoint = checkOne(point: point, i: i, direction: .down)
+		if checkSpotCoordinate(checkPoint, .empty) {
+			i += 1
+			space += 1
+		}
+		for k in i..<maxIteration {
+			checkPoint = nextPoint(point, k, .up)
+			if checkSpotCoordinate(checkPoint, spot) {
+				sameStones += 1
+			} else if checkSpotCoordinate(checkPoint, spot.opposite()) {
+				oppositeStones += 1
+				break
+			}
+		}
+		return getPrioritet(same: sameStones, opposite: oppositeStones, space: space)
+	}
+	
+	/// Высичление приоритета на основе данных
+	private func getPrioritet(same: Int, opposite: Int, space: Int) -> Weight {
+		switch opposite {
+		case 0: // 0 противоположных камней
+			if space == 0 {
+				switch same {
+				case 1:
+					return 3
+				case 2:
+					return 4
+				case 3:
+					return 5
+				case 4:
+					return 5
+				default:
+					print("Error stone 1")
+					return 5
+				}
+			} else {
+				switch same {
+				case 1:
+					return 1
+				case 2:
+					return 2
+				case 3:
+					return 3
+				case 4:
+					return 4
+				default:
+					print("Error stone 2")
+					return 5
+				}
+			}
+		case 1: // 1 камень противоположной стороны
+			if space == 0 {
+				switch same {
+				case 1:
+					return 1
+				case 2:
+					return 1
+				case 3:
+					return 4
+				case 4:
+					return 5
+				default:
+					print("Error stone 3")
+					return 5
+				}
+			} else {
+				switch same {
+				case 1:
+					return 1
+				case 2:
+					return 1
+				case 3:
+					return 3
+				case 4:
+					return 4
+				default:
+					print("Error stone 4")
+					return 5
+				}
+			}
+		case 2:
+			if same == 4 {
+				return 5
+			} else {
+				return 1
+			}
+		default:
+			print("Error stone 5")
+			break
+		}
 		return 0
 	}
 	
