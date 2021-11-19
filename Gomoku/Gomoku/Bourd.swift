@@ -15,7 +15,6 @@ class Board {
 	
 	typealias Weight = UInt16
 	
-	// !!!! Удалить, используется для подсвечивания камней
 	weak var delegate: MoveProtocol?
 	
 	var board = Array(repeating: Array(repeating: Weight(0), count: 19), count: 19)
@@ -32,8 +31,8 @@ class Board {
 	/// Текущий spot, для определения, кото должен ходить в данный момент. Первые ходят белые.
 	var currentSpot = Spot.white
 	
-	private var whiteCaptures: Int = 0
-	private var blackCaptures: Int = 0
+	var whiteCaptures: Int = 0
+	var blackCaptures: Int = 0
 	
 	init() { }
 	
@@ -42,6 +41,7 @@ class Board {
 		self.pointsForWhite = board.pointsForWhite
 		self.pointsForBlack = board.pointsForBlack
 		self.currentSpot = board.currentSpot
+		self.delegate = nil
 	}
 	
 	var ui :UInt16 = 2
@@ -238,6 +238,8 @@ class Board {
 	
 	/// Установка всех значений доски в empty (удаление всех элементов с доски)
 	func clearBoard() {
+		self.whiteCaptures = 0
+		self.blackCaptures = 0
 		for i in self.board.indices {
 			for j in self.board[i].indices {
 				self.board[i][j] = Spot.empty.wieghtSpot()
@@ -273,27 +275,27 @@ class Board {
 		return Point(point.x - 9, point.y - 9)
 	}
 	
-	/// Проверка захвата. Если захват возможен возвращает коршеж точек камней которые нужно удалить с доски.
-	func captures(point: Point, stone: Stone) -> (Point, Point)? {
-		let point = convertCoordinateToBoard(point: point)
-		guard let spot = Spot(rawValue: stone.rawValue) else { return nil }
-		guard let points = isCaptures(point: point, spot: spot) else { return nil }
+	/// Проверка захвата. Если захват возможен удаляет камки с доски и вызывает делегат по удалению камней.
+	func captures(point: Point, spot: Spot) {
+		guard let points = isCaptures(point: point, spot: spot) else { return }
 		if spot == .white {
 			self.whiteCaptures += 1
 		} else {
 			self.blackCaptures += 1
 		}
-		//print(points)
-		deleteSpot(points: points)
-		let firstPoint = convertCoordinateToGlobal(point: points.0)
-		let secondPoint = convertCoordinateToGlobal(point: points.1)
-		return (firstPoint, secondPoint)
+		deleteSpot(points: points, spot: spot)
 	}
 	
-	/// Удаляет споты в указанных координатах, используется при захвате камней
-	private func deleteSpot(points: (Point, Point)) {
+	/// Удаляет споты в указанных координатах, используется при захвате камней. И удалаяе с 3D доски
+	private func deleteSpot(points: (Point, Point), spot: Spot) {
 		self.board[points.0.x][points.0.y] = Spot.empty.wieghtSpot()
 		self.board[points.1.x][points.1.y] = Spot.empty.wieghtSpot()
+		if let delegate = self.delegate {
+			let firstPoint = convertCoordinateToGlobal(point: points.0)
+			let secondPoint = convertCoordinateToGlobal(point: points.1)
+			guard let stone = Stone(rawValue: spot.opposite().rawValue) else { return }
+			delegate.delete(points: (firstPoint, secondPoint), stone: stone)
+		}
 	}
 	
 	/// Проверяет возможен ли захват вражеских камней
@@ -408,8 +410,8 @@ class Board {
 		if !checkSpotCoordinate(point, .empty) { return }
 		let weightWhite = calculateWeightToWhite(point: point)
 		let weightBlack = calculateWeightToBlack(point: point)
-		
-		//setWeightToPoint(point: point, weight: self.ui)
+		sd
+		setWeightToPoint(point: point, weight: self.ui)
 	}
 	
 	/// Пересчет весов оносительно белого spot
@@ -553,6 +555,7 @@ class Board {
 	/// Установка спота нужного цвета на доску в заданную координату. Так же происходит перемена spot на противоположенный.
 	/// Предполагается, что в заданную позицию можно установить заданный spot
 	func setSpot(point: Point, spot: Spot) {
+		captures(point: point, spot: spot)
 		self.board[point.x][point.y] = spot.wieghtSpot()
 		definingPointsForRecalculation(point: point)
 		self.currentSpot = self.currentSpot.opposite()

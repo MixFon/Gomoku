@@ -19,8 +19,8 @@ class Gomoku {
 	
 	private var stone = Stone.white
 	
-	private var whiteCaptures: Int = 0
-	private var blackCaptures: Int = 0
+//	private var whiteCaptures: Int = 0
+//	private var blackCaptures: Int = 0
 	
 	let numberCapturesToWin: Int = 2
 	
@@ -55,8 +55,10 @@ class Gomoku {
 	
 	/// Установка количества захвата. Вызвается во время загрухки сохраненной игры.
 	func setCaptures(_ whiteCaptures: Int, _ blackCaptures: Int) {
-		self.whiteCaptures = whiteCaptures
-		self.blackCaptures = blackCaptures
+		self.board.whiteCaptures = whiteCaptures
+		self.board.blackCaptures = blackCaptures
+//		self.whiteCaptures = whiteCaptures
+//		self.blackCaptures = blackCaptures
 	}
 	
 	/// Возвращает камень, который должен ходить следеющим
@@ -96,7 +98,7 @@ class Gomoku {
 			return false
 		}
 		self.delegate?.moving(point: point, stone: stone)
-		capturesStones(point: point, stone: stone)
+		//capturesStones(point: point, stone: stone)
 		checkWinerToFiveStones(point: point, stone: stone)
 		return true
 	}
@@ -111,10 +113,10 @@ class Gomoku {
 	
 	/// Проверка победител по захвату. Для победы нужно провести 5 захватов
 	private func checkWinerToCapture() {
-		if self.whiteCaptures >= self.numberCapturesToWin {
+		if self.board.whiteCaptures >= self.numberCapturesToWin {
 			self.delegate?.showingWinner(stone: .white)
 			reset()
-		} else if self.blackCaptures >= self.numberCapturesToWin {
+		} else if self.board.blackCaptures >= self.numberCapturesToWin {
 			self.delegate?.showingWinner(stone: .black)
 			reset()
 		}
@@ -123,25 +125,23 @@ class Gomoku {
 	/// Сбразыватеся до начальных настроек
 	private func reset() {
 		self.board.clearBoard()
-		self.blackCaptures = 0
-		self.whiteCaptures = 0
 		self.stone = .white
 		//self.ai?.task.interrupt()
 		self.ai = AI()
 	}
 	
 	/// Производит захват камней
-	private func capturesStones(point: Point, stone: Stone) {
-		if let poinst = self.board.captures(point: point, stone: stone) {
-			if stone == .white {
-				self.whiteCaptures += 1
-			} else {
-				self.blackCaptures += 1
-			}
-			self.delegate?.delete(points: poinst, stone: stone.opposite())
-			checkWinerToCapture()
-		}
-	}
+//	private func capturesStones(point: Point, stone: Stone) {
+//		if let poinst = self.board.captures(point: point, stone: stone) {
+//			if stone == .white {
+//				self.whiteCaptures += 1
+//			} else {
+//				self.blackCaptures += 1
+//			}
+//			self.delegate?.delete(points: poinst, stone: stone.opposite())
+//			checkWinerToCapture()
+//		}
+//	}
 	
 	/// Сохранение состояния доски и сохранение изображения
 	func saving() {
@@ -156,7 +156,7 @@ extension Gomoku: GetProtocol {
 	
 	/// Возвращает кортеж количества захватов. Первыми идут белые
 	func getCaptures() -> (Int, Int) {
-		return (self.whiteCaptures, self.blackCaptures)
+		return (self.board.whiteCaptures, self.board.blackCaptures)
 	}
 	
 	/// Возвращает кортеж массивов координат камней. Первым идут белые, вторым идут черные
