@@ -22,7 +22,7 @@ class Gomoku {
 //	private var whiteCaptures: Int = 0
 //	private var blackCaptures: Int = 0
 	
-	let numberCapturesToWin: Int = 2
+	let numberCapturesToWin: Int = 5
 	
 	var makeSnapshot: (()->NSImage?)?
 	
@@ -44,7 +44,7 @@ class Gomoku {
 		if movePalyer(point: point, stone: self.stone) {
 			self.delegate?.pinShine(point: point, color: .green)
 			if self.mode == .pvc {
-				moveAI(point: point)
+				moveAI()
 			} else {
 				self.stone = self.stone.opposite()
 			}
@@ -74,22 +74,22 @@ class Gomoku {
 	}
 	
 	/// Ход ИИ
-	private func moveAI(point: Point) {
-		print("y = \(point.y + 9) x =\(point.x + 9)")
-		
-//		var i = 0
-//		let stone = Stone.black
-//		var point = Point(i - 9, i - 9)
-//		while true {
-//			point = Point(i - 9, i - 9)
-//			if self.board.placeStone(point: point, stone: stone) {
-//				break
-//			}
-//			i += 1
-//		}
-//		self.delegate?.moving(point: point, stone: stone)
-//		capturesStones(point: point, stone: stone)
-//		checkWinerToFiveStones(point: point, stone: stone)
+	private func moveAI() {
+		//print("y = \(point.y + 9) x =\(point.x + 9)")
+		//ai.setBoard(board: Board(board: self.board))
+		self.board.printBourd()
+		let start = DispatchTime.now() // <<<<<<<<<< Start time
+		let point = ai.startMinimax(board: self.board)
+		let end = DispatchTime.now()   // <<<<<<<<<<   end time
+		let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
+		let timeInterval = Double(nanoTime) / 1_000_000_000
+		self.delegate?.showTime(time: "\(timeInterval)")
+		self.board.setSpot(point: point, spot: .black)
+		let globalPoint = self.board.convertCoordinateToGlobal(point: point)
+		self.delegate?.moving(point: globalPoint, stone: .black)
+		//capturesStones(point: point, stone: stone)
+		checkWinerToFiveStones(point: globalPoint, stone: .black)
+		self.board.printBourd()
 	}
 	
 	/// Ход игрока

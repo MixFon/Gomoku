@@ -22,11 +22,10 @@ class Board {
 	/// Количество камней для попеды. 4 ставится потому что учитывается камень который ставится
 	private let numberStonesToWin = 4
 
-	/// Наилучшие точки для расставления белых камней
-	var pointsForWhite = [Point]()
+	/// Количество точек, которые нужно рассмотреть.
+	let numberBestPoint = 1
 	
-	/// Наилучшие точки для расставления черных камней
-	var pointsForBlack = [Point]()
+	var occupiedPoints = Set<Point>()
 	
 	/// Текущий spot, для определения, кото должен ходить в данный момент. Первые ходят белые.
 	var currentSpot = Spot.white
@@ -38,26 +37,13 @@ class Board {
 	
 	init(board :Board) {
 		self.board = board.board
-		self.pointsForWhite = board.pointsForWhite
-		self.pointsForBlack = board.pointsForBlack
+		//self.pointsForWhite = board.pointsForWhite
+		//self.pointsForBlack = board.pointsForBlack
+		self.occupiedPoints = board.occupiedPoints
 		self.currentSpot = board.currentSpot
+		self.whiteCaptures = board.whiteCaptures
+		self.blackCaptures = board.blackCaptures
 		self.delegate = nil
-	}
-	
-	var ui :UInt16 = 2
-	
-	/// Печать доски
-	func printBourd() {
-		for i in 0..<19 {
-			for j in 0..<19 {
-				if self.board[j][i] == 0x100 || self.board[j][i] == 0x1 || self.board[j][i] == 0x0 {
-					print(Spot(weight: self.board[j][i]).rawValue, terminator: " ")
-				} else {
-					print(self.board[j][i], terminator: " ")
-				}
-			}
-			print()
-		}
 	}
 	
 	// MARK: Enums
@@ -121,11 +107,22 @@ class Board {
 	
 	/// Возвращает массив точек в которые предпочтительнее всего ставить. Возвращабтся точки для currentSpot
 	func getBestPoints() -> [Point] {
+		//print(self.currentSpot)
 		switch self.currentSpot {
 		case .black:
-			return self.pointsForBlack
+			var bestBlackPoints = self.occupiedPoints.map( {$0} )
+			bestBlackPoints.sort(by: {
+				(self.board[$0.x][$0.y] & 0xff) > (self.board[$1.x][$1.y] & 0xff)
+			})
+			//return bestBlackPoints
+			return Array(bestBlackPoints[...self.numberStonesToWin])
 		case .white:
-			return self.pointsForWhite
+			var bestWhitekPoints = self.occupiedPoints.map( {$0} )
+			bestWhitekPoints.sort(by: {
+				((self.board[$0.x][$0.y] >> 8) & 0xff) > ((self.board[$1.x][$1.y] >> 8) & 0xff)
+			})
+			//return bestWhitekPoints
+			return Array(bestWhitekPoints[...self.numberStonesToWin])
 		default:
 			return []
 		}
@@ -135,11 +132,17 @@ class Board {
 	func getBestWeithForCurrentSpot() -> Weight {
 		switch self.currentSpot {
 		case .black:
-			guard let blackPoints = self.pointsForBlack.first else { break }
-			return getWeith(point: blackPoints)
+			var bestBlackPoints = self.occupiedPoints.map( {$0} )
+			bestBlackPoints.sort(by: {
+				(self.board[$0.x][$0.y] & 0xff) > (self.board[$1.x][$1.y] & 0xff)
+			})
+			return getWeith(point: bestBlackPoints.first!)
 		case .white:
-			guard let whitePoints = self.pointsForWhite.first else { break }
-			return getWeith(point: whitePoints)
+			var bestWhitekPoints = self.occupiedPoints.map( {$0} )
+			bestWhitekPoints.sort(by: {
+				((self.board[$0.x][$0.y] >> 8) & 0xff) > ((self.board[$1.x][$1.y] >> 8) & 0xff)
+			})
+			return getWeith(point: bestWhitekPoints.first!)
 		default:
 			break
 		}
@@ -157,10 +160,18 @@ class Board {
 		setSpot(point: point, spot: self.currentSpot)
 	}
 	
+	/// Устанавливает вес как он есть в заданную позицию, затем одновляет позицию
+	func setConstWeightToPoint(point: Point, weight: Weight) {
+		self.board[point.x][point.y] = weight
+		//updateBestPoints(point: point, weight: self.board[point.x][point.y])
+		addOccupiedPoints(point: point)
+	}
+	
 	/// Устанавливает вес в заданную позицию. Вес для правого и левого одновременно. И обновляет массивы с лучшими ходами
 	func setWeightToPoint(point: Point, weight: Weight) {
 		self.board[point.x][point.y] = addingWeights(one: self.board[point.x][point.y], two: weight)
-		updateBestPoints(point: point, weight: self.board[point.x][point.y])
+		addOccupiedPoints(point: point)
+		//updateBestPoints(point: point, weight: self.board[point.x][point.y])
 	}
 	
 	/// Сложение весов. Правые скзадывает с правыми левые с левыми
@@ -175,6 +186,12 @@ class Board {
 		return result
 	}
 	
+	/// Добавление в ячейки, которые заняты или spot или weight
+	func addOccupiedPoints(point: Point) {
+		self.occupiedPoints.insert(point)
+	}
+	
+	/*
 	/// Обновление массивов с наилучшими весами.
 	func updateBestPoints(point: Point, weight: Weight) {
 		if self.pointsForWhite.isEmpty {
@@ -184,25 +201,33 @@ class Board {
 			self.pointsForBlack.append(point)
 			return
 		}
-		guard let lastWhite = self.pointsForWhite.last else { print("error update"); return }
-		guard let lastBlack = self.pointsForBlack.last else { print("error update"); return }
-		let whiteWeight = (self.board[lastWhite.x][lastWhite.y] >> 8) & 0xff
-		let blackWeight = self.board[lastBlack.x][lastBlack.y] & 0xff
-		
-		if ((weight >> 8) & 0xff) > whiteWeight {
-			self.pointsForWhite.append(point)
-			self.pointsForWhite.sort(by: {
-				((self.board[$0.x][$0.y] >> 8) & 0xff) > ((self.board[$1.x][$1.y] >> 8) & 0xff)
-			})
+//		guard let lastWhite = self.pointsForWhite.last else { print("error update"); return }
+//		guard let lastBlack = self.pointsForBlack.last else { print("error update"); return }
+//		let whiteWeight = (self.board[lastWhite.x][lastWhite.y] >> 8) & 0xff
+//		let blackWeight = self.board[lastBlack.x][lastBlack.y] & 0xff
+		self.pointsForWhite.append(point)
+		self.pointsForWhite.sort(by: {
+			((self.board[$0.x][$0.y] >> 8) & 0xff) > ((self.board[$1.x][$1.y] >> 8) & 0xff)
+		})
+		while self.pointsForWhite.count > 4 {
+			self.pointsForWhite.removeLast()
 		}
-		
-		if (weight & 0xff) > blackWeight {
-			self.pointsForBlack.append(point)
-			self.pointsForBlack.sort(by: {
-				((self.board[$0.x][$0.y] >> 8) & 0xff) > ((self.board[$1.x][$1.y] >> 8) & 0xff)
-			})
+//		if ((weight >> 8) & 0xff) > whiteWeight {
+//
+//		}
+		self.pointsForBlack.append(point)
+		self.pointsForBlack.sort(by: {
+			((self.board[$0.x][$0.y] >> 8) & 0xff) > ((self.board[$1.x][$1.y] >> 8) & 0xff)
+		})
+		while self.pointsForBlack.count > 4 {
+			self.pointsForBlack.removeLast()
 		}
+//		if (weight & 0xff) > blackWeight {
+//
+//		}
+		
 	}
+*/
 	
 	/// Возвращает кортеж координат
 	func getWhiteBlackPointsSpot() -> ([Point], [Point]) {
@@ -266,12 +291,12 @@ class Board {
 	}
 	
 	/// Первод коорлинаты в систему координат доски (модели)
-	private func convertCoordinateToBoard(point: Point) -> Point {
+	func convertCoordinateToBoard(point: Point) -> Point {
 		return Point(point.x + 9, point.y + 9)
 	}
 	
 	/// Перевод координаты в глобальную систему поординат.
-	private func convertCoordinateToGlobal(point: Point) -> Point {
+	func convertCoordinateToGlobal(point: Point) -> Point {
 		return Point(point.x - 9, point.y - 9)
 	}
 	
@@ -352,24 +377,28 @@ class Board {
 		// #x#
 		// #o#
 		// #x#
+		//printBourd()
 		definingPoints(point: point, nextPoint: checkOne, direction: .up)
 		definingPoints(point: point, nextPoint: checkOne, direction: .down)
 		
 		// ##x
 		// #o#
 		// x##
+		//printBourd()
 		definingPoints(point: point, nextPoint: checkTwo, direction: .up)
 		definingPoints(point: point, nextPoint: checkTwo, direction: .down)
 		
 		// ###
 		// xox
 		// ###
+		//printBourd()
 		definingPoints(point: point, nextPoint: checkThree, direction: .up)
 		definingPoints(point: point, nextPoint: checkThree, direction: .down)
 		
 		// x##
 		// #o#
 		// ##x
+		//printBourd()
 		definingPoints(point: point, nextPoint: checkFour, direction: .up)
 		definingPoints(point: point, nextPoint: checkFour, direction: .down)
 	}
@@ -378,7 +407,7 @@ class Board {
 	//	  .     .
 	//	  W	    .	  .
 	//	  W	    B	  .
-	// 1. x  2. x  3. x  при x == W
+	// 1. x  2. x  3. x  при x == W. x - текущая позиция, W - текущий камени, B - противоположный, . - проврка
 	/// Определение точер для перерасчета.
 	private func definingPoints(point: Point, nextPoint: NextPoint, direction: Direction) {
 		let currentSpot = self.currentSpot
@@ -408,146 +437,133 @@ class Board {
 	/// Пересчет весов
 	private func recalculateWeight(point: Point) {
 		if !checkSpotCoordinate(point, .empty) { return }
-		let weightWhite = calculateWeightToWhite(point: point)
-		let weightBlack = calculateWeightToBlack(point: point)
-		sd
-		setWeightToPoint(point: point, weight: self.ui)
+		let weightWhite = calculateWeightToWhiteBlack(point: point, spot: .white)
+		let weightBlack = calculateWeightToWhiteBlack(point: point, spot: .black)
+		let result = (weightWhite << 8) | weightBlack
+		setConstWeightToPoint(point: point, weight: result)
+		//self.board[point.x][point.y] = result
+		//print(result)
+		//setWeightToPoint(point: point, weight: result)
 	}
 	
 	/// Пересчет весов оносительно белого spot
-	private func calculateWeightToWhite(point: Point) -> Weight {
-		let spot = Spot.white
+	private func calculateWeightToWhiteBlack(point: Point, spot: Spot) -> Weight {
+		//let spot = Spot.white
 		var summaWeight: UInt16 = 0
 		summaWeight += calculateWeight(point: point, spot: spot, nextPoint: checkOne)
 		summaWeight += calculateWeight(point: point, spot: spot, nextPoint: checkTwo)
 		summaWeight += calculateWeight(point: point, spot: spot, nextPoint: checkThree)
 		summaWeight += calculateWeight(point: point, spot: spot, nextPoint: checkFour)
 		if isCaptures(point: point, spot: spot) != nil {
-			//summaWeight += self.
+			if spot == .white {
+				summaWeight += UInt16(self.whiteCaptures + 2)
+			} else {
+				summaWeight += UInt16(self.whiteCaptures + 2)
+			}
 		}
-		return 0
-	}
-	
-	/// Пересчет весов оносительно черного spot
-	private func calculateWeightToBlack(point: Point) -> Weight {
-		
-		return 0
+		return summaWeight
 	}
 	
 	/// Общая функция для расчета весов
 	private func calculateWeight(point: Point, spot: Spot, nextPoint: NextPoint) -> Weight {
-		let maxIteration = 6
-		if checkDoubleThree(point: point, spot: spot) { return 0 }
+		let maxIteration = 5
+		if !checkDoubleThree(point: point, spot: spot) { return 0 }
 		var sameStones = 0
 		var oppositeStones = 0
-		var space = 0
 		var i = 1
 		var checkPoint = nextPoint(point, i, .up)
-		if checkSpotCoordinate(checkPoint, .empty) {
-			i += 1
-			space += 1
-		}
-		for k in i..<maxIteration {
-			checkPoint = nextPoint(point, k, .up)
-			if checkSpotCoordinate(checkPoint, spot) {
-				sameStones += 1
-			} else if checkSpotCoordinate(checkPoint, spot.opposite()) {
-				oppositeStones += 1
-				break
+		if !checkSpotCoordinate(checkPoint, .empty) {
+			for k in i..<maxIteration {
+				checkPoint = nextPoint(point, k, .up)
+				if checkSpotCoordinate(checkPoint, spot) {
+					sameStones += 1
+				} else if checkSpotCoordinate(checkPoint, spot.opposite()) {
+					oppositeStones += 1
+					break
+				}
 			}
 		}
 		
 		// down
 		i = 1
-		checkPoint = checkOne(point: point, i: i, direction: .down)
-		if checkSpotCoordinate(checkPoint, .empty) {
-			i += 1
-			space += 1
-		}
-		for k in i..<maxIteration {
-			checkPoint = nextPoint(point, k, .up)
-			if checkSpotCoordinate(checkPoint, spot) {
-				sameStones += 1
-			} else if checkSpotCoordinate(checkPoint, spot.opposite()) {
-				oppositeStones += 1
-				break
+		checkPoint = nextPoint(point, i, .down)
+		if !checkSpotCoordinate(checkPoint, .empty) {
+			for k in i..<maxIteration {
+				checkPoint = nextPoint(point, k, .down)
+				if checkSpotCoordinate(checkPoint, spot) {
+					sameStones += 1
+				} else if checkSpotCoordinate(checkPoint, spot.opposite()) {
+					oppositeStones += 1
+					break
+				}
 			}
 		}
-		return getPrioritet(same: sameStones, opposite: oppositeStones, space: space)
+		//print(spot.rawValue, sameStones, oppositeStones)
+		return getPrioritet(same: sameStones, opposite: oppositeStones)
 	}
 	
-	/// Высичление приоритета на основе данных
-	private func getPrioritet(same: Int, opposite: Int, space: Int) -> Weight {
-		switch opposite {
-		case 0: // 0 противоположных камней
-			if space == 0 {
-				switch same {
-				case 1:
-					return 3
-				case 2:
-					return 4
-				case 3:
-					return 5
-				case 4:
-					return 5
-				default:
-					print("Error stone 1")
-					return 5
-				}
-			} else {
-				switch same {
-				case 1:
-					return 1
-				case 2:
-					return 2
-				case 3:
-					return 3
-				case 4:
-					return 4
-				default:
-					print("Error stone 2")
-					return 5
+	/// Печать доски
+	func printBourd() {
+		for i in 0..<19 {
+			for j in 0..<19 {
+				if self.board[j][i] == 0x100 || self.board[j][i] == 0x1 || self.board[j][i] == 0x0 {
+					print(Spot(weight: self.board[j][i]).rawValue, terminator: "   ")
+				} else {
+					print("\(self.board[j][i] >> 8 & 0xff)|\(self.board[j][i] & 0xff)", terminator: " ")
+					//print(self.board[j][i], terminator: " ")
 				}
 			}
+			print()
+		}
+	}
+
+	/// Высичление приоритета на основе данных
+	private func getPrioritet(same: Int, opposite: Int) -> Weight {
+		switch opposite {
+		case 0: // 0 противоположных камней
+			switch same {
+			case 0:
+				return 1
+			case 1:
+				return 4
+			case 2:
+				return 6
+			case 3:
+				return 8
+			case 4:
+				return 10
+			default:
+				print("Error stone 1")
+				return 10
+				//fatalError()
+				//return 0
+			}
 		case 1: // 1 камень противоположной стороны
-			if space == 0 {
-				switch same {
-				case 1:
-					return 1
-				case 2:
-					return 1
-				case 3:
-					return 4
-				case 4:
-					return 5
-				default:
-					print("Error stone 3")
-					return 5
-				}
-			} else {
-				switch same {
-				case 1:
-					return 1
-				case 2:
-					return 1
-				case 3:
-					return 3
-				case 4:
-					return 4
-				default:
-					print("Error stone 4")
-					return 5
-				}
+			switch same {
+			case 0:
+				return 2
+			case 1:
+				return 1
+			case 2:
+				return 3
+			case 3:
+				return 5
+			case 4:
+				return 10
+			default:
+				print("Error stone 3")
+				return 10
 			}
 		case 2:
 			if same == 4 {
-				return 5
+				return 10
 			} else {
 				return 1
 			}
 		default:
 			print("Error stone 5")
 			break
+			//fatalError()
 		}
 		return 0
 	}
@@ -559,7 +575,7 @@ class Board {
 		self.board[point.x][point.y] = spot.wieghtSpot()
 		definingPointsForRecalculation(point: point)
 		self.currentSpot = self.currentSpot.opposite()
-		printBourd()
+		//printBourd()
 	}
 	
 	// MARK: Проверки координат и установок
@@ -585,7 +601,7 @@ class Board {
 	
 	// MARK: Проветка двойной троки (новый вариант)
 	// Нужно будет упростить вариант в случае долгой работы.
-	/// Проверяет наличие троек. Если тройка есть подсвечивает ее.
+	/// Проверяет наличие троек. Если тройка есть подсвечивает ее. True - двойной тройки нет, false - двойная тройка есть
 	func checkDoubleThree(point: Point, spot: Spot) -> Bool {
 		var setResult = Set<Point>()
 		let uniqueStone = uniquePointThree(point: point, spot: spot)
@@ -593,8 +609,8 @@ class Board {
 			let unique = uniquePointThree(point: point, spot: spot)
 			unique.forEach( { setResult.insert($0) } )
 		}
-		//return setResult.count == 3 || setResult.count == 0
-		
+		return setResult.count == 3 || setResult.count == 0
+		/*
 		// Вариан с подсвечиваение тройки
 		if setResult.count == 3 || setResult.count == 0 {
 			for uniquePoint in setResult {
@@ -609,6 +625,7 @@ class Board {
 			}
 			return false
 		}
+*/
 	}
 	
 	/**
