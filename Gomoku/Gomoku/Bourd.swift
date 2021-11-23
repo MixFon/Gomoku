@@ -23,7 +23,7 @@ class Board {
 	private let numberStonesToWin = 4
 
 	/// Количество точек, которые нужно рассмотреть.
-	let numberBestPoint = 1
+	let numberBestPoint = 0
 	
 	var occupiedPoints = Set<Point>()
 	

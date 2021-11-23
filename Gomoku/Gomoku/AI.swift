@@ -11,7 +11,7 @@ class AI {
 	
 	//var currentSpot = Board.Spot.black
 	
-	var startLevel = 2
+	var startLevel = 5
 	
 	/// Установка доски перед стартом расчета MiniMax
 //	func setBoard(board: Board) {
