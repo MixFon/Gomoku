@@ -78,9 +78,12 @@ class Gomoku {
 		//print("y = \(point.y + 9) x =\(point.x + 9)")
 		//ai.setBoard(board: Board(board: self.board))
 		self.board.printBourd()
-		let start = DispatchTime.now() // <<<<<<<<<< Start time
-		let point = ai.startMinimax(board: self.board)
-		let end = DispatchTime.now()   // <<<<<<<<<<   end time
+		let bestPoints = getStartBestBlackPoints(board: self.board)
+//		bestPoints.forEach( {print("\(self.board.board[$0.x][$0.y] >> 8 & 0xff)|\(self.board.board[$0.x][$0.y] & 0xff)") })
+		if bestPoints.isEmpty { return }
+		let start = DispatchTime.now()
+		guard let point = ai.startMinimax(board: self.board, bestPoints: bestPoints) else { return }
+		let end = DispatchTime.now()
 		let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
 		let timeInterval = Double(nanoTime) / 1_000_000_000
 		self.delegate?.showTime(time: "\(timeInterval)")
@@ -92,6 +95,21 @@ class Gomoku {
 		self.board.printBourd()
 	}
 	
+	/// Возвращает массив лучших черных точек для доски
+	private func getStartBestBlackPoints(board: Board) -> [Point] {
+		var bestBlackPoints = [Point]()
+		for (i, line) in board.board.enumerated() {
+			for (j, element) in line.enumerated() {
+				if element != 0x0 && element != 0x1 && element != 0x100 {
+					bestBlackPoints.append(Point(i, j))
+				}
+			}
+		}
+		bestBlackPoints.sort(by: { board.board[$0.x][$0.y] & 0xff > board.board[$1.x][$1.y]  & 0xff })
+		if bestBlackPoints.isEmpty { return [] }
+		return Array(bestBlackPoints[0...2])
+	}
+	
 	/// Ход игрока
 	private func movePalyer(point: Point, stone: Stone) -> Bool {
 		if !self.board.placeStone(point: point, stone: stone) {
@@ -100,6 +118,7 @@ class Gomoku {
 		self.delegate?.moving(point: point, stone: stone)
 		//capturesStones(point: point, stone: stone)
 		checkWinerToFiveStones(point: point, stone: stone)
+		self.board.printBourd()
 		return true
 	}
 	
