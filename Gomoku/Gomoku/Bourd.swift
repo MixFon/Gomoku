@@ -118,11 +118,34 @@ class Board {
 		}
 	}
 	
+	/// Возвращает точку в которую лучше всего поставить текущий камень
+	func getBestPoint() -> Point {
+		let bestWeightWhite = (self.bestPointWhite.weight >> 8) & 0xff
+		let bestWeightBlack = self.bestPointBlack.weight & 0xff
+		if bestWeightWhite == bestWeightBlack {
+			let deltaWhite = Int((self.bestPointWhite.weight >> 8) & 0xff) - Int((self.bestPointWhite.weight & 0xff))
+			let deltaBlack = Int((self.bestPointBlack.weight & 0xff)) - Int((self.bestPointBlack.weight >> 8) & 0xff)
+			if deltaWhite < deltaBlack {
+				return self.bestPointWhite.point
+			} else {
+				return self.bestPointBlack.point
+			}
+		}
+		if bestWeightWhite > bestWeightBlack {
+			return self.bestPointWhite.point
+		} else {
+			return self.bestPointBlack.point
+		}
+	}
+	
 	/// Возвращает массив точек в которые предпочтительнее всего ставить. Возвращабтся точки для currentSpot
 	func getBestPoints() -> [Point] {
 		//print(self.currentSpot)
+		return [getBestPoint()]
+		/*
 		switch self.currentSpot {
 		case .black:
+			
 			return [self.bestPointBlack.point]
 			/*
 			var bestBlackPoints = self.occupiedPoints.map( {$0} )
@@ -146,9 +169,10 @@ class Board {
 		default:
 			return []
 		}
+		*/
 	}
 	
-	/// Возвращает максимальный наилучший вес для текущего spot. Это первый элемент списка.
+	/// Возвращает максимальный наилучший вес для текущего spot.
 	func getBestWeithForCurrentSpot() -> Weight {
 		switch self.currentSpot {
 		case .white:
@@ -215,12 +239,12 @@ class Board {
 		}
 		let white = (weight >> 8) & 0xff
 		let black = weight & 0xff
-		if ((bestPointWhite.weight >> 8) & 0xff) <= white {
+		if ((bestPointWhite.weight >> 8) & 0xff) < white {
 			bestPointWhite.point = point
 			bestPointWhite.weight = weight
 		}
 		
-		if (bestPointBlack.weight & 0xff) <= black {
+		if (bestPointBlack.weight & 0xff) < black {
 			bestPointBlack.point = point
 			bestPointBlack.weight = weight
 		}
@@ -517,9 +541,9 @@ class Board {
 		maxPriority = max(maxPriority, priority)
 		if isCaptures(point: point, spot: spot) != nil {
 			if spot == .white {
-				maxPriority += UInt16(self.whiteCaptures + 2)
+				maxPriority += UInt16(self.whiteCaptures)
 			} else {
-				maxPriority += UInt16(self.blackCaptures + 2)
+				maxPriority += UInt16(self.blackCaptures)
 			}
 		}
 		return maxPriority
@@ -569,7 +593,7 @@ class Board {
 			for j in 0..<19 {
 				if self.board[j][i] == 0x100 || self.board[j][i] == 0x1 || self.board[j][i] == 0x0 {
 					let spot = Spot(weight: self.board[j][i])
-					print(" \(spot.rawValue) ", terminator: "")
+					print(" \(spot.rawValue)  ", terminator: "")
 				} else {
 					print("\(self.board[j][i] >> 8 & 0xff)|\(self.board[j][i] & 0xff)", terminator: " ")
 					//print(self.board[j][i], terminator: " ")
@@ -585,13 +609,13 @@ class Board {
 		case 0: // 0 противоположных камней
 			switch same {
 			case 0:
-				return 1
+				return 2
 			case 1:
-				return 4
-			case 2:
 				return 6
+			case 2:
+				return 7
 			case 3:
-				return 8
+				return 9
 			case 4:
 				return 10
 			default:
@@ -603,13 +627,13 @@ class Board {
 		case 1: // 1 камень противоположной стороны
 			switch same {
 			case 0:
-				return 1
+				return 2
 			case 1:
 				return 1
 			case 2:
-				return 3
+				return 6
 			case 3:
-				return 5
+				return 8
 			case 4:
 				return 10
 			default:
