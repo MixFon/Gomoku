@@ -87,12 +87,13 @@ class Gomoku {
 		let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
 		let timeInterval = Double(nanoTime) / 1_000_000_000
 		self.delegate?.showTime(time: "\(timeInterval)")
-		self.board.setSpot(point: point, spot: .black)
+		self.board.setCurrentSpotToPoint(point: point)
+		//self.board.setSpot(point: point, spot: .black)
 		let globalPoint = self.board.convertCoordinateToGlobal(point: point)
 		self.delegate?.moving(point: globalPoint, stone: .black)
 		//capturesStones(point: point, stone: stone)
 		checkWinerToFiveStones(point: globalPoint, stone: .black)
-		//self.board.printBourd()
+		self.board.printBourd()
 	}
 	
 	/// Возвращает массив лучших черных точек для доски
@@ -105,7 +106,11 @@ class Gomoku {
 				}
 			}
 		}
-		bestBlackPoints.sort(by: { board.board[$0.x][$0.y] & 0xff > board.board[$1.x][$1.y]  & 0xff })
+		bestBlackPoints.sort(by: {
+								let (_ , b1) = Board.getWeightWhiteBlack(weight: board.board[$0.x][$0.y])
+								let (_ , b2) = Board.getWeightWhiteBlack(weight: board.board[$1.x][$1.y])
+								return b1 > b2 }
+		)
 		if bestBlackPoints.isEmpty { return [] }
 		return Array(bestBlackPoints[0...])
 	}
