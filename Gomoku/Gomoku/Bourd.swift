@@ -128,10 +128,18 @@ class Board {
 			let deltaWhite = abs(Int(bestWhite) - Int(b))
 			let deltaBlack = abs(Int(bestBlack) - Int(w))
 			if deltaWhite == deltaBlack {
-				if self.currentSpot == .white {
-					return self.bestPointBlack.point
+				if self.currentSpot == .black {
+					if bestWhite >= 10 {
+						return self.bestPointWhite.point
+					} else {
+						return self.bestPointBlack.point
+					}
 				} else {
-					return self.bestPointWhite.point
+					if bestBlack >= 10 {
+						return self.bestPointBlack.point
+					} else {
+						return self.bestPointWhite.point
+					}
 				}
 			}
 			if deltaWhite < deltaBlack {
@@ -139,11 +147,12 @@ class Board {
 			} else {
 				return self.bestPointBlack.point
 			}
-		}
-		if bestWhite > bestBlack {
-			return self.bestPointWhite.point
 		} else {
-			return self.bestPointBlack.point
+			if bestWhite > bestBlack {
+				return self.bestPointWhite.point
+			} else {
+				return self.bestPointBlack.point
+			}
 		}
 	}
 	
@@ -214,7 +223,7 @@ class Board {
 	}
 	
 	/// Возвращает вес в указанной точке. Полностю для всей точки.
-	private func getWeith(point: Point) -> Weight {
+	func getWeight(point: Point) -> Weight {
 		return self.board[point.x][point.y]
 	}
 	
@@ -226,22 +235,52 @@ class Board {
 	/// Устанавливает вес как он есть в заданную позицию, затем одновляет позицию
 	func setConstWeightToPoint(point: Point, weight: Weight) {
 		self.board[point.x][point.y] = weight
-		apdateBestPoints(point: point, weight: self.board[point.x][point.y])
+		updateBestPoints(point: point, weight: self.board[point.x][point.y])
 		//updateBestPoints(point: point, weight: self.board[point.x][point.y])
 		//addOccupiedPoints(point: point)
 	}
 	
 	
-	/// Устанавливает вес в заданную позицию. Вес для правого и левого одновременно. И обновляет массивы с лучшими ходами
+	/// Устанавливает вес в заданную позицию. В позиции сохраняется наибольший вес
 	func setWeightToPoint(point: Point, weight: Weight) {
-		self.board[point.x][point.y] = addingWeights(one: self.board[point.x][point.y], two: weight)
-		apdateBestPoints(point: point, weight: self.board[point.x][point.y])
+		let (oldWhite, oldBlack) = Board.getWeightWhiteBlack(weight: self.board[point.x][point.y])
+		let maxOld = max(oldWhite, oldBlack)
+		let (settingWhite, settingBlack) = Board.getWeightWhiteBlack(weight: weight)
+		let maxSetting = max(settingWhite, settingBlack)
+		// Если максимальные значения устанавливаемого и установленного весов равны
+		if maxSetting == maxOld {
+			// Высичляем разности и устанавливаем наименьшую разность
+			let deltaOld = abs(Int(oldWhite) - Int(oldBlack))
+			let deltaSetting = abs(Int(settingWhite) - Int(settingBlack))
+			// Если разности равны, устаравливаем разность для текущего камня.
+			if deltaOld == deltaSetting {
+				if self.currentSpot == .white {
+					if settingWhite > settingBlack {
+						self.board[point.x][point.y] = weight
+					}
+				} else {
+					if settingWhite < settingBlack {
+						self.board[point.x][point.y] = weight
+					}
+				}
+			} else {
+				if deltaSetting < deltaOld {
+					self.board[point.x][point.y] = weight
+				}
+			}
+		} else {
+			if maxSetting > maxOld {
+				self.board[point.x][point.y] = weight
+			}
+		}
+		//self.board[point.x][point.y] = addingWeights(one: self.board[point.x][point.y], two: weight)
+		//apdateBestPoints(point: point, weight: self.board[point.x][point.y])
 		//addOccupiedPoints(point: point)
 		//updateBestPoints(point: point, weight: self.board[point.x][point.y])
 	}
 	
 	/// Обновление весов в нучших координатах
-	private func apdateBestPoints(point: Point, weight: Weight) {
+	func updateBestPoints(point: Point, weight: Weight) {
 		// Проверяет на то, что в ячейке нет W или B. Любой другой вес считается .empty
 		if !checkSpotCoordinate(self.bestPointWhite.point, .empty) {
 			self.bestPointWhite.point = Point(-1, -1)
@@ -262,9 +301,6 @@ class Board {
 		}
 		
 		let (white, black) = Board.getWeightWhiteBlack(weight: weight)
-		if (white > 10 || black > 10) {
-			print(white, black)
-		}
 		let (bestWhite, _) = Board.getWeightWhiteBlack(weight: self.bestPointWhite.weight)
 		let (_, bestBlack) = Board.getWeightWhiteBlack(weight: self.bestPointBlack.weight)
 		
@@ -415,13 +451,20 @@ class Board {
 		} else {
 			self.blackCaptures += 1
 		}
-		deleteSpot(points: points, spot: spot)
+		deleteSpotCurrentBoard(points: points)
+		deleteSpotFromDelegate(points: points, spot: spot)
 	}
 	
-	/// Удаляет споты в указанных координатах, используется при захвате камней. И удалаяе с 3D доски
-	private func deleteSpot(points: (Point, Point), spot: Spot) {
+	/// Удаление. Установка в точки значение .empty. Перерасчет весов в областях удаленных spot.
+	private func deleteSpotCurrentBoard(points: (Point, Point)) {
 		self.board[points.0.x][points.0.y] = Spot.empty.wieghtSpot()
 		self.board[points.1.x][points.1.y] = Spot.empty.wieghtSpot()
+		definingPointsForRecalculation(point: points.0)
+		definingPointsForRecalculation(point: points.1)
+	}
+	
+	/// Удаляет споты в указанных координатах, используется при захвате камней. И удалаяе с 3D доски.
+	private func deleteSpotFromDelegate(points: (Point, Point), spot: Spot) {
 		if let delegate = self.delegate {
 			let firstPoint = convertCoordinateToGlobal(point: points.0)
 			let secondPoint = convertCoordinateToGlobal(point: points.1)
@@ -479,7 +522,7 @@ class Board {
 	}
 	
 	// MARK: Определение точек для перерасчета и перерасчет весов. (Пробовать многопоточить!!)
-	/// Определение точек для пресчета. Во всех 8 направлениях.
+	/// Определение точек для пресчета. Во всех 8 направлениях. Вычисление в каждой точке веса
 	private func definingPointsForRecalculation(point: Point) {
 		// #x#
 		// #o#
@@ -574,9 +617,9 @@ class Board {
 		maxPriority = max(maxPriority, priority)
 		if isCaptures(point: point, spot: spot) != nil {
 			if spot == .white {
-				maxPriority += UInt16(self.whiteCaptures + 3)
+				maxPriority += UInt16(self.whiteCaptures + 1)
 			} else {
-				maxPriority += UInt16(self.blackCaptures + 3)
+				maxPriority += UInt16(self.blackCaptures + 1)
 			}
 		}
 		return maxPriority
@@ -604,6 +647,7 @@ class Board {
 		
 		// down
 		i = 1
+		sameStones += 1 // Увеличиваем на 1, тем самым учитываем рассматриваемую точку.
 		checkPoint = nextPoint(point, i, .down)
 		if !checkSpotCoordinate(checkPoint, .empty) {
 			for k in i..<maxIteration {
@@ -638,18 +682,19 @@ class Board {
 
 	/// Высичление приоритета на основе данных
 	private func getPrioritet(same: Int, opposite: Int) -> Weight {
+		// минимальное значение для same равно 1 потому что учитывается камень, который ставится
 		switch opposite {
 		case 0: // 0 противоположных камней
 			switch same {
-			case 0:
-				return 6
 			case 1:
-				return 7
+				return 6
 			case 2:
-				return 8
+				return 7
 			case 3:
-				return 9
+				return 8
 			case 4:
+				return 9
+			case 5:
 				return 10
 			default:
 				print("Error stone 1")
@@ -659,22 +704,22 @@ class Board {
 			}
 		case 1: // 1 камень противоположной стороны
 			switch same {
-			case 0:
-				return 5
 			case 1:
-				return 2
+				return 5
 			case 2:
-				return 7
+				return 2
 			case 3:
-				return 8
+				return 7
 			case 4:
+				return 8
+			case 5:
 				return 10
 			default:
 				print("Error stone 3")
 				return 11
 			}
 		case 2:
-			if same >= 4 {
+			if same >= 5 {
 				return 10
 			} else {
 				return 3
