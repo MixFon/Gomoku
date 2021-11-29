@@ -48,17 +48,14 @@ class AI {
 		print("bestPoints", bestPoints.count)
 		print("currentSpot", board.currentSpot.rawValue)
 		//for point in bestPoints {
-		for point in board.getBestPoints() {
-			let newBoard = Board(board: board)
-			newBoard.setCurrentSpotToPoint(point: point)
-			let result = miniMax(board: newBoard, level: self.startLevel)
-			//if checkMaxWeight(spot: board.currentSpot, weight: result) { return point }
-			resultBoard.setWeightToPoint(point: point, weight: result)
-			//resultBoard.setConstWeightToPoint(point: point, weight: result)
-			if let point = checkingMaxWeightPoint(board: board, points: bestPoints) {
-				return point
-			}
-		}
+//		for point in board.getBestPoints() {
+//			let newBoard = Board(board: board)
+//			newBoard.setCurrentSpotToPoint(point: point)
+//			let result = miniMax(board: newBoard, level: self.startLevel)
+//			//if checkMaxWeight(spot: board.currentSpot, weight: result) { return point }
+//			//resultBoard.setWeightToPoint(point: point, weight: result)
+//			//resultBoard.setConstWeightToPoint(point: point, weight: result)
+//		}
 		printBestWeight(board: resultBoard)
 		resultBoard.printBourd()
 		return resultBoard.getBestPoint()
