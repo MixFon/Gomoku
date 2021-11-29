@@ -14,6 +14,11 @@ struct Point: Codable {
 		self.x = x
 		self.y = y
 	}
+	
+	/// Возвращет true, если x или y координата павна отрицательнома числу.
+	func isNegativeCoordinates() -> Bool {
+		return self.x < 0 || self.y < 0
+	}
 }
 
 extension Point: Equatable, Hashable {

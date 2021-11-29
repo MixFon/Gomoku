@@ -75,9 +75,6 @@ class Gomoku {
 	
 	/// Ход ИИ
 	private func moveAI() {
-		//print("y = \(point.y + 9) x =\(point.x + 9)")
-		//ai.setBoard(board: Board(board: self.board))
-		//self.board.printBourd()
 		let bestPoints = getStartBestBlackPoints(board: self.board)
 //		bestPoints.forEach( {print("\(self.board.board[$0.x][$0.y] >> 8 & 0xff)|\(self.board.board[$0.x][$0.y] & 0xff)") })
 		if bestPoints.isEmpty { return }
@@ -93,6 +90,7 @@ class Gomoku {
 		self.delegate?.moving(point: globalPoint, stone: .black)
 		//capturesStones(point: point, stone: stone)
 		checkWinerToFiveStones(point: globalPoint, stone: .black)
+		checkWinerToCapture()
 		self.board.printBourd()
 	}
 	
@@ -139,9 +137,11 @@ class Gomoku {
 	private func checkWinerToCapture() {
 		if self.board.whiteCaptures >= self.numberCapturesToWin {
 			self.delegate?.showingWinner(stone: .white)
+			print("Win Captures!!!!")
 			reset()
 		} else if self.board.blackCaptures >= self.numberCapturesToWin {
 			self.delegate?.showingWinner(stone: .black)
+			print("Win Captures!!!!")
 			reset()
 		}
 	}
