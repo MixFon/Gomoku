@@ -31,6 +31,8 @@ class Board {
 	/// Максимальный вес для черных spot
 	var bestPointBlack = BestPoint(point: Point(-1, -1), weight: 0)
 	
+	private var pointsDoubleThree = Set<Point>()
+	
 	//var occupiedPoints = Set<Point>()
 	
 	/// Текущий spot, для определения, кото должен ходить в данный момент. Первые ходят белые.
@@ -58,6 +60,12 @@ class Board {
 		var point: Point
 		var weight: Weight
 	}
+	
+	/// Структрула в которой хранится точка для которую нужно пересчитать, так как в ней была обнаруженя двойная тройка
+//	private struct PointDoubleThree {
+//		var point: Point
+//		var spot: Spot
+//	}
 	
 	// MARK: Enums
 	/// Перечисление служит для назначения значения при расчете стоимости spot при расчете тройки
@@ -571,10 +579,10 @@ class Board {
 	
 	//    .     .
 	//	  .     .
-	//	  W	    .	  .
+	//	  W	    B	  .
 	//	  W	    B	  .
 	// 1. x  2. x  3. x  при x == W. x - текущая позиция, W - текущий камени, B - противоположный, . - проврка
-	/// Определение точер для перерасчета.
+	/// Определение точек для перерасчета.
 	private func definingPoints(point: Point, nextPoint: NextPoint, direction: Direction) {
 		let currentSpot = self.currentSpot
 		var i = 1
@@ -588,8 +596,10 @@ class Board {
 			recalculateWeight(point: checkPoint)
 		} else if checkSpotCoordinate(checkPoint, currentSpot.opposite()) {
 			// 2.
-			i += 1
-			checkPoint = nextPoint(point, i, direction)
+			repeat {
+				i += 1
+				checkPoint = nextPoint(point, i, direction)
+			} while checkSpotCoordinate(checkPoint, currentSpot.opposite())
 			recalculateWeight(point: checkPoint)
 		} else {
 			// 3.
@@ -600,7 +610,6 @@ class Board {
 		i += 1
 		checkPoint = nextPoint(point, i, direction)
 		recalculateWeight(point: checkPoint)
-		
 	}
 	
 	/// Пересчет весов
@@ -634,9 +643,11 @@ class Board {
 		maxPriority = max(maxPriority, priority)
 		if isCaptures(point: point, spot: spot) != nil {
 			if spot == .white {
-				maxPriority += UInt16((self.whiteCaptures + 4) % 10)
+				print("isCaptures white!!!")
+				maxPriority += UInt16((self.whiteCaptures + 3) % 10)
 			} else {
-				maxPriority += UInt16((self.blackCaptures + 4) % 10)
+				print("isCaptures black!!!")
+				maxPriority += UInt16((self.blackCaptures + 3) % 10)
 			}
 		}
 		if flagCaptures {
@@ -650,7 +661,12 @@ class Board {
 	/// Общая функция для расчета весов
 	private func calculateWeight(point: Point, spot: Spot, nextPoint: NextPoint) -> Weight {
 		let maxIteration = 6
-		if !checkDoubleThree(point: point, spot: spot) { return 0 }
+		if !checkDoubleThree(point: point, spot: spot) {
+			// Добавление точки для дальнейшего пересчета.
+			//self.pointsDoubleThree.append(PointDoubleThree(point: point, spot: spot))
+			self.pointsDoubleThree.insert(point)
+			return 0
+		}
 		var sameStones = 0
 		var oppositeStones = 0
 		var i = 1
@@ -662,6 +678,8 @@ class Board {
 					sameStones += 1
 				} else if checkSpotCoordinate(checkPoint, spot.opposite()) {
 					oppositeStones += 1
+					break
+				} else {
 					break
 				}
 			}
@@ -679,6 +697,8 @@ class Board {
 				} else if checkSpotCoordinate(checkPoint, spot.opposite()) {
 					oppositeStones += 1
 					break
+				} else {
+					break
 				}
 			}
 		}
@@ -688,7 +708,21 @@ class Board {
 	
 	/// Печать доски
 	func printBourd() {
+		print("  ", terminator: "")
+		for i in 0...18 {
+			if i < 10 {
+				print(" \(i)  ", terminator: "")
+			} else {
+				print(" \(i) ", terminator: "")
+			}
+		}
+		print()
 		for i in 0..<19 {
+			if i < 10 {
+				print("\(i) |", terminator: "")
+			} else {
+				print("\(i)|", terminator: "")
+			}
 			for j in 0..<19 {
 				if self.board[j][i] == 0x100 || self.board[j][i] == 0x1 || self.board[j][i] == 0x0 {
 					let spot = Spot(weight: self.board[j][i])
@@ -713,14 +747,15 @@ class Board {
 			case 2:
 				return 5
 			case 3:
-				return 8
+				return 7
 			case 4:
 				return 9
 			case 5:
-				return 10
+				//fatalError()
+				return 13
 			default:
 				print("Error stone 1")
-				return 11
+				return 12
 				//fatalError()
 				//return 0
 			}
@@ -731,11 +766,12 @@ class Board {
 			case 2:
 				return 2
 			case 3:
+				//fatalError()
 				return 6
 			case 4:
-				return 7
+				return 8
 			case 5:
-				return 10
+				return 14
 			default:
 				print("Error stone 3")
 				return 11
@@ -759,9 +795,19 @@ class Board {
 	func setSpot(point: Point, spot: Spot) {
 		captures(point: point, spot: spot)
 		self.board[point.x][point.y] = spot.wieghtSpot()
+		recalcularePointsDoubleThree()
 		definingPointsForRecalculation(point: point)
 		self.currentSpot = self.currentSpot.opposite()
 		//printBourd()
+	}
+	
+	/// Пересчет точек в которые раньше нельзя было поставить указанный spot
+	private func recalcularePointsDoubleThree() {
+		print("recalc!!")
+		if self.pointsDoubleThree.isEmpty { return }
+		let tempPointsDoubleThree = self.pointsDoubleThree.map( {$0} )
+		self.pointsDoubleThree.removeAll()
+		tempPointsDoubleThree.forEach( { print($0); recalculateWeight(point: $0) } )
 	}
 	
 	// MARK: Проверки координат и установок

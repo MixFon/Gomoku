@@ -19,6 +19,8 @@ class Gomoku {
 	
 	private var stone = Stone.white
 	
+	private var winningPoint: WinningPoint?
+	
 //	private var whiteCaptures: Int = 0
 //	private var blackCaptures: Int = 0
 	
@@ -29,6 +31,12 @@ class Gomoku {
 	enum Mode: String {
 		case pvp
 		case pvc
+	}
+	
+	/// Точка при которой образуется победитель. Целостность 5-ти камней не должна быть нарушна следующим ходом.
+	private struct WinningPoint {
+		let point: Point
+		let stone: Stone
 	}
 	
 	/// Вызывается при закрузке сохраненной игры. На доске устанавливаются нужные spots
@@ -125,11 +133,18 @@ class Gomoku {
 		return true
 	}
 	
-	/// Проверка победителя по выставлении 5 камней в ряд. В случае победы все сбрасывается
+	/// Проверка победителя по выставлении 5 камней в ряд. В случае победы все сбрасывается.
+	/// Игрок выставивший 5 камней подряд побеждает только когда следующийм ходом нельзя нарушить целостность 5 камней.
 	private func checkWinerToFiveStones(point: Point, stone: Stone) {
-		if self.board.checkWinerToFiveSpots(point: point, stone: stone) {
-			self.delegate?.showingWinner(stone: stone)
-			self.reset()
+		if let winnigPoint = self.winningPoint {
+			if self.board.checkWinerToFiveSpots(point: winnigPoint.point, stone: winnigPoint.stone) {
+				self.delegate?.showingWinner(stone: winnigPoint.stone)
+				self.reset()
+			} else {
+				self.winningPoint = nil
+			}
+		} else if self.board.checkWinerToFiveSpots(point: point, stone: stone) {
+			self.winningPoint = WinningPoint(point: point, stone: stone)
 		}
 	}
 	
@@ -149,7 +164,9 @@ class Gomoku {
 	/// Сбразыватеся до начальных настроек
 	private func reset() {
 		//self.board.clearBoard()
+		self.winningPoint = nil
 		self.board = Board()
+		self.board.delegate = self.delegate
 		self.stone = .white
 		//self.ai?.task.interrupt()
 		self.ai = AI()

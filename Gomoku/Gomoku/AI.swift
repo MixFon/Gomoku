@@ -61,9 +61,9 @@ class AI {
 		print("bestPoints", bestPoints.count)
 		print("currentSpot", board.currentSpot.rawValue)
 		/// Точка с максимальным весом для текущего spot
-		var maxPoint = Point(-1, -1)
+		//var maxPoint = Point(-1, -1)
 		/// Максимальный вес для текущего spot
-		var maxWeight: Board.Weight = 0
+		//var maxWeight: Board.Weight = 0
 		//for point in bestPoints {
 //		for point in board.getBestPoints() {
 //			let newBoard = Board(board: board)
@@ -93,11 +93,12 @@ class AI {
 	/// Проверяет получено ли максимальное значение для указанного spot
 	private func checkMaxWeight(spot: Board.Spot, weight: Board.Weight) -> Bool {
 		let (white, black) = Board.getWeightWhiteBlack(weight: weight)
+		let finishWeight = 9
 		switch spot {
 		case .black:
-			return black >= 10
+			return black >= finishWeight
 		case .white:
-			return white >= 10
+			return white >= finishWeight
 		default:
 			return false
 		}
@@ -115,11 +116,52 @@ class AI {
 	
 	/// Проверяет нет ли для текущего камня максимального значения.
 	private func checkingMaxWeightPoint(board: Board, points: [Point]) -> Point? {
+		let maxPoints = points.filter( {
+			let wheight = board.getWeight(point: $0)
+			return checkMaxWeight(spot: board.currentSpot, weight: wheight) ||
+				checkMaxWeight(spot: board.currentSpot.opposite(), weight: wheight)
+		} )
+		print(maxPoints)
+		let maxBlack = maxPoints.max(by: {
+			let (_, oneB) = Board.getWeightWhiteBlack(weight: board.getWeight(point: $0))
+			let (_, twoB) = Board.getWeightWhiteBlack(weight: board.getWeight(point: $1))
+			return oneB < twoB
+		})
+		let maxWhite = maxPoints.max(by: {
+			let (oneW, _) = Board.getWeightWhiteBlack(weight: board.getWeight(point: $0))
+			let (twoW, _) = Board.getWeightWhiteBlack(weight: board.getWeight(point: $1))
+			return oneW < twoW
+		})
+		if maxBlack == nil && maxWhite == nil {
+			return nil
+		} else if maxBlack != nil && maxWhite == nil {
+			print("1 return maxBlack", maxBlack!)
+			return maxBlack
+		} else if maxBlack == nil && maxWhite != nil {
+			print("2 return maxWhite", maxWhite!)
+			return maxWhite
+		} else if maxBlack != nil && maxWhite != nil {
+			let (_, maxB) = Board.getWeightWhiteBlack(weight: board.getWeight(point: maxBlack!))
+			let (maxW, _) = Board.getWeightWhiteBlack(weight: board.getWeight(point: maxWhite!))
+			if maxB >= maxW {
+				print("3 return maxBlack", maxBlack!)
+				return maxBlack
+			} else {
+				print("4 return maxWhite", maxWhite!)
+				return maxWhite
+			}
+		}
+		print("return nil")
+		fatalError()
+		//return nil
+		//print(temp)
+		/*
 		for point in points {
 			let wheight = board.getWeight(point: point)
 			if checkMaxWeight(spot: board.currentSpot.opposite(), weight: wheight) { return point }
 			if checkMaxWeight(spot: board.currentSpot, weight: wheight) { return point }
 		}
 		return nil
+		*/
 	}
 }

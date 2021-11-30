@@ -223,11 +223,21 @@ class GameViewController: NSViewController {
 	/// Перемещение из массива камней на доске в массив камней на полу
 	private func deleteStonesFromBouard(_ stones: [Node], _ onBoard: inout [Node], _ onFloor: inout [Node]) {
 		for stone in stones {
-			guard let index = onBoard.firstIndex(where: { $0.1 == stone.1}) else { continue }
+			guard let index = onBoard.firstIndex(where: { $0.1 == stone.1 } ) else { continue }
 			onBoard.remove(at: index)
 			onFloor.insert((stone.0, nil), at: 0)
 		}
-		movingStonesFromBoard(stones: stones.map({$0.0}))
+		let queue = DispatchQueue.global(qos: .default)
+		queue.async {
+			let timer = Timer.init(timeInterval: 1, repeats: false ) { _ in
+				DispatchQueue.main.async {
+					self.movingStonesFromBoard(stones: stones.map({$0.0}))
+				}
+			}
+			RunLoop.current.add(timer, forMode: .default)
+			RunLoop.current.run()
+		}
+		//movingStonesFromBoard(stones: stones.map({$0.0}))
 	}
 	
 	/// Передвижение в указанную позицию белогого камня
