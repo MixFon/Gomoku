@@ -323,6 +323,7 @@ extension GameViewController: MoveProtocol {
 	
 	/// Показ победителя. Очистка камней с доски.
 	func showingWinner(stone: Stone) {
+		print("Win", stone)
 		if stone == .white {
 			self.whiteStonesOnBoard.forEach( { nodeShine(node: $0.0, color: .green) } )
 		} else {

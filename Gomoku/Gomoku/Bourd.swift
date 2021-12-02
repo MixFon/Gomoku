@@ -53,8 +53,10 @@ class Board {
 		self.currentSpot = board.currentSpot
 		self.whiteCaptures = board.whiteCaptures
 		self.blackCaptures = board.blackCaptures
+		self.pointsDoubleThree = board.pointsDoubleThree
 		self.delegate = nil
 	}
+	
 	// MARK: Structs
 	struct BestPoint {
 		var point: Point
@@ -126,15 +128,29 @@ class Board {
 		}
 	}
 	
+	/// Если максимальный вес противника меньше 9 (8, 7, 6...) возвращем точку своего (текущего) веса.
+	private func returnBelowNine(bestWhite: Weight, bestBlack: Weight) -> Point? {
+		switch self.currentSpot {
+		case .black where bestWhite <= 8:
+			return self.bestPointBlack.point
+		case .white where bestBlack <= 8:
+			return self.bestPointWhite.point
+		default:
+			break
+		}
+		return nil
+	}
+	
 	/// Возвращает точку в которую лучше всего поставить текущий камень
 	func getBestPoint() -> Point {
 		let (bestWhite, b) = Board.getWeightWhiteBlack(weight: self.bestPointWhite.weight)
 		let (w, bestBlack) = Board.getWeightWhiteBlack(weight: self.bestPointBlack.weight)
-//		let bestWeightWhite = (self.bestPointWhite.weight >> 8) & 0xff
-//		let bestWeightBlack = self.bestPointBlack.weight & 0xff
+		if let pointBelowNine = returnBelowNine(bestWhite: bestWhite, bestBlack: bestBlack) {
+			return pointBelowNine
+		}
 		if bestWhite == bestBlack {
 			let deltaWhite = abs(Int(bestWhite) - Int(b))
-			let deltaBlack = abs(Int(bestBlack) - Int(w))
+			let deltaBlack = abs(Int(w) - Int(bestBlack))
 			if deltaWhite == deltaBlack {
 				if self.currentSpot == .black {
 					if bestWhite >= 10 {
@@ -643,15 +659,15 @@ class Board {
 		maxPriority = max(maxPriority, priority)
 		if isCaptures(point: point, spot: spot) != nil {
 			if spot == .white {
-				print("isCaptures white!!!")
-				maxPriority += UInt16((self.whiteCaptures + 3) % 10)
+				print("isCaptures white!!!", self.whiteCaptures)
+				maxPriority += UInt16((self.whiteCaptures + 2) % 10)
 			} else {
-				print("isCaptures black!!!")
-				maxPriority += UInt16((self.blackCaptures + 3) % 10)
+				print("isCaptures black!!!", self.blackCaptures)
+				maxPriority += UInt16((self.blackCaptures + 2) % 10)
 			}
 		}
 		if flagCaptures {
-			if maxPriority < 10 {
+			if maxPriority < 9 {
 				return 2
 			}
 		}
@@ -803,7 +819,7 @@ class Board {
 	
 	/// Пересчет точек в которые раньше нельзя было поставить указанный spot
 	private func recalcularePointsDoubleThree() {
-		print("recalc!!")
+		//print("recalc!!")
 		if self.pointsDoubleThree.isEmpty { return }
 		let tempPointsDoubleThree = self.pointsDoubleThree.map( {$0} )
 		self.pointsDoubleThree.removeAll()
@@ -857,7 +873,7 @@ class Board {
 			}
 			return false
 		}
-*/
+		*/
 	}
 	
 	/**
