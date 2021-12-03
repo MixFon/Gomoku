@@ -9,7 +9,12 @@ import Foundation
 
 class AI {
 	
+	let mutex = NSLock()
+	var bestPoints = [Board.BestPoint]()
+	
 	var startLevel = 10
+	
+	
 	
 	/// Обновление максимального веса. Если weight максимальный для текучего spot, то возвращаем его
 	private func updateMaxPoint(spot: Board.Spot, maxWeight: inout Board.Weight, weight: Board.Weight) -> Bool {
@@ -21,13 +26,11 @@ class AI {
 				maxWeight = weight
 				return true
 			}
-			//if white >= 10 { return weight }
 		case .black:
 			if black > maxBlack {
 				maxWeight = weight
 				return true
 			}
-			//if black >= 10 { return weight }
 		default:
 			break
 		}
@@ -41,10 +44,10 @@ class AI {
 		switch spot {
 		case .white:
 			if white > maxWhite { maxWeight = weight }
-			//if white >= 10 { return weight }
+			if white >= 9 { return weight }
 		case .black:
 			if black > maxBlack { maxWeight = weight }
-			//if black >= 10 { return weight }
+			if black >= 9 { return weight }
 		default:
 			break
 		}
@@ -78,21 +81,41 @@ class AI {
 		print("-----------")
 		printBestWeight(board: resultBoard)
 		resultBoard.printBourd()
-//		if let point = checkingMaxWeightPoint(board: board, points: bestPoints) {
-//			return point
-//		}
+		if let point = checkingMaxWeightPoint(board: board, points: bestPoints) {
+			return point
+		}
 		print("for best white:")
+		let group = DispatchGroup()
 		var maxWeight: Board.Weight = 0
 		var resultPoint = resultBoard.bestPointWhite.point
-		var weight = forTest(resultBoard: resultBoard, point: resultBoard.bestPointWhite.point)
-		_ = updateMaxPoint(spot: board.currentSpot, maxWeight: &maxWeight, weight: weight)
-		print("for best black:")
-		weight = forTest(resultBoard: resultBoard, point: resultBoard.bestPointBlack.point)
-		if updateMaxPoint(spot: board.currentSpot, maxWeight: &maxWeight, weight: weight) {
-			resultPoint = resultBoard.bestPointBlack.point
+		self.bestPoints = []
+		var points = [Point](resultBoard.pointsCapturesBlack)
+		points.append(contentsOf: resultBoard.getBestPoints())
+		print(points)
+		for point in points {
+			group.enter()
+			DispatchQueue.global(qos: .userInteractive).async {
+				let newPoint = point
+				let weight = self.forTest(resultBoard: resultBoard, point: newPoint)
+				self.mutex.lock()
+				self.bestPoints.append(Board.BestPoint(point: newPoint, weight: weight))
+				self.mutex.unlock()
+				group.leave()
+			}
 		}
+		group.wait()
+		for best in self.bestPoints {
+			if updateMaxPoint(spot: board.currentSpot, maxWeight: &maxWeight, weight: best.weight) {
+				resultPoint = best.point
+			}
+		}
+		print("for best black:")
 		return resultPoint
 		//return resultBoard.getBestPoint()
+	}
+	
+	private func setToWeightPoints(weight: Board.Weight) {
+	
 	}
 	
 	func forTest(resultBoard: Board, point: Point) -> Board.Weight {

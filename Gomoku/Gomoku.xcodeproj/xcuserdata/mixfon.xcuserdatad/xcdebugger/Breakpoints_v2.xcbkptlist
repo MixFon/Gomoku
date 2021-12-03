@@ -126,8 +126,8 @@
             filePath = "Gomoku/Bourd.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1062"
-            endingLineNumber = "1062"
+            startingLineNumber = "1077"
+            endingLineNumber = "1077"
             landmarkName = "rabbitOne(point:spot:nextPoint:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -142,8 +142,8 @@
             filePath = "Gomoku/Bourd.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1087"
-            endingLineNumber = "1087"
+            startingLineNumber = "1102"
+            endingLineNumber = "1102"
             landmarkName = "rabbitTwo(point:spot:nextPoint:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -158,8 +158,8 @@
             filePath = "Gomoku/Bourd.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1115"
-            endingLineNumber = "1115"
+            startingLineNumber = "1130"
+            endingLineNumber = "1130"
             landmarkName = "rabbitThree(point:spot:nextPoint:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -174,8 +174,8 @@
             filePath = "Gomoku/Bourd.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "998"
-            endingLineNumber = "998"
+            startingLineNumber = "1003"
+            endingLineNumber = "1003"
             landmarkName = "checkII(_:_:_:_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -190,8 +190,8 @@
             filePath = "Gomoku/Bourd.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "999"
-            endingLineNumber = "999"
+            startingLineNumber = "1004"
+            endingLineNumber = "1004"
             landmarkName = "checkII(_:_:_:_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -206,8 +206,8 @@
             filePath = "Gomoku/Bourd.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "887"
-            endingLineNumber = "887"
+            startingLineNumber = "902"
+            endingLineNumber = "902"
             landmarkName = "uniquePointThree(point:spot:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -270,8 +270,8 @@
             filePath = "Gomoku/Bourd.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "1462"
-            endingLineNumber = "1462">
+            startingLineNumber = "1486"
+            endingLineNumber = "1486">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -284,8 +284,8 @@
             filePath = "Gomoku/Bourd.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "636"
-            endingLineNumber = "636"
+            startingLineNumber = "639"
+            endingLineNumber = "639"
             landmarkName = "recalculateWeight(point:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -300,8 +300,8 @@
             filePath = "Gomoku/Bourd.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "634"
-            endingLineNumber = "634"
+            startingLineNumber = "637"
+            endingLineNumber = "637"
             landmarkName = "recalculateWeight(point:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -310,14 +310,14 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "89EE1146-0813-42F5-A926-5D0468006AD6"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "Gomoku/AI.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "70"
-            endingLineNumber = "70"
+            startingLineNumber = "73"
+            endingLineNumber = "73"
             landmarkName = "miniMax(board:level:)"
             landmarkType = "7">
          </BreakpointContent>

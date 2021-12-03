@@ -31,9 +31,11 @@ class Board {
 	/// Максимальный вес для черных spot
 	var bestPointBlack = BestPoint(point: Point(-1, -1), weight: 0)
 	
+	/// Точки в которых была найдена двойная тройка. Эти точки нужно пересчитывать.
 	private var pointsDoubleThree = Set<Point>()
 	
-	//var occupiedPoints = Set<Point>()
+	/// Точки в которых обнаружен захват. Если в нее перейти будет захват.
+	var pointsCapturesBlack = Set<Point>()
 	
 	/// Текущий spot, для определения, кото должен ходить в данный момент. Первые ходят белые.
 	var currentSpot = Spot.white
@@ -54,6 +56,7 @@ class Board {
 		self.whiteCaptures = board.whiteCaptures
 		self.blackCaptures = board.blackCaptures
 		self.pointsDoubleThree = board.pointsDoubleThree
+		self.pointsCapturesBlack = board.pointsCapturesBlack
 		self.delegate = nil
 	}
 	
@@ -659,10 +662,11 @@ class Board {
 		maxPriority = max(maxPriority, priority)
 		if isCaptures(point: point, spot: spot) != nil {
 			if spot == .white {
-				print("isCaptures white!!!", self.whiteCaptures)
+				//print("isCaptures white!!!", self.whiteCaptures)
 				maxPriority += UInt16((self.whiteCaptures + 2) % 10)
 			} else {
-				print("isCaptures black!!!", self.blackCaptures)
+				//print("isCaptures black!!!", self.blackCaptures)
+				self.pointsCapturesBlack.insert(point)
 				maxPriority += UInt16((self.blackCaptures + 2) % 10)
 			}
 		}
@@ -770,7 +774,7 @@ class Board {
 				//fatalError()
 				return 13
 			default:
-				print("Error stone 1")
+				//print("Error stone 1")
 				return 12
 				//fatalError()
 				//return 0
@@ -789,7 +793,7 @@ class Board {
 			case 5:
 				return 14
 			default:
-				print("Error stone 3")
+				//print("Error stone 3")
 				return 11
 			}
 		case 2:
@@ -799,9 +803,9 @@ class Board {
 				return 3
 			}
 		default:
-			print("Error stone 5")
-			//break
-			fatalError()
+			//print("Error stone 5")
+			break
+			//fatalError()
 		}
 		return 0
 	}
@@ -813,8 +817,15 @@ class Board {
 		self.board[point.x][point.y] = spot.wieghtSpot()
 		recalcularePointsDoubleThree()
 		definingPointsForRecalculation(point: point)
+		updatePointsCapturesBlack(point: point)
 		self.currentSpot = self.currentSpot.opposite()
 		//printBourd()
+	}
+	
+	/// Обновляет точки в которых может быть захват.
+	private func updatePointsCapturesBlack(point: Point) {
+		if self.pointsCapturesBlack.isEmpty { return }
+		self.pointsCapturesBlack.subtract([point])
 	}
 	
 	/// Пересчет точек в которые раньше нельзя было поставить указанный spot
@@ -823,7 +834,7 @@ class Board {
 		if self.pointsDoubleThree.isEmpty { return }
 		let tempPointsDoubleThree = self.pointsDoubleThree.map( {$0} )
 		self.pointsDoubleThree.removeAll()
-		tempPointsDoubleThree.forEach( { print($0); recalculateWeight(point: $0) } )
+		tempPointsDoubleThree.forEach( { recalculateWeight(point: $0) } )
 	}
 	
 	// MARK: Проверки координат и установок
@@ -855,11 +866,13 @@ class Board {
 		let uniqueStone = uniquePointThree(point: point, spot: spot)
 		for point in uniqueStone {
 			let unique = uniquePointThree(point: point, spot: spot)
-			unique.forEach( { setResult.insert($0) } )
+			setResult = setResult.union(unique)
+			//unique.forEach( { setResult.insert($0) } )
 		}
 		return setResult.count == 3 || setResult.count == 0
 		/*
 		// Вариан с подсвечиваение тройки
+		print(setResult)
 		if setResult.count == 3 || setResult.count == 0 {
 			for uniquePoint in setResult {
 				let point = convertCoordinateToGlobal(point: uniquePoint)
@@ -880,31 +893,23 @@ class Board {
 	Возвращает уникальные элементы состовляющие тройки по всем направлениям.
 	Вычисления выполнятся на разных очередях с помощью DispatchGroup. Главный поток ожидает завершения обоих вычислений.
 	*/
-	private func uniquePointThree(point: Point, spot: Spot) -> [Point] {
+	//private func uniquePointThree(point: Point, spot: Spot) -> [Point] {
+	private func uniquePointThree(point: Point, spot: Spot) -> Set<Point> {
 		var setPoints = Set<Point>()
 		
-		var pointsThree = [Point]()
-		var pointsRabbitThree = [Point]()
-		
-		let group = DispatchGroup()
-		group.enter()
-		DispatchQueue.global(qos: .userInitiated).async {
-			pointsThree = self.checkThree(point: point, spot: spot)
-			//print("one")
-			group.leave()
-		}
-		group.enter()
-		DispatchQueue.global(qos: .userInitiated).async {
-			pointsRabbitThree = self.checkThreeRabbit(point: point, spot: spot)
-			//print("two")
-			group.leave()
-		}
-		group.wait()
-		pointsThree.forEach( { setPoints.insert($0)} )
-		pointsRabbitThree.forEach( { setPoints.insert($0)} )
+		//var pointsThree = [Point]()
+		//var pointsThree = Set<Point>()
+		//var pointsRabbitThree = [Point]()
+		//var pointsRabbitThree = Set<Point>()
+		checkThree(point: point, spot: spot, setPoints: &setPoints)
+		checkThreeRabbit(point: point, spot: spot, setPoints: &setPoints)
+		//pointsThree.forEach( { setPoints.insert($0)} )
+		//setPoints = setPoints.union(pointsThree)
+		//pointsRabbitThree.forEach( { setPoints.insert($0)} )
+		//setPoints = setPoints.union(pointsRabbitThree)
 		//print("Done")
-		let points = [Point](setPoints)
-		return points
+		//let points = [Point](setPoints)
+		return setPoints
 	}
 	
 	/// Возвращает вес spot. Текущий - 2, противоположный - 3, пустой - 0, конец доски - 5
@@ -1023,34 +1028,44 @@ class Board {
 	
 	// MARK: Rabbit all functions
 	/// Проверка тройки в виде кролика
-	private func checkThreeRabbit(point: Point, spot: Spot) -> [Point] {
-		var setPoints = Set<Point>()
-		let one = rabbitAllFunctions(point: point, spot: spot, rabbitFunction: rabbitOne)
-		one.forEach({setPoints.insert($0)})
-		let two = rabbitAllFunctions(point: point, spot: spot, rabbitFunction: rabbitTwo)
-		two.forEach({setPoints.insert($0)})
-		let three = rabbitAllFunctions(point: point, spot: spot, rabbitFunction: rabbitThree)
-		three.forEach({setPoints.insert($0)})
-		let points = [Point](setPoints)
-		return points
+	//private func checkThreeRabbit(point: Point, spot: Spot) -> [Point] {
+	private func checkThreeRabbit(point: Point, spot: Spot, setPoints: inout Set<Point>){
+		//var setPoints = Set<Point>()
+		rabbitAllFunctions(point: point, spot: spot, rabbitFunction: rabbitOne, setPoints: &setPoints)
+		//one.forEach({setPoints.insert($0)})
+		//setPoints = setPoints.union(one)
+		rabbitAllFunctions(point: point, spot: spot, rabbitFunction: rabbitTwo, setPoints: &setPoints)
+		//two.forEach({setPoints.insert($0)})
+		//setPoints = setPoints.union(two)
+		rabbitAllFunctions(point: point, spot: spot, rabbitFunction: rabbitThree, setPoints: &setPoints)
+		//three.forEach({setPoints.insert($0)})
+		//setPoints = setPoints.union(three)
+		//let points = [Point](setPoints)
+		//return setPoints
 	}
 	
 	/// Каждый переданная функция rabbitFunction обрабатывается в 8 направлениях (функции check*)
-	private func rabbitAllFunctions(point: Point, spot: Spot, rabbitFunction: RabbitFunction) -> [Point] {
-		var points = [Point]()
+	//private func rabbitAllFunctions(point: Point, spot: Spot, rabbitFunction: RabbitFunction) -> [Point] {
+	private func rabbitAllFunctions(point: Point, spot: Spot, rabbitFunction: RabbitFunction, setPoints: inout Set<Point>) {
+		//var points = [Point]()
+		//var points = Set<Point>()
 		if let one = rabbitFunction(point, spot, checkOne) {
-			points.append(contentsOf: one)
+			//points.append(contentsOf: one)
+			setPoints = setPoints.union(one)
 		}
 		if let two = rabbitFunction(point, spot, checkTwo) {
-			points.append(contentsOf: two)
+			//points.append(contentsOf: two)
+			setPoints = setPoints.union(two)
 		}
 		if let three = rabbitFunction(point, spot, checkThree) {
-			points.append(contentsOf: three)
+			//points.append(contentsOf: three)
+			setPoints = setPoints.union(three)
 		}
 		if let four = rabbitFunction(point, spot, checkFour) {
-			points.append(contentsOf: four)
+			//points.append(contentsOf: four)
+			setPoints = setPoints.union(four)
 		}
-		return points
+		//return points
 	}
 	
 	
@@ -1139,29 +1154,36 @@ class Board {
 	
 	// MARK: Проверка троек камней идущих подряд
 	/// Проверка идущих подрят троеек
-	private func checkThree(point: Point, spot: Spot) -> [Point] {
-		var setPoints = Set<Point>()
+	//private func checkThree(point: Point, spot: Spot) -> [Point] {
+	private func checkThree(point: Point, spot: Spot, setPoints: inout Set<Point>) {
+		//var setPoints = Set<Point>()
 		//var points = [Point]()
 		if let one = checkThreeAll(point: point, spot: spot, nextPoint: checkOne) {
-			one.forEach( { setPoints.insert($0) } )
+			//one.forEach( { setPoints.insert($0) } )
+			setPoints = setPoints.union(one)
 		}
 		if let two = checkThreeAll(point: point, spot: spot, nextPoint: checkTwo) {
-			two.forEach( { setPoints.insert($0) } )
+			//two.forEach( { setPoints.insert($0) } )
+			setPoints = setPoints.union(two)
 		}
 		if let three = checkThreeAll(point: point, spot: spot, nextPoint: checkThree) {
-			three.forEach( { setPoints.insert($0) } )
+			//three.forEach( { setPoints.insert($0) } )
+			setPoints = setPoints.union(three)
 		}
 		if let four = checkThreeAll(point: point, spot: spot, nextPoint: checkFour) {
-			four.forEach( { setPoints.insert($0) } )
+			//four.forEach( { setPoints.insert($0) } )
+			setPoints = setPoints.union(four)
 		}
-		let points = [Point](setPoints)
-		return points
+		//let points = [Point](setPoints)
+		//return setPoints
 	}
 
 	// Возможно нужно будет поправть, убрать создание массива.
 	/// Проверка двойных троек по всех 8 направлениям.
-	private func checkThreeAll(point: Point, spot: Spot, nextPoint: NextPoint) -> [Point]? {
-		var points = [point]
+	//private func checkThreeAll(point: Point, spot: Spot, nextPoint: NextPoint) -> [Point]? {
+	private func checkThreeAll(point: Point, spot: Spot, nextPoint: NextPoint) -> Set<Point>? {
+		//var points = [point]
+		var points = Set<Point>()
 		var index = 4;
 		var summa = 0
 		for i in 1...index {
@@ -1170,7 +1192,8 @@ class Board {
 			index -= 1
 			summa += weight.rawValue
 			if weight == .current {
-				points.append(up)
+				//points.append(up)
+				points.insert(up)
 			} else {
 				break
 			}
@@ -1183,7 +1206,8 @@ class Board {
 			let weight = getWeightOfSpor(point: down, spot: spot)
 			summa += weight.rawValue
 			if weight == .current {
-				points.append(down)
+				//points.append(down)
+				points.insert(down)
 			} else {
 				break
 			}
