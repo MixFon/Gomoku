@@ -13,6 +13,16 @@ class StartViewController: NSViewController {
 	
 	let scene = SCNScene(named: "art.scnassets/start_menu.scn")!
 	
+	var menuItem = MenuItem(rawValue: 0)
+	
+	enum MenuItem: UInt8 {
+		case zero = 0
+		case one = 1
+		case two = 2
+		case three = 3
+		case four = 4
+	}
+	
 	enum Menu: String {
 		case startPvC = "Start PvC"
 		case startPvP = "Start PvP"
@@ -23,7 +33,7 @@ class StartViewController: NSViewController {
     override func viewDidLoad() {
 		super.viewDidLoad()
 		
-		setLight()
+		//setLight()
 		setStones()
 		//movingCircle()
 		
@@ -65,18 +75,53 @@ class StartViewController: NSViewController {
 			if node.name == "floor" { return }
 			guard let name = node.name else { return }
 			let caseMenu = Menu(rawValue: name)
+			//guard let name = NamesNode(rawValue: node.name ?? "") else { return }
+			nodeShine(node: node, color: .blue)
+			moveFieldsTo(position: node.position)
 			switch caseMenu {
 			case .startPvC:
-				if let gameVC = self.storyboard?.instantiateController(withIdentifier: "GameVC") as? GameViewController {
-					gameVC.gomoku.setMode(mode: .pvc)
-					self.view.window?.contentViewController = gameVC
+				if self.menuItem == .one {
+					startGameVC(mode: .pvc)
+				} else {
+					self.menuItem = .one
+				}
+			case .startPvP:
+				if self.menuItem == .two {
+					startGameVC(mode: .pvp)
+				} else {
+					self.menuItem = .two
+				}
+			case .loading:
+				if self.menuItem == .three {
+					startLoading()
+				} else {
+					self.menuItem = .three
+				}
+			case .exit:
+				if self.menuItem == .four {
+					NSApplication.shared.terminate(self)
+				} else {
+					self.menuItem = .four
 				}
 			default:
 				break
 			}
-			//guard let name = NamesNode(rawValue: node.name ?? "") else { return }
-			nodeShine(node: node, color: .blue)
-			moveFieldsTo(position: node.position)
+		}
+	}
+	
+	/// Запуск Gomoku с установленным модом.
+	private func startGameVC(mode: Gomoku.Mode) {
+		if let gameVC = self.storyboard?.instantiateController(withIdentifier: "GameVC") as? GameViewController {
+			gameVC.gomoku.setMode(mode: mode)
+			self.view.window?.contentViewController = gameVC
+		}
+	}
+	
+	/// Запуск экрана с загрузкой игр
+	private func startLoading() {
+		let loadingSB = NSStoryboard(name: "DounloadSourybouard", bundle: nil)
+		if let loading = loadingSB.instantiateController(withIdentifier: "Download") as? DownloadViewController {
+			self.view.window?.contentViewController = loading
 		}
 	}
 	
@@ -88,6 +133,10 @@ class StartViewController: NSViewController {
 		}
 		if let fieldBlack = self.scene.rootNode.childNodes.first(where: {$0.name == "field_black"} ) {
 			fieldBlack.runAction(SCNAction.move(to: positionWhite, duration: 1))
+		}
+		if let area = self.scene.rootNode.childNodes.first(where: {$0.name == "area"} ) {
+			let positionAria = SCNVector3(area.position.x, area.position.y, position.z - 3)
+			area.runAction(SCNAction.move(to: positionAria, duration: 1))
 		}
 	}
 	

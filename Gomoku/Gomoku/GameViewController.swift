@@ -199,7 +199,7 @@ class GameViewController: NSViewController {
 	
 	/// Закрывает сцену и преходит к предыдущему окну.
 	private func exitScene() {
-		if let menuVC = self.storyboard?.instantiateController(withIdentifier: "MenuVC") as? MenuViewController {
+		if let menuVC = self.storyboard?.instantiateController(withIdentifier: "3DMenuID") as? StartViewController{
 			//self.gomoku.ai?.task.interrupt()
 			self.view.window?.contentViewController = menuVC
 		}

@@ -707,7 +707,7 @@
         <!--Start View Controller-->
         <scene sceneID="mGE-uk-687">
             <objects>
-                <viewController id="yZN-U6-h1T" customClass="StartViewController" customModule="Gomoku" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="3DMenuID" id="yZN-U6-h1T" customClass="StartViewController" customModule="Gomoku" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="5z3-Ug-uQz">
                         <rect key="frame" x="0.0" y="0.0" width="1024" height="768"/>
                         <autoresizingMask key="autoresizingMask"/>
