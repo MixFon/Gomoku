@@ -14,8 +14,6 @@ class AI {
 	
 	var startLevel = 10
 	
-	
-	
 	/// Обновление максимального веса. Если weight максимальный для текучего spot, то возвращаем его
 	private func updateMaxPoint(spot: Board.Spot, maxWeight: inout Board.Weight, weight: Board.Weight) -> Bool {
 		let (maxWhite, maxBlack) = Board.getWeightWhiteBlack(weight: maxWeight)

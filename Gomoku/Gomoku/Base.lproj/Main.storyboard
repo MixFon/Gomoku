@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="ltV-jC-fPU">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="yZN-U6-h1T">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="17701"/>
         <plugIn identifier="com.apple.SceneKitIBPlugin" version="17701"/>
@@ -703,6 +703,35 @@
                 <customObject id="Oky-zY-oP4" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="115" y="196"/>
+        </scene>
+        <!--Start View Controller-->
+        <scene sceneID="mGE-uk-687">
+            <objects>
+                <viewController id="yZN-U6-h1T" customClass="StartViewController" customModule="Gomoku" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" id="5z3-Ug-uQz">
+                        <rect key="frame" x="0.0" y="0.0" width="1024" height="768"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <sceneView translatesAutoresizingMaskIntoConstraints="NO" id="tgv-XP-Lbf">
+                                <rect key="frame" x="0.0" y="0.0" width="1024" height="768"/>
+                            </sceneView>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="tgv-XP-Lbf" firstAttribute="centerX" secondItem="5z3-Ug-uQz" secondAttribute="centerX" id="EhJ-BA-BJD"/>
+                            <constraint firstAttribute="bottom" secondItem="tgv-XP-Lbf" secondAttribute="bottom" id="G2u-mx-NbJ"/>
+                            <constraint firstAttribute="trailing" secondItem="tgv-XP-Lbf" secondAttribute="trailing" id="HMX-Wm-dUD"/>
+                            <constraint firstItem="tgv-XP-Lbf" firstAttribute="centerY" secondItem="5z3-Ug-uQz" secondAttribute="centerY" id="XP2-8y-o0k"/>
+                            <constraint firstItem="tgv-XP-Lbf" firstAttribute="leading" secondItem="5z3-Ug-uQz" secondAttribute="leading" id="kJp-cK-Nf4"/>
+                            <constraint firstItem="tgv-XP-Lbf" firstAttribute="top" secondItem="5z3-Ug-uQz" secondAttribute="top" id="mBB-De-83O"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="view" destination="tgv-XP-Lbf" id="K7L-UC-OSf"/>
+                    </connections>
+                </viewController>
+                <customObject id="oNd-3R-VYm" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="84" y="1108"/>
         </scene>
         <!--Menu View Controller-->
         <scene sceneID="4cr-zO-uFF">
