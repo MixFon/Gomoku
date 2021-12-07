@@ -26,10 +26,6 @@ class DownloadViewController: NSViewController {
 		if let menuVC = menuSB.instantiateController(withIdentifier: "3DMenuID") as? StartViewController {
 			self.view.window?.contentViewController = menuVC
 		}
-//		if let menuVC = self.storyboard?.instantiateController(withIdentifier: "3DMenuID") as? StartViewController{
-//			//self.gomoku.ai?.task.interrupt()
-//			self.view.window?.contentViewController = menuVC
-//		}
 	}
 	
 	/// Считываем массив сохнарений из файла и возвращает их
