@@ -17,28 +17,29 @@ class Board {
 	
 	weak var delegate: MoveProtocol?
 	
-	var board = Array(repeating: Array(repeating: Weight(0), count: 19), count: 19)
+	private var board = Array(repeating: Array(repeating: Weight(0), count: 19), count: 19)
 	
 	/// Количество камней для попеды. 4 ставится потому что учитывается камень который ставится
 	private let numberStonesToWin = 4
 	
 	/// Максимальный вес для белых spot
-	var bestPointWhite = BestPoint(point: Point(-1, -1), weight: 0)
-	
+	private var bestPointWhite = BestPoint(point: Point(-1, -1), weight: 0)
 	/// Максимальный вес для черных spot
-	var bestPointBlack = BestPoint(point: Point(-1, -1), weight: 0)
+	private var bestPointBlack = BestPoint(point: Point(-1, -1), weight: 0)
 	
 	/// Точки в которых была найдена двойная тройка. Эти точки нужно пересчитывать.
 	private var pointsDoubleThree = Set<Point>()
 	
 	/// Точки в которых обнаружен захват. Если в нее перейти будет захват.
-	var pointsCapturesBlack = Set<Point>()
+	private var pointsCapturesBlack = Set<Point>()
 	
 	/// Текущий spot, для определения, кото должен ходить в данный момент. Первые ходят белые.
-	var currentSpot = Spot.white
+	private var currentSpot = Spot.white
 	
-	var whiteCaptures: Int = 0
-	var blackCaptures: Int = 0
+	/// Количество захватов, произведенные белыми
+	private var whiteCaptures: Int = 0
+	/// Количество захватов, произведенные черными
+	private var blackCaptures: Int = 0
 	
 	init() { }
 	
@@ -57,8 +58,23 @@ class Board {
 		self.delegate = nil
 	}
 	
+	init(save :Save) {
+		self.board = save.board!
+		//self.pointsForWhite = board.pointsForWhite
+		//self.pointsForBlack = board.pointsForBlack
+		//self.occupiedPoints = board.occupiedPoints
+		self.bestPointWhite = save.bestPointWhite!
+		self.bestPointBlack = save.bestPointBlack!
+		self.currentSpot = Spot(rawValue: Character(save.stone!))!
+		self.whiteCaptures = save.whiteCaptures!
+		self.blackCaptures = save.blackCaptures!
+		self.pointsDoubleThree = save.pointsDoubleThree!
+		self.pointsCapturesBlack = save.pointsCapturesBlack!
+		self.delegate = nil
+	}
+	
 	// MARK: Structs
-	struct BestPoint {
+	struct BestPoint: Codable {
 		var point: Point
 		var weight: Weight
 	}
@@ -100,6 +116,17 @@ class Board {
 			}
 		}
 		
+		init?(optional weight: Weight) {
+			switch weight {
+			case 0x100:
+				self = .white
+			case 0x1:
+				self = .black
+			default:
+				return nil
+			}
+		}
+		
 		/// Возврат противоположенного значения
 		func opposite() -> Spot {
 			switch self {
@@ -126,6 +153,114 @@ class Board {
 				return 0x0
 			}
 		}
+	}
+	
+	/// Возвращает количество захватов, произведенные белыми
+	func getWhiteCaptures() -> Int {
+		return self.whiteCaptures
+	}
+	
+	/// Возвращает количество захватов, произведенные черными
+	func getBlackCaptures() -> Int {
+		return self.blackCaptures
+	}
+	
+	/// Устанавливае количество захватов, произведенные белыми
+	func setWhiteCaptures(captures: Int) {
+		self.whiteCaptures = captures
+	}
+	
+	/// Устанавливае количество захватов, произведенные черными
+	func setBlackCaptures(captures: Int) {
+		self.blackCaptures = captures
+	}
+	
+	/// Возвращает текущий Spot
+	func getCurrentSpot() -> Spot {
+		return self.currentSpot
+	}
+	
+	/// Устанавливает  текущий Spot
+	func setCurrentSpot(spot: Spot) {
+		self.currentSpot = spot
+	}
+	
+	/// Возвращает текущий Spot в виде строки
+	func getCurrentSpotString() -> String {
+		return String(self.currentSpot.rawValue)
+	}
+	
+	/// Возвращает максимальный вес для белых spot
+	func getBestPointWhite() -> BestPoint {
+		return self.bestPointWhite
+	}
+	
+	/// Возвращает максимальный вес для четных spot
+	func getBestPointBlack() -> BestPoint {
+		return self.bestPointBlack
+	}
+	
+	/// Устанавливает максимальный вес для белых spot
+	func setBestPointWhite(bestPoint: BestPoint) {
+		self.bestPointWhite = bestPoint
+	}
+	
+	/// Устанавливает максимальный вес для четных spot
+	func setBestPointBlack(bestPoint: BestPoint) {
+		self.bestPointBlack = bestPoint
+	}
+	
+	/// Возвращает массив черных точек, в которых обнаружен захват
+	func getPointsCapturesBlackArray() -> [Point] {
+		return self.pointsCapturesBlack.map({$0})
+	}
+	
+	/// Возвращает набор черных точек, в которых обнаружен захват
+	func getPointsCapturesBlack() -> Set<Point> {
+		return self.pointsCapturesBlack
+	}
+	
+	/// Устанавливает набор черных точек, в которых обнаружен захват
+	func setPointsCapturesBlack(points: Set<Point>) {
+		self.pointsCapturesBlack = points
+	}
+	
+	/// Возвращает точки, в которых была найдена двойная тройка.
+	func getPointsDoubleThree() -> Set<Point> {
+		return self.pointsDoubleThree
+	}
+	
+	/// Устанавливает точки, в которых была найдена двойная тройка.
+	func setPointsDoubleThree(points: Set<Point>){
+		self.pointsDoubleThree = points
+	}
+	
+	/// Установка делегата. Им должент быть кдасс GameViewController
+	func setDelegate(delegate: MoveProtocol) {
+		self.delegate = delegate
+	}
+	
+	/// Возвращает доску, ка которых расположены веса.
+	func getBoard() -> [[Weight]] {
+		return self.board
+	}
+	
+	/// Возвращает массив черных и белых камней с их координатами (глобальными)
+	func getPointStones() -> [Gomoku.PointStone] {
+		var pointStones = [Gomoku.PointStone]()
+		for i in 0..<19 {
+			for j in 0..<19 {
+				if let spot = Spot(optional: self.board[j][i]) {
+					if let stone = Stone(spot: spot) {
+						let point = convertCoordinateToGlobal(point: Point(j, i))
+						pointStones.append(Gomoku.PointStone(point: point, stone: stone))
+					} else {
+						fatalError()
+					}
+				}
+			}
+		}
+		return pointStones
 	}
 	
 	/// Если максимальный вес противника меньше 9 (8, 7, 6...) возвращем точку своего (текущего) веса.
@@ -437,16 +572,16 @@ class Board {
 	}
 	
 	/// Вызывается при закрузке сохраненной игры. На доске устанавливаются нужные spots
-	func setStartSpotsOnBouard(whitePoints: [Point], blackPoints: [Point]) {
-		for point in whitePoints {
-			let pointInBoard = convertCoordinateToBoard(point: point)
-			setSpot(point: pointInBoard, spot: .white)
-		}
-		for point in blackPoints {
-			let pointInBoard = convertCoordinateToBoard(point: point)
-			setSpot(point: pointInBoard, spot: .black)
-		}
-	}
+//	func setStartSpotsOnBouard(whitePoints: [Point], blackPoints: [Point]) {
+//		for point in whitePoints {
+//			let pointInBoard = convertCoordinateToBoard(point: point)
+//			setSpot(point: pointInBoard, spot: .white)
+//		}
+//		for point in blackPoints {
+//			let pointInBoard = convertCoordinateToBoard(point: point)
+//			setSpot(point: pointInBoard, spot: .black)
+//		}
+//	}
 	
 	/// Установка всех значений доски в empty (удаление всех элементов с доски)
 	func clearBoard() {
@@ -1270,7 +1405,6 @@ extension Board {
 		return ((weight >> 8) & 0xff, weight & 0xff)
 	}
 }
-
 
 /*
 /// Проверка положения перехода в захват (не нужно это проверять)

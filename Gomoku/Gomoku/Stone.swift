@@ -19,4 +19,15 @@ enum Stone: Character {
 			return .black
 		}
 	}
+	
+	init?(spot: Board.Spot) {
+		switch spot {
+		case .black:
+			self = .black
+		case .white:
+			self = .white
+		default:
+			return nil
+		}
+	}
 }

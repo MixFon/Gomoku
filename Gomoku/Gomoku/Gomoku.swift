@@ -14,17 +14,13 @@ class Gomoku {
 	
 	private var mode = Mode.pvp
 	
-	// Поставить private
-	var board = Board()
+	private var board = Board()
 	
 	weak var delegate: MoveProtocol?
 	
 	private var stone = Stone.white
 	
-	private var winningPoint: WinningPoint?
-	
-//	private var whiteCaptures: Int = 0
-//	private var blackCaptures: Int = 0
+	private var winningPoint: PointStone?
 	
 	let numberCapturesToWin: Int = 5
 	
@@ -36,17 +32,27 @@ class Gomoku {
 	}
 	
 	/// Точка при которой образуется победитель. Целостность 5-ти камней не должна быть нарушна следующим ходом.
-	private struct WinningPoint {
+	struct PointStone {
 		let point: Point
 		let stone: Stone
 	}
 	
 	/// Вызывается при закрузке сохраненной игры. На доске устанавливаются нужные spots
-	func setStartPointOnBouard(whitePoints: [Point], blackPoints: [Point]) {
+	func setStartPointOnBouard() {
 		self.board.printBourd()
-		self.board.clearBoard()
-		self.board.setStartSpotsOnBouard(whitePoints: whitePoints, blackPoints: blackPoints)
-		self.board.printBourd()
+		for pointStone in board.getPointStones() {
+			delegate?.moving(point: pointStone.point, stone: pointStone.stone)
+		}
+	}
+	
+	/// Установка делегата на Board им должен быть GameViewController
+	func setDelegateToBoard(delegate: MoveProtocol) {
+		self.board.setDelegate(delegate: delegate)
+	}
+	
+	/// Установка доски.
+	func setBoard(board: Board) {
+		self.board = board
 	}
 	
 	/// Следующий ход. Может быть как ход PvP так и PvC. В зависимости от типа игры.
@@ -64,18 +70,18 @@ class Gomoku {
 		}
 	}
 	
-	/// Установка количества захвата. Вызвается во время загрухки сохраненной игры.
-	func setCaptures(_ whiteCaptures: Int, _ blackCaptures: Int) {
-		self.board.whiteCaptures = whiteCaptures
-		self.board.blackCaptures = blackCaptures
-//		self.whiteCaptures = whiteCaptures
-//		self.blackCaptures = blackCaptures
-	}
+//	/// Установка количества захвата. Вызвается во время загрухки сохраненной игры.
+//	func setCaptures(_ whiteCaptures: Int, _ blackCaptures: Int) {
+//		self.board.setWhiteCaptures(captures: whiteCaptures)
+//		self.board.setBlackCaptures(captures: blackCaptures)
+//	}
 	
-	/// Возвращает камень, который должен ходить следеющим
-	func setCurrentStone(stone: String) {
-		if let stone = Stone(rawValue: Character(stone)) {
+	/// Устанавливает камень, который должен ходить следеющим. Устанавливат на основе доски
+	func setCurrentStone() {
+		if let stone = Stone(rawValue: Character(self.board.getCurrentSpotString())) {
 			self.stone = stone
+		} else {
+			fatalError()
 		}
 	}
 	
@@ -115,7 +121,8 @@ class Gomoku {
 	/// Возвращает массив лучших черных точек для доски
 	private func getStartBestBlackPoints(board: Board) -> [Point] {
 		var bestBlackPoints = [Point]()
-		for (i, line) in board.board.enumerated() {
+		let boardWeight = board.getBoard()
+		for (i, line) in boardWeight.enumerated() {
 			for (j, element) in line.enumerated() {
 				if element != 0x0 && element != 0x1 && element != 0x100 {
 					bestBlackPoints.append(Point(i, j))
@@ -123,8 +130,8 @@ class Gomoku {
 			}
 		}
 		bestBlackPoints.sort(by: {
-								let (_ , b1) = Board.getWeightWhiteBlack(weight: board.board[$0.x][$0.y])
-								let (_ , b2) = Board.getWeightWhiteBlack(weight: board.board[$1.x][$1.y])
+								let (_ , b1) = Board.getWeightWhiteBlack(weight: boardWeight[$0.x][$0.y])
+								let (_ , b2) = Board.getWeightWhiteBlack(weight: boardWeight[$1.x][$1.y])
 								return b1 > b2 }
 		)
 		if bestBlackPoints.isEmpty { return [] }
@@ -154,17 +161,17 @@ class Gomoku {
 				self.winningPoint = nil
 			}
 		} else if self.board.checkWinerToFiveSpots(point: point, stone: stone) {
-			self.winningPoint = WinningPoint(point: point, stone: stone)
+			self.winningPoint = PointStone(point: point, stone: stone)
 		}
 	}
 	
 	/// Проверка победител по захвату. Для победы нужно провести 5 захватов
 	private func checkWinerToCapture() {
-		if self.board.whiteCaptures >= self.numberCapturesToWin {
+		if self.board.getWhiteCaptures() >= self.numberCapturesToWin {
 			self.delegate?.showingWinner(stone: .white)
 			print("Win Captures!!!!")
 			reset()
-		} else if self.board.blackCaptures >= self.numberCapturesToWin {
+		} else if self.board.getBlackCaptures() >= self.numberCapturesToWin {
 			self.delegate?.showingWinner(stone: .black)
 			print("Win Captures!!!!")
 			reset()
@@ -207,13 +214,13 @@ class Gomoku {
 extension Gomoku: GetProtocol {
 	
 	/// Возвращает кортеж количества захватов. Первыми идут белые
-	func getCaptures() -> (Int, Int) {
-		return (self.board.whiteCaptures, self.board.blackCaptures)
-	}
+//	func getCaptures() -> (Int, Int) {
+//		return (self.board.whiteCaptures, self.board.blackCaptures)
+//	}
 	
-	/// Возвращает кортеж массивов координат камней. Первым идут белые, вторым идут черные
-	func getPoints() -> ([Point], [Point]) {
-		return board.getWhiteBlackPointsSpot()
+	/// Возвращает текушую доску.
+	func getBoard() -> Board {
+		return self.board
 	}
 	
 	/// Возвращает камень, который должен ходить следеющим

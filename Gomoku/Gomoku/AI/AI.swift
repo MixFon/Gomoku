@@ -67,7 +67,7 @@ class AI {
 			let newBoard = Board(board: board)
 			newBoard.setCurrentSpotToPoint(point: bestPoint)
 			let weight = miniMax(board: newBoard, level: newLevel)
-			if let finishWeight = updateMaxWeight(spot: board.currentSpot, maxWeight: &maxWeight, weight: weight) {
+			if let finishWeight = updateMaxWeight(spot: board.getCurrentSpot(), maxWeight: &maxWeight, weight: weight) {
 				return finishWeight
 			}
 		}
@@ -85,9 +85,9 @@ class AI {
 		print("for best white:")
 		let group = DispatchGroup()
 		var maxWeight: Board.Weight = 0
-		var resultPoint = resultBoard.bestPointWhite.point
+		var resultPoint = resultBoard.getBestPointWhite().point
 		self.bestPoints = []
-		var points = [Point](resultBoard.pointsCapturesBlack)
+		var points = resultBoard.getPointsCapturesBlackArray()
 		points.append(contentsOf: resultBoard.getBestPoints())
 		print(points)
 		for point in points {
@@ -103,7 +103,7 @@ class AI {
 		}
 		group.wait()
 		for best in self.bestPoints {
-			if updateMaxPoint(spot: board.currentSpot, maxWeight: &maxWeight, weight: best.weight) {
+			if updateMaxPoint(spot: board.getCurrentSpot(), maxWeight: &maxWeight, weight: best.weight) {
 				resultPoint = best.point
 			}
 		}
@@ -111,10 +111,10 @@ class AI {
 		return resultPoint
 		//return resultBoard.getBestPoint()
 	}
-	
-	private func setToWeightPoints(weight: Board.Weight) {
-	
-	}
+//	
+//	private func setToWeightPoints(weight: Board.Weight) {
+//	
+//	}
 	
 	func forTest(resultBoard: Board, point: Point) -> Board.Weight {
 		let board = Board(board: resultBoard)
@@ -141,10 +141,10 @@ class AI {
 	
 	/// Печать вспомогательной информации.
 	private func printBestWeight(board: Board) {
-		let (bestWhite, b) = Board.getWeightWhiteBlack(weight: board.bestPointWhite.weight)
-		let (w, bestBlack) = Board.getWeightWhiteBlack(weight: board.bestPointBlack.weight)
-		print("bestPointWhite", bestWhite, b, board.bestPointWhite.point)
-		print("bestPointBlack", w, bestBlack, board.bestPointBlack.point)
+		let (bestWhite, b) = Board.getWeightWhiteBlack(weight: board.getBestPointWhite().weight)
+		let (w, bestBlack) = Board.getWeightWhiteBlack(weight: board.getBestPointBlack().weight)
+		print("bestPointWhite", bestWhite, b, board.getBestPointWhite().point)
+		print("bestPointBlack", w, bestBlack, board.getBestPointBlack().point)
 		let (w1, b1) = Board.getWeightWhiteBlack(weight: board.getBestWeigthForCurrentSpot())
 		print("WeithForCurrentSpot w, b ", w1, b1, board.getBestPoint())
 	}
@@ -153,8 +153,8 @@ class AI {
 	private func checkingMaxWeightPoint(board: Board, points: [Point]) -> Point? {
 		let maxPoints = points.filter( {
 			let wheight = board.getWeight(point: $0)
-			return checkMaxWeight(spot: board.currentSpot, weight: wheight) ||
-				checkMaxWeight(spot: board.currentSpot.opposite(), weight: wheight)
+			return checkMaxWeight(spot: board.getCurrentSpot(), weight: wheight) ||
+				checkMaxWeight(spot: board.getCurrentSpot().opposite(), weight: wheight)
 		} )
 		print(maxPoints)
 		let maxBlack = maxPoints.max(by: {

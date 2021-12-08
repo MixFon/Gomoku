@@ -30,9 +30,6 @@ class GameViewController: NSViewController {
 	let radiusPin: CGFloat = 0.15
 	let radiusStone: CGFloat = 0.3
 	
-	var whiteStartPointsOnBoard: [Point]?
-	var blackStartPointsOnBoard: [Point]?
-	
 	/// Имена обьектов взаимодействия на сцене
 	enum NamesNode: String {
 		case namePin = "pin"
@@ -47,11 +44,12 @@ class GameViewController: NSViewController {
         
 		self.gomoku.delegate = self
 		// !!! Потом убрать!
-		self.gomoku.board.delegate = self
+		//self.gomoku.board.delegate = self
+		self.gomoku.setDelegateToBoard(delegate: self)
 		setLight()
 		setEmptyNodes()
 		setStones()
-		setStartStones()
+		//setStartStones()
 		//movingCircle()
 		
 		// callback
@@ -81,25 +79,16 @@ class GameViewController: NSViewController {
         var gestureRecognizers = scnView.gestureRecognizers
         gestureRecognizers.insert(clickGesture, at: 0)
         scnView.gestureRecognizers = gestureRecognizers
+		setStartStones()
     }
 	
 	/// Вызывается при загрузке сохраненной игры. Создается таймер в отдельном потоке, по завершении которого расставляются камни.
 	private func setStartStones() {
-		if self.whiteStartPointsOnBoard == nil && self.blackStartPointsOnBoard == nil { return }
 		let queue = DispatchQueue.global(qos: .default)
 		queue.async {
-			let timer = Timer.init(timeInterval: 2, repeats: false ) { _ in
+			let timer = Timer.init(timeInterval: 1, repeats: false ) { _ in
 				DispatchQueue.main.async {
-					let whitePoints = self.whiteStartPointsOnBoard ?? []
-					let blackPoints = self.blackStartPointsOnBoard ?? []
-					for point in whitePoints {
-						self.moveWhiteStone(point: point)
-					}
-					for point in blackPoints {
-						self.moveBlackStone(point: point)
-					}
-					self.whiteStartPointsOnBoard = nil
-					self.blackStartPointsOnBoard = nil
+					self.gomoku.setStartPointOnBouard()
 				}
 			}
 			RunLoop.current.add(timer, forMode: .default)
