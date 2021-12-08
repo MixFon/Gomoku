@@ -103,7 +103,7 @@ class Gomoku {
 		let bestPoints = getStartBestBlackPoints(board: self.board)
 		if bestPoints.isEmpty { return }
 		let start = DispatchTime.now()
-		guard let point = ai.startMinimax(board: self.board, bestPoints: bestPoints) else { return }
+		guard let point = ai.startMinimax(board: self.board, allPoints: bestPoints) else { return }
 		let end = DispatchTime.now()
 		let nanoTime = end.uptimeNanoseconds - start.uptimeNanoseconds
 		let timeInterval = Double(nanoTime) / 1_000_000_000

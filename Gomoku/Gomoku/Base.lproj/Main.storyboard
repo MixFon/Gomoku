@@ -696,9 +696,6 @@
                             <outlet property="delegate" destination="B8D-0N-5wS" id="k2e-pw-aVG"/>
                         </connections>
                     </window>
-                    <connections>
-                        <segue destination="ltV-jC-fPU" kind="relationship" relationship="window.shadowedContentViewController" id="YQ9-eD-Raz"/>
-                    </connections>
                 </windowController>
                 <customObject id="Oky-zY-oP4" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -732,85 +729,6 @@
                 <customObject id="oNd-3R-VYm" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="84" y="1108"/>
-        </scene>
-        <!--Menu View Controller-->
-        <scene sceneID="4cr-zO-uFF">
-            <objects>
-                <viewController storyboardIdentifier="MenuVC" id="ltV-jC-fPU" customClass="MenuViewController" customModule="Gomoku" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" id="sLu-IQ-aXm">
-                        <rect key="frame" x="0.0" y="0.0" width="1024" height="768"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <subviews>
-                            <stackView distribution="equalSpacing" orientation="vertical" alignment="centerX" spacing="100" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ham-LH-myW">
-                                <rect key="frame" x="449" y="162" width="126" height="444"/>
-                                <subviews>
-                                    <button identifier="pvc" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="djV-9A-GBK">
-                                        <rect key="frame" x="0.0" y="408" width="126" height="36"/>
-                                        <buttonCell key="cell" type="bevel" title="Start PvC" bezelStyle="rounded" alignment="center" inset="2" id="BNW-Rh-MTP">
-                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="system" size="30"/>
-                                        </buttonCell>
-                                        <connections>
-                                            <action selector="pressStart:" target="ltV-jC-fPU" id="e6y-gg-uGt"/>
-                                        </connections>
-                                    </button>
-                                    <button identifier="pvp" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="L7k-3Q-LZI">
-                                        <rect key="frame" x="1" y="272" width="124" height="36"/>
-                                        <buttonCell key="cell" type="bevel" title="Start PvP" bezelStyle="rounded" alignment="center" imageScaling="proportionallyDown" inset="2" id="5qs-rZ-EMW">
-                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="system" size="30"/>
-                                        </buttonCell>
-                                        <connections>
-                                            <action selector="pressStart:" target="ltV-jC-fPU" id="MMv-nx-n6i"/>
-                                        </connections>
-                                    </button>
-                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="uSM-9d-PUL">
-                                        <rect key="frame" x="8" y="136" width="110" height="36"/>
-                                        <buttonCell key="cell" type="bevel" title="Loading" bezelStyle="rounded" alignment="center" imageScaling="proportionallyDown" inset="2" id="F3f-pv-PoD">
-                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="system" size="30"/>
-                                        </buttonCell>
-                                        <connections>
-                                            <action selector="pressDownload:" target="ltV-jC-fPU" id="8O6-yg-xoL"/>
-                                        </connections>
-                                    </button>
-                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ppx-LF-5Mq">
-                                        <rect key="frame" x="37" y="0.0" width="52" height="36"/>
-                                        <buttonCell key="cell" type="bevel" title="Exit" bezelStyle="rounded" alignment="center" imageScaling="proportionallyDown" inset="2" id="dfL-XY-b1h">
-                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="system" size="30"/>
-                                        </buttonCell>
-                                        <connections>
-                                            <action selector="pressExit:" target="ltV-jC-fPU" id="u0n-cf-2bq"/>
-                                        </connections>
-                                    </button>
-                                </subviews>
-                                <visibilityPriorities>
-                                    <integer value="1000"/>
-                                    <integer value="1000"/>
-                                    <integer value="1000"/>
-                                    <integer value="1000"/>
-                                </visibilityPriorities>
-                                <customSpacing>
-                                    <real value="3.4028234663852886e+38"/>
-                                    <real value="3.4028234663852886e+38"/>
-                                    <real value="3.4028234663852886e+38"/>
-                                    <real value="3.4028234663852886e+38"/>
-                                </customSpacing>
-                            </stackView>
-                        </subviews>
-                        <constraints>
-                            <constraint firstItem="ham-LH-myW" firstAttribute="centerY" secondItem="sLu-IQ-aXm" secondAttribute="centerY" id="83Y-0v-MES"/>
-                            <constraint firstItem="ham-LH-myW" firstAttribute="centerX" secondItem="sLu-IQ-aXm" secondAttribute="centerX" id="gXE-j5-nFu"/>
-                        </constraints>
-                    </view>
-                    <connections>
-                        <segue destination="XfG-lQ-9wD" kind="show" id="yby-mV-aeK"/>
-                    </connections>
-                </viewController>
-                <customObject id="Ghr-QC-KAP" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="1238" y="167"/>
         </scene>
         <!--Game View Controller-->
         <scene sceneID="hIz-AP-VOD">

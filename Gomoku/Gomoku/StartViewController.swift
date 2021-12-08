@@ -111,7 +111,7 @@ class StartViewController: NSViewController {
 	
 	/// Запуск Gomoku с установленным модом.
 	private func startGameVC(mode: Gomoku.Mode) {
-		if let gameVC = self.storyboard?.instantiateController(withIdentifier: "GameVC") as? GameViewController {
+		if let gameVC = self.storyboard?.instantiateController(withIdentifier: Identifier.gameVC.rawValue) as? GameViewController {
 			gameVC.gomoku.setMode(mode: mode)
 			self.view.window?.contentViewController = gameVC
 		}
@@ -119,8 +119,8 @@ class StartViewController: NSViewController {
 	
 	/// Запуск экрана с загрузкой игр
 	private func startLoading() {
-		let loadingSB = NSStoryboard(name: "DounloadSourybouard", bundle: nil)
-		if let loading = loadingSB.instantiateController(withIdentifier: "Download") as? DownloadViewController {
+		let loadingSB = NSStoryboard(name: Identifier.loadingSB.rawValue, bundle: nil)
+		if let loading = loadingSB.instantiateController(withIdentifier: Identifier.loadingVC.rawValue) as? DownloadViewController {
 			self.view.window?.contentViewController = loading
 		}
 	}

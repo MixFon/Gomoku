@@ -317,73 +317,12 @@ class Board {
 	
 	/// Возвращает массив точек в которые предпочтительнее всего ставить. Возвращабтся точки для currentSpot
 	func getBestPoints() -> [Point] {
-		//print(self.currentSpot)
-//		var pointsCuptures = self.pointsCapturesBlack.map( {$0})
-//		pointsCuptures.append(self.bestPointWhite.point)
-//		pointsCuptures.append(self.bestPointBlack.point)
-//		return pointsCuptures
 		return [self.bestPointWhite.point, self.bestPointBlack.point]
-		//return [getBestPoint()]
-		/*
-		switch self.currentSpot {
-		case .black:
-			
-			return [self.bestPointBlack.point]
-			/*
-			var bestBlackPoints = self.occupiedPoints.map( {$0} )
-			bestBlackPoints.sort(by: {
-				(self.board[$0.x][$0.y] & 0xff) > (self.board[$1.x][$1.y] & 0xff)
-			})
-			
-			//return bestBlackPoints
-			return Array(bestBlackPoints[...self.numberStonesToWin])
-			*/
-		case .white:
-			return [self.bestPointWhite.point]
-			/*
-			var bestWhitekPoints = self.occupiedPoints.map( {$0} )
-			bestWhitekPoints.sort(by: {
-				((self.board[$0.x][$0.y] >> 8) & 0xff) > ((self.board[$1.x][$1.y] >> 8) & 0xff)
-			})
-			//return bestWhitekPoints
-			return Array(bestWhitekPoints[...self.numberStonesToWin])
-			*/
-		default:
-			return []
-		}
-		*/
 	}
 	
 	/// Возвращает максимальный наилучший вес для текущего spot.
 	func getBestWeigthForCurrentSpot() -> Weight {
-		let point = getBestPoint()
-		return self.board[point.x][point.y]
-		/*
-		switch self.currentSpot {
-		case .white:
-			return self.bestPointWhite.weight
-			/*
-			var bestWhitekPoints = self.occupiedPoints.map( {$0} )
-			bestWhitekPoints.sort(by: {
-				((self.board[$0.x][$0.y] >> 8) & 0xff) > ((self.board[$1.x][$1.y] >> 8) & 0xff)
-			})
-			return getWeith(point: bestWhitekPoints.first!)
-			*/
-		case .black:
-			return self.bestPointBlack.weight
-			/*
-			var bestBlackPoints = self.occupiedPoints.map( {$0} )
-			bestBlackPoints.sort(by: {
-				(self.board[$0.x][$0.y] & 0xff) > (self.board[$1.x][$1.y] & 0xff)
-			})
-			return getWeith(point: bestBlackPoints.first!)
-			*/
-		default:
-			break
-		}
-		print("getBestWeithForCurrentSpot");
-		return 0
-		*/
+		return getWeight(point: getBestPoint())
 	}
 	
 	/// Возвращает вес в указанной точке. Полностю для всей точки.
@@ -400,8 +339,6 @@ class Board {
 	func setConstWeightToPoint(point: Point, weight: Weight) {
 		self.board[point.x][point.y] = weight
 		updateBestPoints(point: point, weight: self.board[point.x][point.y])
-		//updateBestPoints(point: point, weight: self.board[point.x][point.y])
-		//addOccupiedPoints(point: point)
 	}
 	
 	
@@ -798,12 +735,10 @@ class Board {
 		maxPriority = max(maxPriority, priority)
 		if isCaptures(point: point, spot: spot) != nil {
 			if spot == .white {
-				//print("isCaptures white!!!", self.whiteCaptures)
-				maxPriority += UInt16((self.whiteCaptures + 3) % 10)
+				maxPriority += UInt16((self.whiteCaptures + 2) % 10)
 			} else {
-				//print("isCaptures black!!!", self.blackCaptures)
 				self.pointsCapturesBlack.insert(point)
-				maxPriority += UInt16((self.blackCaptures + 3) % 10)
+				maxPriority += UInt16((self.blackCaptures + 2) % 10)
 			}
 		}
 		if flagCaptures {
@@ -819,7 +754,6 @@ class Board {
 		let maxIteration = 6
 		if !checkDoubleThree(point: point, spot: spot) {
 			// Добавление точки для дальнейшего пересчета.
-			//self.pointsDoubleThree.append(PointDoubleThree(point: point, spot: spot))
 			self.pointsDoubleThree.insert(point)
 			return 0
 		}
@@ -907,13 +841,9 @@ class Board {
 			case 4:
 				return 9
 			case 5:
-				//fatalError()
-				return 13
+				return 10
 			default:
-				//print("Error stone 1")
-				return 12
-				//fatalError()
-				//return 0
+				return 11
 			}
 		case 1: // 1 камень противоположной стороны
 			switch same {
@@ -922,14 +852,12 @@ class Board {
 			case 2:
 				return 2
 			case 3:
-				//fatalError()
 				return 6
 			case 4:
 				return 8
 			case 5:
-				return 14
+				return 10
 			default:
-				//print("Error stone 3")
 				return 11
 			}
 		case 2:
@@ -939,9 +867,7 @@ class Board {
 				return 3
 			}
 		default:
-			//print("Error stone 5")
 			break
-			//fatalError()
 		}
 		return 0
 	}

@@ -38,19 +38,20 @@ class GameViewController: NSViewController {
 		case nameSave = "save"
 		case nameTime = "time"
 	}
+	/// Имена картинок камней
+	enum NamesImage: String {
+		case whiteStone = "white_stone"
+		case blackStone = "black_stone"
+	}
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
 		self.gomoku.delegate = self
-		// !!! Потом убрать!
-		//self.gomoku.board.delegate = self
 		self.gomoku.setDelegateToBoard(delegate: self)
 		setLight()
 		setEmptyNodes()
 		setStones()
-		//setStartStones()
-		//movingCircle()
 		
 		// callback
 		self.gomoku.makeSnapshot = { [weak self] in
@@ -60,8 +61,7 @@ class GameViewController: NSViewController {
 		
         // retrieve the SCNView
         let scnView = self.view as! SCNView
-        
-		//scnView.snapshot()
+
         // set the scene to the view
 		scnView.scene = self.scene
         
@@ -103,7 +103,6 @@ class GameViewController: NSViewController {
 				let position = SCNVector3(Double(i), self.y, Double(j))
 				let node = SCNNode()
 				node.geometry = SCNSphere(radius: self.radiusPin)
-				//node.geometry?.firstMaterial?.normal.contents = NSColor.black
 				node.position = position
 				node.physicsBody = SCNPhysicsBody(type: .static, shape: nil)
 				node.name = NamesNode.namePin.rawValue
@@ -114,8 +113,8 @@ class GameViewController: NSViewController {
 	
 	/// Установка игральных камней по разные стороны играков
 	private func setStones() {
-		guard let imageWhite = NSImage(named: "white_stone") else { return }
-		guard let imageBlack = NSImage(named: "black_stone") else { return }
+		guard let imageWhite = NSImage(named: NamesImage.whiteStone.rawValue) else { return }
+		guard let imageBlack = NSImage(named: NamesImage.blackStone.rawValue) else { return }
 		for _ in 0...180 {
 			var ramdomX = Double.random(in: -10...10)
 			var randomY = Double.random(in: 2...4)
@@ -172,24 +171,9 @@ class GameViewController: NSViewController {
 		stone.runAction(sequsens)
 	}
 	
-	/// Движение по окружности
-	private func movingCircle() {
-		let h = 0
-		let l = 15
-		let duration: TimeInterval = 4
-		let moveOne = SCNAction.move(to: SCNVector3(l, h, l), duration: duration)
-		let moveTwo = SCNAction.move(to: SCNVector3(l, h, -l), duration: duration)
-		let moveThree = SCNAction.move(to: SCNVector3(-l, h, -l), duration: duration)
-		let moveFour = SCNAction.move(to: SCNVector3(-l, h, l), duration: duration)
-		let sequsens = SCNAction.sequence([moveOne, moveTwo, moveThree, moveFour])
-		let field = self.scene.rootNode.childNode(withName: "field", recursively: false)
-		field?.runAction(SCNAction.repeatForever(sequsens))
-	}
-	
-	/// Закрывает сцену и преходит к предыдущему окну.
+	/// Закрывает сцену и преходит к  окну меню.
 	private func exitScene() {
-		if let menuVC = self.storyboard?.instantiateController(withIdentifier: "3DMenuID") as? StartViewController{
-			//self.gomoku.ai?.task.interrupt()
+		if let menuVC = self.storyboard?.instantiateController(withIdentifier: Identifier.startMenu.rawValue) as? StartViewController{
 			self.view.window?.contentViewController = menuVC
 		}
 	}
@@ -226,7 +210,6 @@ class GameViewController: NSViewController {
 			RunLoop.current.add(timer, forMode: .default)
 			RunLoop.current.run()
 		}
-		//movingStonesFromBoard(stones: stones.map({$0.0}))
 	}
 	
 	/// Передвижение в указанную позицию белогого камня
@@ -265,7 +248,6 @@ class GameViewController: NSViewController {
 			case .nameSave:
 				nodeShine(node: node, color: .blue)
 				self.gomoku.saving()
-				//saveScene()
 			case .namePin:
 				print(node.position, name)
 				let point = Point(Int(node.position.x), Int(node.position.z))
@@ -303,6 +285,8 @@ class GameViewController: NSViewController {
 
 // MARK: MoveProtocol
 extension GameViewController: MoveProtocol {
+	
+	/// Изменение стоки времени
 	func showTime(time: String) {
 		let node = self.scene.rootNode.childNodes.first(where: {$0.name == NamesNode.nameTime.rawValue})
 		guard let timeNode = node?.geometry as? SCNText else { return }

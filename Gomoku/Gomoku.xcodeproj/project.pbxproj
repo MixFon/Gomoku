@@ -18,7 +18,6 @@
 		2953EAFE2715AB2D009927F3 /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 2953EAFD2715AB2D009927F3 /* art.scnassets */; };
 		2953EB002715AB2F009927F3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2953EAFF2715AB2F009927F3 /* Assets.xcassets */; };
 		2953EB032715AB2F009927F3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2953EB012715AB2F009927F3 /* Main.storyboard */; };
-		2953EB0D2715AF25009927F3 /* MenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2953EB0C2715AF25009927F3 /* MenuViewController.swift */; };
 		29620887271EA739000BDB63 /* Gomoku.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29620886271EA739000BDB63 /* Gomoku.swift */; };
 		2962088B271ED18A000BDB63 /* MoveProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2962088A271ED18A000BDB63 /* MoveProtocol.swift */; };
 		2962088E271FEE9F000BDB63 /* Point.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2962088D271FEE9F000BDB63 /* Point.swift */; };
@@ -27,6 +26,7 @@
 		29907EF827195BED00F12B58 /* Bourd.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29907EF727195BED00F12B58 /* Bourd.swift */; };
 		29A79C24275DF01600D5E37A /* StartViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29A79C23275DF01600D5E37A /* StartViewController.swift */; };
 		29AB2F472722C3CD00A1C273 /* AI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29AB2F462722C3CD00A1C273 /* AI.swift */; };
+		29C20BB12760EEBF00FBB312 /* Identifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29C20BB02760EEBF00FBB312 /* Identifier.swift */; };
 		29D741AA27463B0200278C9F /* Stone.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29D741A927463B0200278C9F /* Stone.swift */; };
 /* End PBXBuildFile section */
 
@@ -44,7 +44,6 @@
 		2953EAFF2715AB2F009927F3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2953EB022715AB2F009927F3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		2953EB042715AB2F009927F3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		2953EB0C2715AF25009927F3 /* MenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuViewController.swift; sourceTree = "<group>"; };
 		29620886271EA739000BDB63 /* Gomoku.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gomoku.swift; sourceTree = "<group>"; };
 		2962088A271ED18A000BDB63 /* MoveProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoveProtocol.swift; sourceTree = "<group>"; };
 		2962088D271FEE9F000BDB63 /* Point.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Point.swift; sourceTree = "<group>"; };
@@ -53,6 +52,7 @@
 		29907EF727195BED00F12B58 /* Bourd.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bourd.swift; sourceTree = "<group>"; };
 		29A79C23275DF01600D5E37A /* StartViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartViewController.swift; sourceTree = "<group>"; };
 		29AB2F462722C3CD00A1C273 /* AI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AI.swift; sourceTree = "<group>"; };
+		29C20BB02760EEBF00FBB312 /* Identifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Identifier.swift; sourceTree = "<group>"; };
 		29D741A927463B0200278C9F /* Stone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stone.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -103,7 +103,6 @@
 				291FA44227281B0900E4AC88 /* Download */,
 				2953EAF92715AB2D009927F3 /* AppDelegate.swift */,
 				2953EAFB2715AB2D009927F3 /* GameViewController.swift */,
-				2953EB0C2715AF25009927F3 /* MenuViewController.swift */,
 				29907EF727195BED00F12B58 /* Bourd.swift */,
 				29620886271EA739000BDB63 /* Gomoku.swift */,
 				2953EAFD2715AB2D009927F3 /* art.scnassets */,
@@ -113,6 +112,7 @@
 				2962088D271FEE9F000BDB63 /* Point.swift */,
 				29D741A927463B0200278C9F /* Stone.swift */,
 				29A79C23275DF01600D5E37A /* StartViewController.swift */,
+				29C20BB02760EEBF00FBB312 /* Identifier.swift */,
 			);
 			path = Gomoku;
 			sourceTree = "<group>";
@@ -218,7 +218,6 @@
 			files = (
 				2939F1082728505F007C2936 /* CollectionItem.swift in Sources */,
 				2953EAFC2715AB2D009927F3 /* GameViewController.swift in Sources */,
-				2953EB0D2715AF25009927F3 /* MenuViewController.swift in Sources */,
 				29620887271EA739000BDB63 /* Gomoku.swift in Sources */,
 				297DB7632726C905007D0286 /* Save.swift in Sources */,
 				294CCCE9275F39CF005F8972 /* PythonAI.swift in Sources */,
@@ -230,6 +229,7 @@
 				29D741AA27463B0200278C9F /* Stone.swift in Sources */,
 				290C225A2727F1C8007B03F6 /* GetProtocol.swift in Sources */,
 				2962088B271ED18A000BDB63 /* MoveProtocol.swift in Sources */,
+				29C20BB12760EEBF00FBB312 /* Identifier.swift in Sources */,
 				291FA4572728282900E4AC88 /* DownloadViewController.swift in Sources */,
 				2953EAFA2715AB2D009927F3 /* AppDelegate.swift in Sources */,
 			);
