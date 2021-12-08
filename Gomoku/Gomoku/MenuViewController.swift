@@ -7,6 +7,8 @@
 
 import Cocoa
 
+
+// MARK: УБРАТЬ!!!!
 class MenuViewController: NSViewController {
 
     override func viewDidLoad() {

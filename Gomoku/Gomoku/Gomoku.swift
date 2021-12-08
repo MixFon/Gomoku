@@ -10,6 +10,8 @@ import AppKit
 
 class Gomoku {
 	var ai = AI()
+	//var pythonAI = try? PythonAI()
+	
 	private var mode = Mode.pvp
 	
 	// Поставить private
@@ -53,6 +55,7 @@ class Gomoku {
 			self.delegate?.pinShine(point: point, color: .green)
 			if self.mode == .pvc {
 				moveAI()
+				//movePythonAI(point: point)
 			} else {
 				self.stone = self.stone.opposite()
 			}
@@ -81,10 +84,17 @@ class Gomoku {
 		self.mode = mode
 	}
 	
+	/// Ход AI на python
+	private func movePythonAI(point: Point) {
+//		guard let ai = self.pythonAI else { print("error pythonAI"); return }
+//		let point = self.board.convertCoordinateToBoard(point: point)
+//		print(point)
+//		ai.getRequestToAI(message: "\(point.y) \(point.x)")
+	}
+	
 	/// Ход ИИ
 	private func moveAI() {
 		let bestPoints = getStartBestBlackPoints(board: self.board)
-//		bestPoints.forEach( {print("\(self.board.board[$0.x][$0.y] >> 8 & 0xff)|\(self.board.board[$0.x][$0.y] & 0xff)") })
 		if bestPoints.isEmpty { return }
 		let start = DispatchTime.now()
 		guard let point = ai.startMinimax(board: self.board, bestPoints: bestPoints) else { return }

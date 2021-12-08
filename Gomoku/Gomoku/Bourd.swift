@@ -21,9 +21,6 @@ class Board {
 	
 	/// Количество камней для попеды. 4 ставится потому что учитывается камень который ставится
 	private let numberStonesToWin = 4
-
-	/// Количество точек, которые нужно рассмотреть.
-	let numberBestPoint = 0
 	
 	/// Максимальный вес для белых spot
 	var bestPointWhite = BestPoint(point: Point(-1, -1), weight: 0)
@@ -186,6 +183,10 @@ class Board {
 	/// Возвращает массив точек в которые предпочтительнее всего ставить. Возвращабтся точки для currentSpot
 	func getBestPoints() -> [Point] {
 		//print(self.currentSpot)
+//		var pointsCuptures = self.pointsCapturesBlack.map( {$0})
+//		pointsCuptures.append(self.bestPointWhite.point)
+//		pointsCuptures.append(self.bestPointBlack.point)
+//		return pointsCuptures
 		return [self.bestPointWhite.point, self.bestPointBlack.point]
 		//return [getBestPoint()]
 		/*
@@ -663,11 +664,11 @@ class Board {
 		if isCaptures(point: point, spot: spot) != nil {
 			if spot == .white {
 				//print("isCaptures white!!!", self.whiteCaptures)
-				maxPriority += UInt16((self.whiteCaptures + 2) % 10)
+				maxPriority += UInt16((self.whiteCaptures + 3) % 10)
 			} else {
 				//print("isCaptures black!!!", self.blackCaptures)
 				self.pointsCapturesBlack.insert(point)
-				maxPriority += UInt16((self.blackCaptures + 2) % 10)
+				maxPriority += UInt16((self.blackCaptures + 3) % 10)
 			}
 		}
 		if flagCaptures {
