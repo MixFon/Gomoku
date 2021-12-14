@@ -1,19 +1,23 @@
 //
-//  AI.swift
-//  Gamoku
+//  PythonAI.swift
+//  Gomoku
 //
-//  Created by Михаил Фокин on 22.10.2021.
+//  Created by Михаил Фокин on 07.12.2021.
 //
 
 import Foundation
 
-class AI {
+class PythonAI {
 	var task = Process()
 	let inputPipe = Pipe()
 	let outputPipe = Pipe()
 	
+	//private let pathonPath = "/Users/mixfon/Downloads/archive/gomoku.py"
 	private let pathonPath = "/Library/Frameworks/Python.framework/Versions/3.7/bin/python3"
-	private let scriptAIPath = "/Library/Frameworks/Python.framework/Versions/3.7/bin/AI.py"
+	//private let pathonPath = "/Users/mixfon/Downloads/archive/python3"
+	
+	//private let scriptAIPath = "/Library/Frameworks/Python.framework/Versions/3.7/bin/AI.py"
+	private let scriptAIPath = "/Library/Frameworks/Python.framework/Versions/3.7/bin/PythonAI/gomoku.py"
 	
 	init() throws {
 		self.task.executableURL = URL(fileURLWithPath: self.pathonPath)

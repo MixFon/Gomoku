@@ -18,12 +18,11 @@ class DownloadViewController: NSViewController {
 		configureCollectionView()
 		configure()
 		self.saves = loadSaves()
-		print("DownloadViewController")
     }
 	
 	@IBAction func pressClose(_ sender: NSButton) {
 		let menuSB = NSStoryboard(name: "Main", bundle: nil)
-		if let menuVC = menuSB.instantiateController(withIdentifier: "MenuVC") as? MenuViewController {
+		if let menuVC = menuSB.instantiateController(withIdentifier: "3DMenuID") as? StartViewController {
 			self.view.window?.contentViewController = menuVC
 		}
 	}
@@ -91,21 +90,14 @@ extension DownloadViewController: NSCollectionViewDataSource, NSCollectionViewDe
 		let save = saves[indexPath.item]
 		let menuSB = NSStoryboard(name: "Main", bundle: nil)
 		if let gameVC = menuSB.instantiateController(withIdentifier: "GameVC") as? GameViewController {
-			//gameVC.blackStonesOnBoard = save.blackPoints
-			gameVC.whiteStartPointsOnBoard = save.whitePoints
-			gameVC.blackStartPointsOnBoard = save.blackPoints
 			if let mode = Gomoku.Mode(rawValue: save.mode ?? "") {
 				gameVC.gomoku.setMode(mode: mode)
 			}
-			gameVC.gomoku.setCurrentStone(stone: save.stone ?? "")
-			gameVC.gomoku.setCaptures(save.whiteCaptures ?? 0, save.blackCaptures ?? 0)
-			gameVC.gomoku.setStartPointOnBouard(
-				whitePoints: gameVC.whiteStartPointsOnBoard ?? [],
-				blackPoints: gameVC.blackStartPointsOnBoard ?? []
-			)
+			let board = Board(save: save)
+			gameVC.gomoku.setBoard(board: board)
+			gameVC.gomoku.setCurrentStone()
 			self.view.window?.contentViewController = gameVC
 		}
-		print()
 	}
 	
 }

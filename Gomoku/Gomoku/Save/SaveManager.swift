@@ -49,17 +49,24 @@ class SaveManager {
 		
 		save.date = Date().getStringDate()
 		
-		let points = self.delegate.getPoints()
-		save.whitePoints = points.0
-		save.blackPoints = points.1
-		
-		let captures = self.delegate.getCaptures()
-		save.whiteCaptures = captures.0
-		save.blackCaptures = captures.1
-		
 		save.mode = self.delegate.getMode()
 		
-		save.stone = self.delegate.getStone()
+		// Получение информации с доски
+		let board = self.delegate.getBoard()
+		
+		save.board = board.getBoard()
+		
+		save.bestPointWhite = board.getBestPointWhite()
+		save.bestPointBlack = board.getBestPointBlack()
+		
+		save.pointsDoubleThree = board.getPointsDoubleThree()
+		
+		save.pointsCapturesBlack = board.getPointsCapturesBlack()
+		
+		save.stone = board.getCurrentSpotString()
+		
+		save.whiteCaptures = board.getWhiteCaptures()
+		save.blackCaptures = board.getBlackCaptures()
 		return save
 	}
 
@@ -70,7 +77,6 @@ class SaveManager {
 		guard let pathJSON = getPathSaveFileJSON() else { return nil }
 		do {
 			let data = try Data(contentsOf: URL(fileURLWithPath: pathJSON))
-			//print("data yes", print(data))
 			return try decoter.decode([Save].self, from: data)
 		} catch  {
 			print("Error reading the file {\(pathJSON)}")

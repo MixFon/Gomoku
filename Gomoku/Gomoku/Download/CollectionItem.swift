@@ -19,7 +19,6 @@ class CollectionItem: NSCollectionViewItem {
 		
 		self.imageV.wantsLayer = true
 		self.imageV.layer?.borderWidth = 1.0
-		//self.imageV.layer?.borderColor = NSColor.red.cgColor
 		self.imageV.layer?.cornerRadius = 10.0
 		self.imageV.layer?.masksToBounds = true
 	}
