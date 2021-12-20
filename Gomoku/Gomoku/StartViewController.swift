@@ -29,18 +29,22 @@ class StartViewController: NSViewController {
 		case loading = "Loading"
 		case exit = "Exit"
 	}
+	
+	enum NameNode: String {
+		case floor = "floor"
+		case fieldWhite = "field_white"
+		case fieldBlack = "field_black"
+		case area = "area"
+	}
 
     override func viewDidLoad() {
 		super.viewDidLoad()
 		
-		//setLight()
 		setStones()
-		//movingCircle()
 		
 		// retrieve the SCNView
 		let scnView = self.view as! SCNView
 		
-		//scnView.snapshot()
 		// set the scene to the view
 		scnView.scene = self.scene
 		
@@ -72,10 +76,9 @@ class StartViewController: NSViewController {
 		if hitResults.count > 0 {
 			// retrieved the first clicked object
 			let node = hitResults[0].node
-			if node.name == "floor" { return }
+			if node.name == NameNode.floor.rawValue { return }
 			guard let name = node.name else { return }
 			let caseMenu = Menu(rawValue: name)
-			//guard let name = NamesNode(rawValue: node.name ?? "") else { return }
 			nodeShine(node: node, color: .blue)
 			moveFieldsTo(position: node.position)
 			switch caseMenu {
@@ -125,16 +128,17 @@ class StartViewController: NSViewController {
 		}
 	}
 	
+	/// Перемещение полей гравитации в указанную точку
 	private func moveFieldsTo(position: SCNVector3) {
 		let positionWhite = SCNVector3(10, 0, position.z - 3)
 		let positionBlack = SCNVector3(-10, 0, position.z - 3)
-		if let fieldWhite = self.scene.rootNode.childNodes.first(where: {$0.name == "field_white"} ) {
+		if let fieldWhite = self.scene.rootNode.childNodes.first(where: {$0.name == NameNode.fieldWhite.rawValue} ) {
 			fieldWhite.runAction(SCNAction.move(to: positionBlack, duration: 1))
 		}
-		if let fieldBlack = self.scene.rootNode.childNodes.first(where: {$0.name == "field_black"} ) {
+		if let fieldBlack = self.scene.rootNode.childNodes.first(where: {$0.name == NameNode.fieldBlack.rawValue} ) {
 			fieldBlack.runAction(SCNAction.move(to: positionWhite, duration: 1))
 		}
-		if let area = self.scene.rootNode.childNodes.first(where: {$0.name == "area"} ) {
+		if let area = self.scene.rootNode.childNodes.first(where: {$0.name == NameNode.area.rawValue} ) {
 			let positionAria = SCNVector3(area.position.x, area.position.y, position.z - 3)
 			area.runAction(SCNAction.move(to: positionAria, duration: 1))
 		}
@@ -159,8 +163,8 @@ class StartViewController: NSViewController {
 	
 	/// Установка игральных камней по разные стороны играков
 	private func setStones() {
-		guard let imageWhite = NSImage(named: "white_stone") else { return }
-		guard let imageBlack = NSImage(named: "black_stone") else { return }
+		guard let imageWhite = NSImage(named: NamesImage.whiteStone.rawValue) else { return }
+		guard let imageBlack = NSImage(named: NamesImage.blackStone.rawValue) else { return }
 		for _ in 0...180 {
 			var ramdomX = Double.random(in: 10...20)
 			var randomY = Double.random(in: 4...8)
@@ -179,7 +183,6 @@ class StartViewController: NSViewController {
 	/// Устанавливает один шар в указанную точку.
 	private func setOneNode(position: SCNVector3) -> SCNNode {
 		let node = SCNNode()
-		//node.name = NamesNode.nameStone.rawValue
 		node.geometry = SCNSphere(radius: 0.3)
 		node.position = position
 		node.physicsBody = SCNPhysicsBody(type: .dynamic, shape: nil)
@@ -210,6 +213,5 @@ class StartViewController: NSViewController {
 		
 		SCNTransaction.commit()
 	}
-	
 	
 }

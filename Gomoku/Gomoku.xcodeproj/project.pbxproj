@@ -12,7 +12,6 @@
 		291FA4572728282900E4AC88 /* DownloadViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 291FA4562728282900E4AC88 /* DownloadViewController.swift */; };
 		2939F1082728505F007C2936 /* CollectionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2939F1062728505F007C2936 /* CollectionItem.swift */; };
 		2939F1092728505F007C2936 /* CollectionItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2939F1072728505F007C2936 /* CollectionItem.xib */; };
-		294CCCE9275F39CF005F8972 /* PythonAI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 294CCCE8275F39CF005F8972 /* PythonAI.swift */; };
 		2953EAFA2715AB2D009927F3 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2953EAF92715AB2D009927F3 /* AppDelegate.swift */; };
 		2953EAFC2715AB2D009927F3 /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2953EAFB2715AB2D009927F3 /* GameViewController.swift */; };
 		2953EAFE2715AB2D009927F3 /* art.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 2953EAFD2715AB2D009927F3 /* art.scnassets */; };
@@ -26,8 +25,8 @@
 		29907EF827195BED00F12B58 /* Bourd.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29907EF727195BED00F12B58 /* Bourd.swift */; };
 		29A79C24275DF01600D5E37A /* StartViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29A79C23275DF01600D5E37A /* StartViewController.swift */; };
 		29AB2F472722C3CD00A1C273 /* AI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29AB2F462722C3CD00A1C273 /* AI.swift */; };
-		29C20BB12760EEBF00FBB312 /* Identifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29C20BB02760EEBF00FBB312 /* Identifier.swift */; };
 		29D741AA27463B0200278C9F /* Stone.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29D741A927463B0200278C9F /* Stone.swift */; };
+		29F3724D2761E74B008C527B /* Enams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29F3724C2761E74B008C527B /* Enams.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,7 +35,6 @@
 		291FA4562728282900E4AC88 /* DownloadViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadViewController.swift; sourceTree = "<group>"; };
 		2939F1062728505F007C2936 /* CollectionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionItem.swift; sourceTree = "<group>"; };
 		2939F1072728505F007C2936 /* CollectionItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CollectionItem.xib; sourceTree = "<group>"; };
-		294CCCE8275F39CF005F8972 /* PythonAI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PythonAI.swift; sourceTree = "<group>"; };
 		2953EAF62715AB2D009927F3 /* Gomoku.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Gomoku.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2953EAF92715AB2D009927F3 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		2953EAFB2715AB2D009927F3 /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
@@ -52,8 +50,8 @@
 		29907EF727195BED00F12B58 /* Bourd.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Bourd.swift; sourceTree = "<group>"; };
 		29A79C23275DF01600D5E37A /* StartViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartViewController.swift; sourceTree = "<group>"; };
 		29AB2F462722C3CD00A1C273 /* AI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AI.swift; sourceTree = "<group>"; };
-		29C20BB02760EEBF00FBB312 /* Identifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Identifier.swift; sourceTree = "<group>"; };
 		29D741A927463B0200278C9F /* Stone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stone.swift; sourceTree = "<group>"; };
+		29F3724C2761E74B008C527B /* Enams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enams.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,6 +101,7 @@
 				291FA44227281B0900E4AC88 /* Download */,
 				2953EAF92715AB2D009927F3 /* AppDelegate.swift */,
 				2953EAFB2715AB2D009927F3 /* GameViewController.swift */,
+				29A79C23275DF01600D5E37A /* StartViewController.swift */,
 				29907EF727195BED00F12B58 /* Bourd.swift */,
 				29620886271EA739000BDB63 /* Gomoku.swift */,
 				2953EAFD2715AB2D009927F3 /* art.scnassets */,
@@ -111,8 +110,7 @@
 				2953EB042715AB2F009927F3 /* Info.plist */,
 				2962088D271FEE9F000BDB63 /* Point.swift */,
 				29D741A927463B0200278C9F /* Stone.swift */,
-				29A79C23275DF01600D5E37A /* StartViewController.swift */,
-				29C20BB02760EEBF00FBB312 /* Identifier.swift */,
+				29F3724C2761E74B008C527B /* Enams.swift */,
 			);
 			path = Gomoku;
 			sourceTree = "<group>";
@@ -130,7 +128,6 @@
 			isa = PBXGroup;
 			children = (
 				29AB2F462722C3CD00A1C273 /* AI.swift */,
-				294CCCE8275F39CF005F8972 /* PythonAI.swift */,
 			);
 			path = AI;
 			sourceTree = "<group>";
@@ -220,16 +217,15 @@
 				2953EAFC2715AB2D009927F3 /* GameViewController.swift in Sources */,
 				29620887271EA739000BDB63 /* Gomoku.swift in Sources */,
 				297DB7632726C905007D0286 /* Save.swift in Sources */,
-				294CCCE9275F39CF005F8972 /* PythonAI.swift in Sources */,
 				29A79C24275DF01600D5E37A /* StartViewController.swift in Sources */,
 				297DB7682726D689007D0286 /* SaveManager.swift in Sources */,
 				29907EF827195BED00F12B58 /* Bourd.swift in Sources */,
 				2962088E271FEE9F000BDB63 /* Point.swift in Sources */,
 				29AB2F472722C3CD00A1C273 /* AI.swift in Sources */,
+				29F3724D2761E74B008C527B /* Enams.swift in Sources */,
 				29D741AA27463B0200278C9F /* Stone.swift in Sources */,
 				290C225A2727F1C8007B03F6 /* GetProtocol.swift in Sources */,
 				2962088B271ED18A000BDB63 /* MoveProtocol.swift in Sources */,
-				29C20BB12760EEBF00FBB312 /* Identifier.swift in Sources */,
 				291FA4572728282900E4AC88 /* DownloadViewController.swift in Sources */,
 				2953EAFA2715AB2D009927F3 /* AppDelegate.swift in Sources */,
 			);

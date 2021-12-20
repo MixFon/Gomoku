@@ -45,9 +45,6 @@ class Board {
 	
 	init(board :Board) {
 		self.board = board.board
-		//self.pointsForWhite = board.pointsForWhite
-		//self.pointsForBlack = board.pointsForBlack
-		//self.occupiedPoints = board.occupiedPoints
 		self.bestPointWhite = board.bestPointWhite
 		self.bestPointBlack = board.bestPointBlack
 		self.currentSpot = board.currentSpot
@@ -60,9 +57,6 @@ class Board {
 	
 	init(save :Save) {
 		self.board = save.board!
-		//self.pointsForWhite = board.pointsForWhite
-		//self.pointsForBlack = board.pointsForBlack
-		//self.occupiedPoints = board.occupiedPoints
 		self.bestPointWhite = save.bestPointWhite!
 		self.bestPointBlack = save.bestPointBlack!
 		self.currentSpot = Spot(rawValue: Character(save.stone!))!
@@ -78,12 +72,6 @@ class Board {
 		var point: Point
 		var weight: Weight
 	}
-	
-	/// Структрула в которой хранится точка для которую нужно пересчитать, так как в ней была обнаруженя двойная тройка
-//	private struct PointDoubleThree {
-//		var point: Point
-//		var spot: Spot
-//	}
 	
 	// MARK: Enums
 	/// Перечисление служит для назначения значения при расчете стоимости spot при расчете тройки
@@ -154,7 +142,7 @@ class Board {
 			}
 		}
 	}
-	
+	// MARK: Get Set
 	/// Возвращает количество захватов, произведенные белыми
 	func getWhiteCaptures() -> Int {
 		return self.whiteCaptures
@@ -244,7 +232,34 @@ class Board {
 	func getBoard() -> [[Weight]] {
 		return self.board
 	}
+	// MARK: Get Set for best points
+	/// Возвращает массив точек в которые предпочтительнее всего ставить. Возвращабтся точки для currentSpot
+	func getBestPoints() -> [Point] {
+		return [self.bestPointWhite.point, self.bestPointBlack.point]
+	}
 	
+	/// Возвращает максимальный наилучший вес для текущего spot.
+	func getBestWeigthForCurrentSpot() -> Weight {
+		return getWeight(point: getBestPoint())
+	}
+	
+	/// Возвращает вес в указанной точке. Полностю для всей точки.
+	func getWeight(point: Point) -> Weight {
+		return self.board[point.x][point.y]
+	}
+	
+	/// Устанавливает текущий spot в заданную позицию. Ипользуется в miniMax перед переходом на следующий уровень.
+	func setCurrentSpotToPoint(point: Point) {
+		setSpot(point: point, spot: self.currentSpot)
+	}
+	
+	/// Устанавливает вес как он есть в заданную позицию, затем одновляет позицию
+	func setConstWeightToPoint(point: Point, weight: Weight) {
+		self.board[point.x][point.y] = weight
+		updateBestPoints(point: point, weight: self.board[point.x][point.y])
+	}
+	
+	// MARK: Functions
 	/// Возвращает массив черных и белых камней с их координатами (глобальными)
 	func getPointStones() -> [Gomoku.PointStone] {
 		var pointStones = [Gomoku.PointStone]()
@@ -254,8 +269,6 @@ class Board {
 					if let stone = Stone(spot: spot) {
 						let point = convertCoordinateToGlobal(point: Point(j, i))
 						pointStones.append(Gomoku.PointStone(point: point, stone: stone))
-					} else {
-						fatalError()
 					}
 				}
 			}
@@ -315,34 +328,7 @@ class Board {
 		}
 	}
 	
-	/// Возвращает массив точек в которые предпочтительнее всего ставить. Возвращабтся точки для currentSpot
-	func getBestPoints() -> [Point] {
-		return [self.bestPointWhite.point, self.bestPointBlack.point]
-	}
-	
-	/// Возвращает максимальный наилучший вес для текущего spot.
-	func getBestWeigthForCurrentSpot() -> Weight {
-		return getWeight(point: getBestPoint())
-	}
-	
-	/// Возвращает вес в указанной точке. Полностю для всей точки.
-	func getWeight(point: Point) -> Weight {
-		return self.board[point.x][point.y]
-	}
-	
-	/// Устанавливает текущий spot в заданную позицию. Ипользуется в miniMax перед переходом на следующий уровень.
-	func setCurrentSpotToPoint(point: Point) {
-		setSpot(point: point, spot: self.currentSpot)
-	}
-	
-	/// Устанавливает вес как он есть в заданную позицию, затем одновляет позицию
-	func setConstWeightToPoint(point: Point, weight: Weight) {
-		self.board[point.x][point.y] = weight
-		updateBestPoints(point: point, weight: self.board[point.x][point.y])
-	}
-	
-	
-	/// Устанавливает вес в заданную позицию. В позиции сохраняется наибольший вес
+	/// (Не используется) Устанавливает вес в заданную позицию. В позиции сохраняется наибольший вес
 	func setWeightToPoint(point: Point, weight: Weight) {
 		let (oldWhite, oldBlack) = Board.getWeightWhiteBlack(weight: self.board[point.x][point.y])
 		let maxOld = max(oldWhite, oldBlack)
@@ -374,10 +360,7 @@ class Board {
 				self.board[point.x][point.y] = weight
 			}
 		}
-		//self.board[point.x][point.y] = addingWeights(one: self.board[point.x][point.y], two: weight)
-		//apdateBestPoints(point: point, weight: self.board[point.x][point.y])
-		//addOccupiedPoints(point: point)
-		//updateBestPoints(point: point, weight: self.board[point.x][point.y])
+
 	}
 	
 	/// Обновление весов в нучших координатах
@@ -405,6 +388,7 @@ class Board {
 		let (bestWhite, b) = Board.getWeightWhiteBlack(weight: self.bestPointWhite.weight)
 		let (w, bestBlack) = Board.getWeightWhiteBlack(weight: self.bestPointBlack.weight)
 		
+		// White
 		if bestWhite == white {
 			let deltaOld = abs(Int(bestWhite) - Int(b))
 			let deltaSetting = abs(Int(white) - Int(black))
@@ -417,7 +401,7 @@ class Board {
 			self.bestPointWhite.weight = weight
 		}
 		
-		// Bkack
+		// Black
 		if bestBlack == black {
 			let deltaOld = abs(Int(w) - Int(bestBlack))
 			let deltaSetting = abs(Int(white) - Int(black))
@@ -443,51 +427,6 @@ class Board {
 		return result
 	}
 	
-	/*
-	/// Добавление в ячейки, которые заняты или spot или weight
-	func addOccupiedPoints(point: Point) {
-		self.occupiedPoints.insert(point)
-	}
-	*/
-	
-	/*
-	/// Обновление массивов с наилучшими весами.
-	func updateBestPoints(point: Point, weight: Weight) {
-		if self.pointsForWhite.isEmpty {
-			self.pointsForWhite.append(point)
-		}
-		if self.pointsForBlack.isEmpty {
-			self.pointsForBlack.append(point)
-			return
-		}
-//		guard let lastWhite = self.pointsForWhite.last else { print("error update"); return }
-//		guard let lastBlack = self.pointsForBlack.last else { print("error update"); return }
-//		let whiteWeight = (self.board[lastWhite.x][lastWhite.y] >> 8) & 0xff
-//		let blackWeight = self.board[lastBlack.x][lastBlack.y] & 0xff
-		self.pointsForWhite.append(point)
-		self.pointsForWhite.sort(by: {
-			((self.board[$0.x][$0.y] >> 8) & 0xff) > ((self.board[$1.x][$1.y] >> 8) & 0xff)
-		})
-		while self.pointsForWhite.count > 4 {
-			self.pointsForWhite.removeLast()
-		}
-//		if ((weight >> 8) & 0xff) > whiteWeight {
-//
-//		}
-		self.pointsForBlack.append(point)
-		self.pointsForBlack.sort(by: {
-			((self.board[$0.x][$0.y] >> 8) & 0xff) > ((self.board[$1.x][$1.y] >> 8) & 0xff)
-		})
-		while self.pointsForBlack.count > 4 {
-			self.pointsForBlack.removeLast()
-		}
-//		if (weight & 0xff) > blackWeight {
-//
-//		}
-		
-	}
-*/
-	
 	/// Возвращает кортеж координат
 	func getWhiteBlackPointsSpot() -> ([Point], [Point]) {
 		var whitePoint = [Point]()
@@ -507,18 +446,6 @@ class Board {
 		}
 		return (whitePoint, blackPoint)
 	}
-	
-	/// Вызывается при закрузке сохраненной игры. На доске устанавливаются нужные spots
-//	func setStartSpotsOnBouard(whitePoints: [Point], blackPoints: [Point]) {
-//		for point in whitePoints {
-//			let pointInBoard = convertCoordinateToBoard(point: point)
-//			setSpot(point: pointInBoard, spot: .white)
-//		}
-//		for point in blackPoints {
-//			let pointInBoard = convertCoordinateToBoard(point: point)
-//			setSpot(point: pointInBoard, spot: .black)
-//		}
-//	}
 	
 	/// Установка всех значений доски в empty (удаление всех элементов с доски)
 	func clearBoard() {
@@ -541,10 +468,6 @@ class Board {
 		if !checkDoubleThree(point: point, spot: spot) {
 			return false
 		}
-//		Убрать проверку на переход в захват, переходить в захват можно 
-//		if !checkCaptures(point: point, spot: spot) {
-//			return false
-//		}
 		setSpot(point: point, spot: spot)
 		return true
 	}
@@ -637,34 +560,30 @@ class Board {
 		return nil
 	}
 	
-	// MARK: Определение точек для перерасчета и перерасчет весов. (Пробовать многопоточить!!)
+	// MARK: Определение точек для перерасчета и перерасчет весов.
 	/// Определение точек для пресчета. Во всех 8 направлениях. Вычисление в каждой точке веса
 	private func definingPointsForRecalculation(point: Point) {
 		// #x#
 		// #o#
 		// #x#
-		//printBourd()
 		definingPoints(point: point, nextPoint: checkOne, direction: .up)
 		definingPoints(point: point, nextPoint: checkOne, direction: .down)
 		
 		// ##x
 		// #o#
 		// x##
-		//printBourd()
 		definingPoints(point: point, nextPoint: checkTwo, direction: .up)
 		definingPoints(point: point, nextPoint: checkTwo, direction: .down)
 		
 		// ###
 		// xox
 		// ###
-		//printBourd()
 		definingPoints(point: point, nextPoint: checkThree, direction: .up)
 		definingPoints(point: point, nextPoint: checkThree, direction: .down)
 		
 		// x##
 		// #o#
 		// ##x
-		//printBourd()
 		definingPoints(point: point, nextPoint: checkFour, direction: .up)
 		definingPoints(point: point, nextPoint: checkFour, direction: .down)
 	}
@@ -711,14 +630,10 @@ class Board {
 		let weightBlack = calculateWeightToWhiteBlack(point: point, spot: .black)
 		let result: Weight = (weightWhite << 8) | (weightBlack & 0xff)
 		setConstWeightToPoint(point: point, weight: result)
-		//self.board[point.x][point.y] = result
-		//print(result)
-		//setWeightToPoint(point: point, weight: result)
 	}
 	
 	/// Пересчет весов оносительно белого spot
 	private func calculateWeightToWhiteBlack(point: Point, spot: Spot) -> Weight {
-		//let spot = Spot.white
 		var maxPriority: Weight = 0
 		var priority: Weight = 0
 		var flagCaptures = false
@@ -792,7 +707,6 @@ class Board {
 				}
 			}
 		}
-		//print(spot.rawValue, sameStones, oppositeStones)
 		return getPrioritet(same: sameStones, opposite: oppositeStones)
 	}
 	
@@ -819,12 +733,13 @@ class Board {
 					print(" \(spot.rawValue)  ", terminator: "")
 				} else {
 					print("\(self.board[j][i] >> 8 & 0xff)|\(self.board[j][i] & 0xff)", terminator: " ")
-					//print(self.board[j][i], terminator: " ")
 				}
 			}
 			print()
 		}
 	}
+	
+	// MARK: Установка весов
 
 	/// Высичление приоритета на основе данных
 	private func getPrioritet(same: Int, opposite: Int) -> Weight {
@@ -881,7 +796,6 @@ class Board {
 		definingPointsForRecalculation(point: point)
 		updatePointsCapturesBlack(point: point)
 		self.currentSpot = self.currentSpot.opposite()
-		//printBourd()
 	}
 	
 	/// Обновляет точки в которых может быть захват.
@@ -892,7 +806,6 @@ class Board {
 	
 	/// Пересчет точек в которые раньше нельзя было поставить указанный spot
 	private func recalcularePointsDoubleThree() {
-		//print("recalc!!")
 		if self.pointsDoubleThree.isEmpty { return }
 		let tempPointsDoubleThree = self.pointsDoubleThree.map( {$0} )
 		self.pointsDoubleThree.removeAll()
@@ -929,7 +842,6 @@ class Board {
 		for point in uniqueStone {
 			let unique = uniquePointThree(point: point, spot: spot)
 			setResult = setResult.union(unique)
-			//unique.forEach( { setResult.insert($0) } )
 		}
 		return setResult.count == 3 || setResult.count == 0
 		/*
@@ -953,24 +865,11 @@ class Board {
 	
 	/**
 	Возвращает уникальные элементы состовляющие тройки по всем направлениям.
-	Вычисления выполнятся на разных очередях с помощью DispatchGroup. Главный поток ожидает завершения обоих вычислений.
 	*/
-	//private func uniquePointThree(point: Point, spot: Spot) -> [Point] {
 	private func uniquePointThree(point: Point, spot: Spot) -> Set<Point> {
 		var setPoints = Set<Point>()
-		
-		//var pointsThree = [Point]()
-		//var pointsThree = Set<Point>()
-		//var pointsRabbitThree = [Point]()
-		//var pointsRabbitThree = Set<Point>()
 		checkThree(point: point, spot: spot, setPoints: &setPoints)
 		checkThreeRabbit(point: point, spot: spot, setPoints: &setPoints)
-		//pointsThree.forEach( { setPoints.insert($0)} )
-		//setPoints = setPoints.union(pointsThree)
-		//pointsRabbitThree.forEach( { setPoints.insert($0)} )
-		//setPoints = setPoints.union(pointsRabbitThree)
-		//print("Done")
-		//let points = [Point](setPoints)
 		return setPoints
 	}
 	
@@ -992,7 +891,7 @@ class Board {
 		return .empty
 	}
 	
-	// MARK: Функции для перемещения по 8 направлениям (Вынести функции в струкруту Point!!!)
+	// MARK: Функции для перемещения по 8 направлениям
 	// #x#
 	// #o#
 	// #x#
@@ -1090,44 +989,26 @@ class Board {
 	
 	// MARK: Rabbit all functions
 	/// Проверка тройки в виде кролика
-	//private func checkThreeRabbit(point: Point, spot: Spot) -> [Point] {
 	private func checkThreeRabbit(point: Point, spot: Spot, setPoints: inout Set<Point>){
-		//var setPoints = Set<Point>()
 		rabbitAllFunctions(point: point, spot: spot, rabbitFunction: rabbitOne, setPoints: &setPoints)
-		//one.forEach({setPoints.insert($0)})
-		//setPoints = setPoints.union(one)
 		rabbitAllFunctions(point: point, spot: spot, rabbitFunction: rabbitTwo, setPoints: &setPoints)
-		//two.forEach({setPoints.insert($0)})
-		//setPoints = setPoints.union(two)
 		rabbitAllFunctions(point: point, spot: spot, rabbitFunction: rabbitThree, setPoints: &setPoints)
-		//three.forEach({setPoints.insert($0)})
-		//setPoints = setPoints.union(three)
-		//let points = [Point](setPoints)
-		//return setPoints
 	}
 	
 	/// Каждый переданная функция rabbitFunction обрабатывается в 8 направлениях (функции check*)
-	//private func rabbitAllFunctions(point: Point, spot: Spot, rabbitFunction: RabbitFunction) -> [Point] {
 	private func rabbitAllFunctions(point: Point, spot: Spot, rabbitFunction: RabbitFunction, setPoints: inout Set<Point>) {
-		//var points = [Point]()
-		//var points = Set<Point>()
 		if let one = rabbitFunction(point, spot, checkOne) {
-			//points.append(contentsOf: one)
 			setPoints = setPoints.union(one)
 		}
 		if let two = rabbitFunction(point, spot, checkTwo) {
-			//points.append(contentsOf: two)
 			setPoints = setPoints.union(two)
 		}
 		if let three = rabbitFunction(point, spot, checkThree) {
-			//points.append(contentsOf: three)
 			setPoints = setPoints.union(three)
 		}
 		if let four = rabbitFunction(point, spot, checkFour) {
-			//points.append(contentsOf: four)
 			setPoints = setPoints.union(four)
 		}
-		//return points
 	}
 	
 	
@@ -1167,7 +1048,6 @@ class Board {
 		let pointUp = nextPoint(point, 3, .up)
 		if let pointsI = checkI(pointUp, spot, spot, nextPoint) {
 			points.append(contentsOf: pointsI)
-			//return points
 		}
 		
 		// down +2
@@ -1216,35 +1096,23 @@ class Board {
 	
 	// MARK: Проверка троек камней идущих подряд
 	/// Проверка идущих подрят троеек
-	//private func checkThree(point: Point, spot: Spot) -> [Point] {
 	private func checkThree(point: Point, spot: Spot, setPoints: inout Set<Point>) {
-		//var setPoints = Set<Point>()
-		//var points = [Point]()
 		if let one = checkThreeAll(point: point, spot: spot, nextPoint: checkOne) {
-			//one.forEach( { setPoints.insert($0) } )
 			setPoints = setPoints.union(one)
 		}
 		if let two = checkThreeAll(point: point, spot: spot, nextPoint: checkTwo) {
-			//two.forEach( { setPoints.insert($0) } )
 			setPoints = setPoints.union(two)
 		}
 		if let three = checkThreeAll(point: point, spot: spot, nextPoint: checkThree) {
-			//three.forEach( { setPoints.insert($0) } )
 			setPoints = setPoints.union(three)
 		}
 		if let four = checkThreeAll(point: point, spot: spot, nextPoint: checkFour) {
-			//four.forEach( { setPoints.insert($0) } )
 			setPoints = setPoints.union(four)
 		}
-		//let points = [Point](setPoints)
-		//return setPoints
 	}
 
-	// Возможно нужно будет поправть, убрать создание массива.
 	/// Проверка двойных троек по всех 8 направлениям.
-	//private func checkThreeAll(point: Point, spot: Spot, nextPoint: NextPoint) -> [Point]? {
 	private func checkThreeAll(point: Point, spot: Spot, nextPoint: NextPoint) -> Set<Point>? {
-		//var points = [point]
 		var points = Set<Point>()
 		var index = 4;
 		var summa = 0
@@ -1254,7 +1122,6 @@ class Board {
 			index -= 1
 			summa += weight.rawValue
 			if weight == .current {
-				//points.append(up)
 				points.insert(up)
 			} else {
 				break
@@ -1268,7 +1135,6 @@ class Board {
 			let weight = getWeightOfSpor(point: down, spot: spot)
 			summa += weight.rawValue
 			if weight == .current {
-				//points.append(down)
 				points.insert(down)
 			} else {
 				break
@@ -1331,216 +1197,3 @@ extension Board {
 		return ((weight >> 8) & 0xff, weight & 0xff)
 	}
 }
-
-/*
-/// Проверка положения перехода в захват (не нужно это проверять)
-private func checkCaptures(point: Point, spot: Spot) -> Bool {
-	let opposite = spot.opposite()
-	let x = point.x
-	let y = point.y
-	if checkSpotCoordinate(Point(x - 2, y), opposite) &&
-		checkSpotCoordinate(Point(x - 1, y), spot) &&
-		checkSpotCoordinate(Point(x + 1, y), opposite) {
-		return false
-	}
-	if checkSpotCoordinate(Point(x - 2, y + 2), opposite) &&
-		checkSpotCoordinate(Point(x - 1, y + 1), spot) &&
-		checkSpotCoordinate(Point(x + 1, y - 1), opposite) {
-		return false
-	}
-	if checkSpotCoordinate(Point(x, y + 2), opposite) &&
-		checkSpotCoordinate(Point(x, y + 1), spot) &&
-		checkSpotCoordinate(Point(x, y - 1), opposite) {
-		return false
-	}
-	if checkSpotCoordinate(Point(x + 2, y + 2), opposite) &&
-		checkSpotCoordinate(Point(x + 1, y + 1), spot) &&
-		checkSpotCoordinate(Point(x - 1, y - 1), opposite) {
-		return false
-	}
-	if checkSpotCoordinate(Point(x + 2, y), opposite) &&
-		checkSpotCoordinate(Point(x + 1, y), spot) &&
-		checkSpotCoordinate(Point(x - 1, y), opposite) {
-		return false
-	}
-	if checkSpotCoordinate(Point(x + 2, y - 2), opposite) &&
-		checkSpotCoordinate(Point(x + 1, y - 1), spot) &&
-		checkSpotCoordinate(Point(x - 1, y + 1), opposite) {
-		return false
-	}
-	if checkSpotCoordinate(Point(x, y - 2), opposite) &&
-		checkSpotCoordinate(Point(x, y - 1), spot) &&
-		checkSpotCoordinate(Point(x, y + 1), opposite) {
-		return false
-	}
-	if checkSpotCoordinate(Point(x - 2, y - 2), opposite) &&
-		checkSpotCoordinate(Point(x - 1, y - 1), spot) &&
-		checkSpotCoordinate(Point(x + 1, y + 1), opposite) {
-		return false
-	}
-	return true
-}
-
-
-
-// MARK: Проверка двойной тройки (неверно работает)
-/// Проверка наличия двойной троки
-private func checkDoubleThree(point: Point, spot: Spot) -> Bool {
-	var count = 0
-	if doubleThreeOne(point: point, spot: spot) {
-		count += 1
-	}
-	if doubleThreeTwo(point: point, spot: spot) {
-		count += 1
-	}
-	if doubleThreeThree(point: point, spot: spot) {
-		count += 1
-	}
-	if doubleThreeFour(point: point, spot: spot) {
-		count += 1
-	}
-	if doubleThreeFive(point: point, spot: spot) {
-		count += 1
-	}
-	if doubleThreeSix(point: point, spot: spot) {
-		count += 1
-	}
-	if doubleThreeSeven(point: point, spot: spot) {
-		count += 1
-	}
-	if doubleThreeEight(point: point, spot: spot) {
-		count += 1
-	}
-	print("count =", count)
-	return count < 2
-}
-
-// #x#
-// #o#
-// ###
-private func doubleThreeOne(point: Point, spot: Spot) -> Bool {
-	var one = false
-	var two = false
-	one =
-		checkSpotCoordinate(Point(point.x - 3, point.y), spot) &&
-		checkSpotCoordinate(Point(point.x - 2, point.y), spot) &&
-		checkSpotCoordinate(Point(point.x - 1, point.y), .empty)
-	two =
-		checkSpotCoordinate(Point(point.x - 2, point.y), spot) &&
-		checkSpotCoordinate(Point(point.x - 1, point.y), spot)
-	return one || two
-}
-
-// ##x
-// #o#
-// ###
-private func doubleThreeTwo(point: Point, spot: Spot) -> Bool {
-	var one = false
-	var two = false
-	one =
-		checkSpotCoordinate(Point(point.x - 3, point.y + 3), spot) &&
-		checkSpotCoordinate(Point(point.x - 2, point.y + 2), spot) &&
-		checkSpotCoordinate(Point(point.x - 1, point.y + 1), .empty)
-	two =
-		checkSpotCoordinate(Point(point.x - 2, point.y + 2), spot) &&
-		checkSpotCoordinate(Point(point.x - 1, point.y + 1), spot)
-	return one || two
-}
-
-// ###
-// #ox
-// ###
-private func doubleThreeThree(point: Point, spot: Spot) -> Bool {
-	var one = false
-	var two = false
-	one =
-		checkSpotCoordinate(Point(point.x, point.y + 3), spot) &&
-		checkSpotCoordinate(Point(point.x, point.y + 2), spot) &&
-		checkSpotCoordinate(Point(point.x, point.y + 1), .empty)
-	two =
-		checkSpotCoordinate(Point(point.x, point.y + 2), spot) &&
-		checkSpotCoordinate(Point(point.x, point.y + 1), spot)
-	return one || two
-}
-
-// ###
-// #o#
-// ##x
-private func doubleThreeFour(point: Point, spot: Spot) -> Bool {
-	var one = false
-	var two = false
-	one =
-		checkSpotCoordinate(Point(point.x + 3, point.y + 3), spot) &&
-		checkSpotCoordinate(Point(point.x + 2, point.y + 2), spot) &&
-		checkSpotCoordinate(Point(point.x + 1, point.y + 1), .empty)
-	two =
-		checkSpotCoordinate(Point(point.x + 2, point.y + 2), spot) &&
-		checkSpotCoordinate(Point(point.x + 1, point.y + 1), spot)
-	return one || two
-}
-
-// ###
-// #o#
-// #x#
-private func doubleThreeFive(point: Point, spot: Spot) -> Bool {
-	var one = false
-	var two = false
-	one =
-		checkSpotCoordinate(Point(point.x + 3, point.y), spot) &&
-		checkSpotCoordinate(Point(point.x + 2, point.y), spot) &&
-		checkSpotCoordinate(Point(point.x + 1, point.y), .empty)
-	two =
-		checkSpotCoordinate(Point(point.x + 2, point.y), spot) &&
-		checkSpotCoordinate(Point(point.x + 1, point.y), spot)
-	return one || two
-}
-
-// ###
-// #o#
-// x##
-private func doubleThreeSix(point: Point, spot: Spot) -> Bool {
-	var one = false
-	var two = false
-	one =
-		checkSpotCoordinate(Point(point.x + 3, point.y - 3), spot) &&
-		checkSpotCoordinate(Point(point.x + 2, point.y - 2), spot) &&
-		checkSpotCoordinate(Point(point.x + 1, point.y - 1), .empty)
-	two =
-		checkSpotCoordinate(Point(point.x + 2, point.y - 2), spot) &&
-		checkSpotCoordinate(Point(point.x + 1, point.y - 1), spot)
-	return one || two
-}
-
-// ###
-// xo#
-// ###
-private func doubleThreeSeven(point: Point, spot: Spot) -> Bool {
-	var one = false
-	var two = false
-	one =
-		checkSpotCoordinate(Point(point.x, point.y - 3), spot) &&
-		checkSpotCoordinate(Point(point.x, point.y - 2), spot) &&
-		checkSpotCoordinate(Point(point.x, point.y - 1), .empty)
-	two =
-		checkSpotCoordinate(Point(point.x, point.y - 2), spot) &&
-		checkSpotCoordinate(Point(point.x, point.y - 1), spot)
-	return one || two
-}
-
-// x##
-// #o#
-// ###
-private func doubleThreeEight(point: Point, spot: Spot) -> Bool {
-	var one = false
-	var two = false
-	one =
-		checkSpotCoordinate(Point(point.x - 3, point.y - 3), spot) &&
-		checkSpotCoordinate(Point(point.x - 2, point.y - 2), spot) &&
-		checkSpotCoordinate(Point(point.x - 1, point.y - 1), .empty)
-	two =
-		checkSpotCoordinate(Point(point.x - 2, point.y - 2), spot) &&
-		checkSpotCoordinate(Point(point.x - 1, point.y - 1), spot)
-	return one || two
-}
-*/
-

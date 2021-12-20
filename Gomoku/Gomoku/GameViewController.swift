@@ -38,11 +38,6 @@ class GameViewController: NSViewController {
 		case nameSave = "save"
 		case nameTime = "time"
 	}
-	/// Имена картинок камней
-	enum NamesImage: String {
-		case whiteStone = "white_stone"
-		case blackStone = "black_stone"
-	}
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -157,7 +152,7 @@ class GameViewController: NSViewController {
 		ambientLightNode.light = SCNLight()
 		ambientLightNode.light!.type = .ambient
 		ambientLightNode.light!.color = NSColor.darkGray
-		scene.rootNode.addChildNode(ambientLightNode)
+		self.scene.rootNode.addChildNode(ambientLightNode)
 	}
 	
 	/// Передвижение камня в указанную координату. Содержит два движения вверх и вниз
