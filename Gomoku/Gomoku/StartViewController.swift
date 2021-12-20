@@ -52,7 +52,7 @@ class StartViewController: NSViewController {
 		scnView.allowsCameraControl = true
 		
 		// show statistics such as fps and timing information
-		scnView.showsStatistics = true
+		scnView.showsStatistics = false
 		
 		// configure the view
 		scnView.backgroundColor = NSColor.black

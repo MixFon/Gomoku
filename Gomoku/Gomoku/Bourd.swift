@@ -839,15 +839,10 @@ class Board {
 	func checkDoubleThree(point: Point, spot: Spot) -> Bool {
 		var setResult = Set<Point>()
         let uniqueStone = uniquePointThree(point: point, spot: spot)
-        //uniqueStone = uniqueStone.union([point])
-        //print("uniqueStone", uniqueStone)
 		for point in uniqueStone {
 			let unique = uniquePointThree(point: point, spot: spot)
 			setResult = setResult.union(unique)
 		}
-//        if !setResult.isEmpty {
-//            print(setResult)
-//        }
 		return setResult.count == 3 || setResult.count == 0
 		/*
 		// Вариан с подсвечиваение тройки
