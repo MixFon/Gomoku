@@ -838,16 +838,21 @@ class Board {
 	/// Проверяет наличие троек. Если тройка есть подсвечивает ее. True - двойной тройки нет, false - двойная тройка есть
 	func checkDoubleThree(point: Point, spot: Spot) -> Bool {
 		var setResult = Set<Point>()
-		let uniqueStone = uniquePointThree(point: point, spot: spot)
+        let uniqueStone = uniquePointThree(point: point, spot: spot)
+        //uniqueStone = uniqueStone.union([point])
+        //print("uniqueStone", uniqueStone)
 		for point in uniqueStone {
 			let unique = uniquePointThree(point: point, spot: spot)
 			setResult = setResult.union(unique)
 		}
+//        if !setResult.isEmpty {
+//            print(setResult)
+//        }
 		return setResult.count == 3 || setResult.count == 0
 		/*
 		// Вариан с подсвечиваение тройки
-		print(setResult)
-		if setResult.count == 3 || setResult.count == 0 {
+		//print(setResult)
+		if setResult.count == 3 || setResult.count == 1 {
 			for uniquePoint in setResult {
 				let point = convertCoordinateToGlobal(point: uniquePoint)
 				self.delegate?.stoneShine(point: point, color: .green)
@@ -1141,7 +1146,8 @@ class Board {
 			}
 		}
 		if summa == 4 {
-			return points
+            points.insert(point)
+            return points
 		} else {
 			return nil
 		}
