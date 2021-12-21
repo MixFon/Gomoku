@@ -843,11 +843,11 @@ class Board {
 			let unique = uniquePointThree(point: point, spot: spot)
 			setResult = setResult.union(unique)
 		}
-		return setResult.count == 3 || setResult.count == 0
-		/*
+		//return setResult.count == 3 || setResult.count == 0
+		
 		// Вариан с подсвечиваение тройки
 		//print(setResult)
-		if setResult.count == 3 || setResult.count == 1 {
+		if setResult.count == 3 || setResult.count == 0 {
 			for uniquePoint in setResult {
 				let point = convertCoordinateToGlobal(point: uniquePoint)
 				self.delegate?.stoneShine(point: point, color: .green)
@@ -860,7 +860,7 @@ class Board {
 			}
 			return false
 		}
-		*/
+		
 	}
 	
 	/**
