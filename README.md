@@ -5,6 +5,9 @@
 
 ![image](https://github.com/MixFon/Gomoku/blob/master/gifs/DemoMenu.gif)
 
+
+![image](https://github.com/MixFon/Gomoku/blob/master/gifs/DemoPvC.gif)
+
 ## Правила игры
 
 ### Победа
