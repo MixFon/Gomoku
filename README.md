@@ -3,7 +3,6 @@
 
 В проекте присутствует два режима PvP и PvC. 
 
-![image](https://github.com/MixFon/Gomoku/blob/master/gifs/Demo720.gif)
 
 ## Правила игры
 
