@@ -1,34 +1,35 @@
 # Gomoku
+
 Проект в котором необходимо реализовать игру Gomoku. В качестве противника должен выступать AI на основе алгоритма MiniMax.
 
 В проекте присутствует два режима PvP и PvC. 
 
-![image](https://github.com/MixFon/Gomoku/blob/master/gifs/DemoMenu.gif)
+![DemoMenu](https://github.com/MixFon/Gomoku/blob/master/gifs/DemoMenu.gif "Демострация меню")
 
 
-![image](https://github.com/MixFon/Gomoku/blob/master/gifs/DemoPvC.gif)
+![DemoPvC](https://github.com/MixFon/Gomoku/blob/master/gifs/DemoPvC.gif "Демонстрация игры с ИИ")
 
 ## Правила игры
 
 ### Победа
 Для победы необходимо выставить 5 камней или произвести 5 захватов камней противника. После выставления 5 камней игра сразу не заканчивается, ход передается противнику, для предоставления ему возможности сделать захват. Поэтому противник может выиграть по захватам, тем саммым перелоив ход игры.
 
-![image](https://github.com/MixFon/Gomoku/blob/master/gifs/Win.gif)
+![Win](https://github.com/MixFon/Gomoku/blob/master/gifs/Win.gif "Показ победы")
 
 ### Открытая тройка
 Открытая тройка это три камня идущих подряд, и не закрытые с обоих краев камнями противника. Если противник вовремя не заблокирует открытую тройку, то следующими ходами будут выставленны четверка, которая не блокируется, а затем пятерка, которая приведет к победе.
 
-![image](https://github.com/MixFon/Gomoku/blob/master/gifs/FreeThree.gif)
+![FreeThree](https://github.com/MixFon/Gomoku/blob/master/gifs/FreeThree.gif "Выставление свободной тройки")
 
 ### Двойная тройка
 Двойная тройка - запрезенная комбинация, при которой одним ходом выставляется сразу две открытые тройки. Двойную тройку невозможно заблокировать, поэтому она считается запрященным ходом. 
 
-![image](https://github.com/MixFon/Gomoku/blob/master/gifs/DoubleThree.gif)
+![DoubleThree](https://github.com/MixFon/Gomoku/blob/master/gifs/DoubleThree.gif "Возможные варианты двойной тройки")
 
 ### Захват противника
 Вы можете удалить пару камней противника с доски, окружив его камнями. Это правило добавляет условие победы, если вам удастся захватить пять пар камней вашего противника, вы выиграете игру. Можно переходить в захват не теряя при этом пары.
 
-![image](https://github.com/MixFon/Gomoku/blob/master/gifs/Capture.gif)
+![Capture](https://github.com/MixFon/Gomoku/blob/master/gifs/Capture.gif "Захват")
 
 ## Алгоритм
 
@@ -45,9 +46,12 @@
 * black  - 0x1
 * weight - любое число отличное от 0x100 и 0x1
 
-![image](https://github.com/MixFon/Gomoku/blob/master/gifs/white_black_octets.jpg)
+Таким образом каждая ячейка может хранить в себе одновременно два веса или быть занятой одним из камней.
 
 
-![image](https://github.com/MixFon/Gomoku/blob/master/gifs/3KI1vYwqbfg.jpg)
-![image](https://github.com/MixFon/Gomoku/blob/master/gifs/yO7SOXOYrbc.jpg)
+![white_black_octets](https://github.com/MixFon/Gomoku/blob/master/gifs/white_black_octets.jpg "Октеты для белых и черных камней")
+
+
+![3KI1vYwqbfg](https://github.com/MixFon/Gomoku/blob/master/gifs/3KI1vYwqbfg.jpg "Отображение весов каждого из камней")
+![yO7SOXOYrbc](https://github.com/MixFon/Gomoku/blob/master/gifs/yO7SOXOYrbc.jpg "Отображение весов каждого из камней")
 
