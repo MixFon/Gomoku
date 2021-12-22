@@ -31,7 +31,10 @@ class Board {
 	private var pointsDoubleThree = Set<Point>()
 	
 	/// Точки в которых обнаружен захват. Если в нее перейти будет захват.
-	private var pointsCapturesBlack = Set<Point>()
+	private var pointsCapturesWhite = Set<Point>()
+    
+    /// Точки в которых обнаружен захват. Если в нее перейти будет захват.
+    private var pointsCapturesBlack = Set<Point>()
 	
 	/// Текущий spot, для определения, кото должен ходить в данный момент. Первые ходят белые.
 	private var currentSpot = Spot.white
@@ -51,7 +54,8 @@ class Board {
 		self.whiteCaptures = board.whiteCaptures
 		self.blackCaptures = board.blackCaptures
 		self.pointsDoubleThree = board.pointsDoubleThree
-		self.pointsCapturesBlack = board.pointsCapturesBlack
+		self.pointsCapturesWhite = board.pointsCapturesWhite
+        self.pointsCapturesBlack = board.pointsCapturesBlack
 		self.delegate = nil
 	}
 	
@@ -63,6 +67,7 @@ class Board {
 		self.whiteCaptures = save.whiteCaptures!
 		self.blackCaptures = save.blackCaptures!
 		self.pointsDoubleThree = save.pointsDoubleThree!
+        self.pointsCapturesWhite = save.pointsCapturesWhite!
 		self.pointsCapturesBlack = save.pointsCapturesBlack!
 		self.delegate = nil
 	}
@@ -198,16 +203,31 @@ class Board {
 		self.bestPointBlack = bestPoint
 	}
 	
+    /// Возвращает массив белых точек, в которых обнаружен захват
+    func getPointsCapturesWhiteArray() -> [Point] {
+        return self.pointsCapturesWhite.map({$0})
+    }
+    
 	/// Возвращает массив черных точек, в которых обнаружен захват
 	func getPointsCapturesBlackArray() -> [Point] {
 		return self.pointsCapturesBlack.map({$0})
 	}
+    
+    /// Возвращает набор белых точек, в которых обнаружен захват
+    func getPointsCapturesWhite() -> Set<Point> {
+        return self.pointsCapturesWhite
+    }
 	
 	/// Возвращает набор черных точек, в которых обнаружен захват
 	func getPointsCapturesBlack() -> Set<Point> {
 		return self.pointsCapturesBlack
 	}
 	
+    /// Устанавливает набор белых точек, в которых обнаружен захват
+    func setPointsCapturesWhite(points: Set<Point>) {
+        self.pointsCapturesWhite = points
+    }
+    
 	/// Устанавливает набор черных точек, в которых обнаружен захват
 	func setPointsCapturesBlack(points: Set<Point>) {
 		self.pointsCapturesBlack = points
@@ -235,7 +255,13 @@ class Board {
 	// MARK: Get Set for best points
 	/// Возвращает массив точек в которые предпочтительнее всего ставить. Возвращабтся точки для currentSpot
 	func getBestPoints() -> [Point] {
-		return [self.bestPointWhite.point, self.bestPointBlack.point]
+        var points = [self.bestPointWhite.point, self.bestPointBlack.point]
+        if self.currentSpot == .white {
+            points.append(contentsOf: getPointsCapturesWhiteArray())
+        } else {
+            points.append(contentsOf: getPointsCapturesBlackArray())
+        }
+		return points
 	}
 	
 	/// Возвращает максимальный наилучший вес для текущего spot.
@@ -651,6 +677,7 @@ class Board {
 		if isCaptures(point: point, spot: spot) != nil {
 			if spot == .white {
 				maxPriority += UInt16((self.whiteCaptures + 2) % 10)
+                self.pointsCapturesWhite.insert(point)
 			} else {
 				self.pointsCapturesBlack.insert(point)
 				maxPriority += UInt16((self.blackCaptures + 2) % 10)
@@ -794,14 +821,19 @@ class Board {
 		self.board[point.x][point.y] = spot.wieghtSpot()
 		recalcularePointsDoubleThree()
 		definingPointsForRecalculation(point: point)
-		updatePointsCapturesBlack(point: point)
+		updatePointsCaptures(point: point)
 		self.currentSpot = self.currentSpot.opposite()
 	}
 	
-	/// Обновляет точки в которых может быть захват.
-	private func updatePointsCapturesBlack(point: Point) {
-		if self.pointsCapturesBlack.isEmpty { return }
-		self.pointsCapturesBlack.subtract([point])
+	/// Обновляет точки для белых и черных в которых может быть захват.
+    /// Исключает ту точку, которая была поставлена только что
+	private func updatePointsCaptures(point: Point) {
+		if !self.pointsCapturesBlack.isEmpty {
+            self.pointsCapturesBlack.subtract([point])
+        }
+        if !self.pointsCapturesWhite.isEmpty {
+            self.pointsCapturesWhite.subtract([point])
+        }
 	}
 	
 	/// Пересчет точек в которые раньше нельзя было поставить указанный spot
@@ -843,8 +875,8 @@ class Board {
 			let unique = uniquePointThree(point: point, spot: spot)
 			setResult = setResult.union(unique)
 		}
-		//return setResult.count == 3 || setResult.count == 0
-		
+		return setResult.count == 3 || setResult.count == 0
+        /*
 		// Вариан с подсвечиваение тройки
 		//print(setResult)
 		if setResult.count == 3 || setResult.count == 0 {
@@ -860,7 +892,7 @@ class Board {
 			}
 			return false
 		}
-		
+		*/
 	}
 	
 	/**

@@ -11,7 +11,7 @@ class AI {
 	
 	let mutex = NSLock()
 	
-	var startLevel = 10
+	var startLevel = 6
 	
 	/// Обновление максимального веса. Если weight максимальный для текучего spot, то возвращаем его
 	private func updateMaxPoint(spot: Board.Spot, maxWeight: inout Board.Weight, weight: Board.Weight) -> Bool {
@@ -59,6 +59,7 @@ class AI {
 		}
 		// Максимальный вес для текущего spot
 		var maxWeight: Board.Weight = 0
+        //print(board.getBestPoints().count)
 		for bestPoint in board.getBestPoints() {
 			if bestPoint.isNegativeCoordinates() { continue }
 			// Возможно будет долго работать, поменять
@@ -83,9 +84,12 @@ class AI {
 		var resultPoint = board.getBestPointBlack().point
 		// Массив точек, в котороых проиходил расчет.
 		var calculatedPoints = [Board.BestPoint]()
-		var points = board.getPointsCapturesBlackArray()
-		points.append(contentsOf: board.getBestPoints())
-		for point in points {
+		//var points = board.getPointsCapturesBlackArray()
+		//points.append(contentsOf: board.getBestPoints())
+		//for point in points {
+        //for point in board.getBestPoints() {
+        //print("allPoints", allPoints.count)
+        for point in allPoints {
 			group.enter()
 			DispatchQueue.global(qos: .userInteractive).async {
 				let newPoint = point
@@ -102,6 +106,8 @@ class AI {
 				resultPoint = best.point
 			}
 		}
+        let (w, b) = Board.getWeightWhiteBlack(weight: board.getWeight(point: resultPoint))
+        print("resultPoint w, b ", w, b, resultPoint)
 		return resultPoint
 	}
 	

@@ -17,6 +17,7 @@ struct Save: Codable {
 	var bestPointBlack: Board.BestPoint?
 	var pointsDoubleThree: Set<Point>?
 	var pointsCapturesBlack: Set<Point>?
+    var pointsCapturesWhite: Set<Point>?
 	var stone: String?
 	var whiteCaptures: Int?
 	var blackCaptures: Int?

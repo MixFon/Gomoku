@@ -104,7 +104,7 @@ class Gomoku {
 		let boardWeight = board.getBoard()
 		for (i, line) in boardWeight.enumerated() {
 			for (j, element) in line.enumerated() {
-				if element != 0x0 && element != 0x1 && element != 0x100 {
+				if element != 0x0 && element != 0x1 && element != 0x100 && element != 0x404{
 					bestBlackPoints.append(Point(i, j))
 				}
 			}
